@@ -4,20 +4,24 @@
 #include <string>
 #include "address_utils.h"
 #include <vector>
-#include <string>
 #include "logger.h"
+#include "protocol_utils.h"
+
+
 // 🛠️ 修复 1：引入 ARM NEON 向量头文件，解决 int64x2_t 报错
 #if defined(__aarch64__) || defined(__ARM_NEON)
 #include <arm_neon.h>
 #else
-typedef struct { int64_t val[2]; } int64x2_t; // 兜底占位
+typedef struct {
+    int64_t val[2];
+} int64x2_t; // 兜底占位
 #endif
 
 // 映射 IDA 伪代码类型
-typedef int64_t           __int64;
-typedef uint64_t          _QWORD;
-typedef uint32_t          _DWORD;
-typedef unsigned char     _BYTE;
+typedef int64_t __int64;
+typedef uint64_t _QWORD;
+typedef uint32_t _DWORD;
+typedef unsigned char _BYTE;
 
 // 1. 根据你的逆向分析，定义底层纯 C++ 函数指针类型
 typedef unsigned int * (*fn_sub_137E690)(int64_t *out_c_conv_ptr);
@@ -35,8 +39,8 @@ int64_t call_sub_137E690_via_x8(uintptr_t func_addr) {
 
     // 用内联汇编强行将 out_c_conv_ptr 的地址塞进 X8 寄存器，然后跳转
     asm volatile(
-        "mov x8, %0\n"             // x8 = &out_c_conv_ptr
-        "blr %1\n"                // 跳转到 sub_137E690
+        "mov x8, %0\n" // x8 = &out_c_conv_ptr
+        "blr %1\n" // 跳转到 sub_137E690
         :
         : "r"(&out_c_conv_ptr), "r"(func_addr)
         : "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x16", "x17", "lr", "memory"
@@ -44,8 +48,9 @@ int64_t call_sub_137E690_via_x8(uintptr_t func_addr) {
 
     return out_c_conv_ptr; // 返回内部 operator new(0x168) 出来的真实对象指针
 }
+
 // NEON 返回值专用包装（第一个参数直接改用 fn_sub_1363110 类型，省去强转）
-void safe_init_pb_struct(fn_sub_1363110 func_ptr, void* pb_buffer_ptr) {
+void safe_init_pb_struct(fn_sub_1363110 func_ptr, void *pb_buffer_ptr) {
     asm volatile(
         "mov x0, %0\n"
         "blr %1\n"
@@ -54,7 +59,8 @@ void safe_init_pb_struct(fn_sub_1363110 func_ptr, void* pb_buffer_ptr) {
         : "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x16", "x17", "v0", "v1", "v2", "v3", "lr", "memory"
     );
 }
-void* create_and_inject_conversation() {
+
+void *create_and_inject_conversation() {
     LOGI("[CreateConversation] start");
     // 获取基址并计算函数绝对地址
     unsigned long long base = get_module_base("libwework_framework.so");
@@ -89,25 +95,30 @@ void* create_and_inject_conversation() {
     safe_init_pb_struct(init_pb_struct, pb_buffer);
     LOGI("[CreateConversation] Protobuf 结构体安全初始化成功");
 
-    // 3. 准备 PB 原始数据
+    // 3. 准备 PB 原始数据，通过 protocol_utils来动态生成
+    /*
     unsigned char raw_proto[] = {
         0x08, 0x97, 0xA0, 0x83, 0xA4, 0xD1, 0xC9, 0xF0, 0xAE, 0x69,
         0x10, 0xEC, 0xAC, 0x95, 0xF8, 0x80, 0x80, 0x80, 0x0E, 0x60,
         0x00, 0x7A, 0x00
     };
     std::string cpp_str_stream((char *)raw_proto, 23);
-
+    */
+    // 外部调用示例
+    uint64_t target_conv_id = 7881299599906412ULL; // 随时换成任意你想生成的 ID
+    std::string conv_pb = generate_conversation_proto(target_conv_id);
     // ==========================================
     // 第四步：在纯内存层解析 Protobuf 数据
     // ==========================================
     // 4. 解析
     // 💡 修正点：去掉所有 .data()，直接传入 pb_buffer
-    uintptr_t parse_ret = parse_from_mem(pb_buffer, &cpp_str_stream);
+    uintptr_t parse_ret = parse_from_mem(pb_buffer, &conv_pb);
     LOGI("[CreateConversation] pb 解析返回值: %lu", parse_ret);
 
-    if (parse_ret == 1 == 1LL) { // 成功分支
+    if (parse_ret == 1 == 1LL) {
+        // 成功分支
         // 5. 寻址同步
-        uintptr_t internal_impl = *reinterpret_cast<uintptr_t*>(my_c_conv_ptr + 112LL);
+        uintptr_t internal_impl = *reinterpret_cast<uintptr_t *>(my_c_conv_ptr + 112LL);
         if (!internal_impl) {
             LOGE("[CreateConversation] internal_impl 为空");
             destory_pb_struct(pb_buffer);
@@ -133,5 +144,5 @@ void* create_and_inject_conversation() {
     // 此时的 my_c_conv_ptr 指针就是一个完整体 C++ Conversation 对象了！
     // 你可以拿着这个 64 位指针直接调用底层的 C++ 发消息、发文件等核心 Native 方法！
     // ==========================================
-    return (void*)my_c_conv_ptr;
+    return (void *) my_c_conv_ptr;
 }

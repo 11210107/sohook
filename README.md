@@ -1,5 +1,5 @@
 # SoHook
-在 Native 层实现 C++方法的 inline hook，拦截企微发消息方法，并实现 Naive 层发送消息功能。
+在 Native 层实现 C++方法的 inline hook，拦截（目标 app）发消息方法，并实现 Naive 层发送消息功能。
 
 ### build
 idea 添加Cmake交叉编译Profiles

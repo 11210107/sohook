@@ -66,7 +66,13 @@ int64_t send_model_message() {
         LOGI("conv_ref current refcount: %u", *conv_ref);
     }
 
-    void *msg_handle = create_image_message_pure_native_ptr();
+    void *msg_handle = create_image_message_pure_native_ptr(
+        "20260414104931_149_83.jpg",
+        "/storage/emulated/0/Android/data/com.tencent.wework/files/20260414104931_149_83.jpg",
+        67766,
+        766,
+        737
+        );
     if (!msg_handle) {
         LOGE("create_image_message_pure_native failed");
         return 0;

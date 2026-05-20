@@ -27,6 +27,8 @@ set_target_properties(dobby PROPERTIES
 add_library(sohook SHARED
         src/main.cpp                    # so入口
         src/address_utils.cpp           # 基础工具：基址获取
+        src/protocol_utils.cpp          # 基础工具：PB解析
+        src/file_utils.cpp          # 基础工具：file文件读写
         src/wework_logic_center.cpp     # 业务逻辑：Service 寻址 (新增)
         src/wework_message_factory.cpp  # 消息构建：Protobuf 模拟
         src/wework_conversation.cpp     # 会话构建：Protobuf 模拟
