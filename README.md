@@ -13,7 +13,7 @@ idea 添加Cmake交叉编译Profiles
 ### 部署
 执行 scripts/push_so.sh 命令，部署 libsohook.so 到手机。
 
-### 企业微信
+### 目标 app（Wework）
 * 1.在 C++ 层面构造好你的图片 PB 结构体
 * 2.直接寻找底层 foundation::Message::SetInfo(const std::string& data) 或类似的 C++ 函数。
 * 3.直接把 PB 序列化后的数据喂给它。
