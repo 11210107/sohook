@@ -2,56 +2,185 @@
 // Created by user_wangzhen on 2026/5/12.
 //
 #include "wework_message_factory.h"
-
-#include <cstdlib>
-#include <cstring>
-
 #include "logger.h"
 #include "address_utils.h"
+#include "protocol_utils.h"
+#include "file_utils.h"
 #include <stdint.h>
 #include <dlfcn.h>
 #include <string>
-#include "protocol_utils.h"
-#include "file_utils.h"
-
-// 基础偏移定义 (基于你的反汇编结果)
-#define OFFSET_HAS_BITS 16
-#define OFFSET_MSG_TYPE 4
-#define OFFSET_PATH_STRING 64
-#define OFFSET_FILENAME_STRING 56
-#define OFFSET_WIDTH 128
-#define OFFSET_HEIGHT 136
-// 引用计数偏移（根据 case 5u 推测）
-#define OFFSET_REF_COUNT 96
+#include <vector>
+#include <mutex> // 👈 引入互斥量用于线程安全
 
 /// --- 函数指针定义 ---
-typedef void * (*Message_Constructor)(); // Handle 构造器 (0x137E7C4)
-typedef void (*Core_Constructor)(void *core_ptr); // Core 构造器 (0x130530C)
-typedef void * (*Get_Native_Handle)(JNIEnv *env, jobject obj); // 获取 Java 对象的 mNativeHandle
-typedef bool (*ParseFromString_t)(void* core, void* std_str_ptr); // PB解析 (0x5F64AC4)
-typedef void (*Core_CopyFrom)(void *dst, void *src); // 数据拷贝 (0x1307C5C)
+typedef void * (*Message_Constructor)();
+typedef void (*Core_Constructor)(void *core_ptr);
+typedef bool (*ParseFromString_t)(void* core, void* std_str_ptr);
+typedef void (*Core_CopyFrom)(void *dst, void *src);
 
+// 生成 *msgHandle 从Java_com_tencent_wework_foundation_common_NativeHandleHolder_nativeNewObject方法里 case 5u:
 // --- 静态变量 ---
 static Message_Constructor create_message_ptr = nullptr;
-// 生成 *msgHandle 从Java_com_tencent_wework_foundation_common_NativeHandleHolder_nativeNewObject方法里 case 5u:
 static Core_Constructor init_core_ptr = nullptr;
 static ParseFromString_t parse_pb_ptr = nullptr;
 static Core_CopyFrom copy_core_ptr = nullptr;
+
+// 💡 使用 std::once_flag 保证 InitFunctions 在多线程环境下绝对线程安全
+static std::once_flag g_init_flag;
+// 💡 匿名命名空间，使本文件的结构体私有化，防止与其他文件符号冲突
+namespace {
+    struct FakeStdString {
+        size_t cap;
+        size_t size;
+        const unsigned char* data;
+    };
+}
 // 初始化函数指针
 void InitFunctions() {
-    LOGI("[InitFunctions] 开始初始化函数指针...");
-    // 1. 初始化构造器 (懒加载逻辑)
-    LOGI("[InitFunctions] 开始解析 Native Message 构造器地址...");
-    uintptr_t base = get_module_base("libwework_framework.so");
-    if (base) {
-        LOGI("[InitFunctions] libwework_framework.so 基地址: %p", base);
-        create_message_ptr = (Message_Constructor)(base + 0x137E7C4);
-        init_core_ptr      = (Core_Constructor)(base + 0x130530C);
-        parse_pb_ptr       = (ParseFromString_t)(base + 0x5F64AC4);
-        copy_core_ptr      = (Core_CopyFrom)(base + 0x1307C5C);
-    } else {
-        LOGE("[InitFunctions] 获取 Native Message 构造器地址失败! libwework_framework.so 可能未加载");
+    std::call_once(g_init_flag, []() {
+        LOGI("[InitFunctions] 开始全局唯一初始化函数指针...");
+        uintptr_t base = get_module_base("libwework_framework.so");
+        if (base) {
+            LOGI("[InitFunctions] libwework_framework.so 基地址: %p", reinterpret_cast<void*>(base));
+            create_message_ptr = (Message_Constructor)(base + 0x137E7C4);
+            init_core_ptr      = (Core_Constructor)(base + 0x130530C);
+            parse_pb_ptr       = (ParseFromString_t)(base + 0x5F64AC4);
+            copy_core_ptr      = (Core_CopyFrom)(base + 0x1307C5C);
+            LOGI("[InitFunctions] 核心函数指针全量绑定成功。");
+        } else {
+            LOGE("[InitFunctions] 获取基地址失败! libwework_framework.so 可能未加载");
+        }
+    });
+}
+
+
+
+// 修改返回值类型为 void*，去掉了 JNIEnv 参数，使其成为纯 Native 辅助函数
+void* create_image_message_pure_native_ptr(
+    const std::string& file_name,
+    const std::string& file_path,
+    uint64_t file_size,
+    uint32_t width,
+    uint32_t height
+) {
+    LOGI("======= 纯 Native 协议级构建图片消息开始 =======");
+
+    // 步骤 0: 初始化函数指针
+    InitFunctions();
+    if (!create_message_ptr) {
+        LOGE("[create_image_message_pure_native] 关键函数指针缺失！");
+        return nullptr;
     }
+
+    // 1. 创建官方 Handle 对象 (0x78字节)
+    void* msgHandle = (void*)create_message_ptr();
+    if (!msgHandle) {
+        LOGE("[create_image_message_pure_native] Native 构造器返回空指针!");
+        return nullptr;
+    }
+
+    // 2. 增加引用计数 (Offset 96 in Handle)
+    // 既然要传给底层发消息引擎，引擎发送完后通常会调用 sub_5EB5458 进行 Release (Ref-1)
+    // 如果不在这里 AddRef，发送完瞬间这个对象就会被底层析构，导致闪退或野指针
+    uint32_t *ref_count = (uint32_t *) ((char *) msgHandle + 96);
+    if (ref_count) {
+        (*ref_count)++;
+        LOGI("[create_image_message_pure_native] AddRef 成功，当前引用计数: %u", *ref_count);
+    }
+
+    // 3. 获取核心 Core 指针
+    void* targetCore = *(void**)((char*)msgHandle + 112);
+    if (!targetCore) {
+        LOGE("[create_image_message_pure_native] 核心 Core 指针返回空指针!");
+        // 记得异常时释放内存
+        return nullptr;
+    }
+
+    // 强制修正为图片类型 (企业微信图片类型通常是 7，保持你的设定)
+    // 消息类型：图片 = 7
+    *reinterpret_cast<int32_t*>(reinterpret_cast<char*>(targetCore) + 24) = 7;
+
+    uint32_t thumb_w = width * 3 / 4;
+    uint32_t thumb_h = height * 3 / 4;
+
+    std::vector<uint8_t> pb_data = generate_image_message_proto(
+        file_name, file_path, file_size, width, height, thumb_w, thumb_h, "", ""
+    );
+
+    dump_protobuf_hex(pb_data);
+
+    if (pb_data.empty()) {
+        LOGE("[-] 动态生成图片 PB 失败，构建中断");
+        return nullptr;
+    }
+
+    FakeStdString fakeStr;
+    fakeStr.cap = (pb_data.size() << 1) | 1;
+    fakeStr.size = pb_data.size();
+    fakeStr.data = pb_data.data();
+
+    if (!parse_pb_ptr(targetCore, &fakeStr)) {
+        LOGE("[-] Protobuf 反序列化装载至 Core 失败");
+        return nullptr;
+    }
+
+    LOGI("[+] ======= 纯 Native 伪造图片对象构建成功! 指针: %p ======= ", msgHandle);
+
+    // 直接返回官方的一级 Handle 指针
+    return msgHandle;
+}
+
+/**
+ * 🎯 纯 Native 协议级构建文本消息对象
+ */
+void* create_text_message_pure_native_ptr(const std::string& text_content) {
+    LOGI("======= 纯 Native 协议级 [文本消息] 构建开始 =======");
+
+    InitFunctions();
+    if (!create_message_ptr || !parse_pb_ptr) {
+        LOGE("[create_text_message_pure_native] 关键函数指针缺失！");
+        return nullptr;
+    }
+
+    void* msgHandle = create_message_ptr();
+    if (!msgHandle) {
+        LOGE("[create_text_message_pure_native] Native 构造器返回空指针!");
+        return nullptr;
+    }
+
+    uint32_t *ref_count = reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(msgHandle) + 96);
+    (*ref_count)++;
+    LOGI("[create_text_message_pure_native] AddRef 成功，当前引用计数: %u", *ref_count);
+
+    void* targetCore = *reinterpret_cast<void**>(reinterpret_cast<char*>(msgHandle) + 112);
+    if (!targetCore) {
+        LOGE("[create_text_message_pure_native] 核心 Core 指针返回空指针!");
+        return nullptr;
+    }
+
+    // 消息类型：文本 = 1
+    *reinterpret_cast<int32_t*>(reinterpret_cast<char*>(targetCore) + 24) = 1;
+
+    std::vector<uint8_t> pb_data = generate_text_message_proto(text_content);
+    dump_protobuf_hex(pb_data);
+
+    if (pb_data.empty()) {
+        LOGE("[-] 动态生成的文本 PB 为空，构建中断");
+        return nullptr;
+    }
+
+    FakeStdString fakeStr;
+    fakeStr.cap = (pb_data.size() << 1) | 1;
+    fakeStr.size = pb_data.size();
+    fakeStr.data = pb_data.data();
+
+    if (!parse_pb_ptr(targetCore, &fakeStr)) {
+        LOGE("[-] Protobuf 反序列化装载文本至 Core 失败");
+        return nullptr;
+    }
+
+    LOGI("[+] ======= 纯 Native 伪造文本对象构建成功! 指针: %p ======= ", msgHandle);
+    return msgHandle;
 }
 
 jobject create_image_message(JNIEnv *env, const char *image_local_path) {
@@ -240,101 +369,4 @@ jobject create_image_message_pure_native(JNIEnv *env, const char *path) {
 
     LOGI("[+] ======= 纯 Native 伪造图片消息构建成功! ======= ");
     return finalMsg;
-}
-
-
-// 修改返回值类型为 void*，去掉了 JNIEnv 参数，使其成为纯 Native 辅助函数
-void* create_image_message_pure_native_ptr(
-    const std::string& file_name,
-    const std::string& file_path,
-    uint64_t file_size,
-    uint32_t width,
-    uint32_t height
-) {
-    LOGI("======= 纯 Native 协议级构建消息开始 =======");
-
-    // 步骤 0: 初始化函数指针
-    InitFunctions();
-    if (!create_message_ptr) {
-        LOGE("[create_image_message_pure_native] 关键函数指针缺失！");
-        return nullptr;
-    }
-
-    // 1. 创建官方 Handle 对象 (0x78字节)
-    void* msgHandle = (void*)create_message_ptr();
-    if (!msgHandle) {
-        LOGE("[create_image_message_pure_native] Native 构造器返回空指针!");
-        return nullptr;
-    }
-
-    // 2. 增加引用计数 (Offset 96 in Handle)
-    // 既然要传给底层发消息引擎，引擎发送完后通常会调用 sub_5EB5458 进行 Release (Ref-1)
-    // 如果不在这里 AddRef，发送完瞬间这个对象就会被底层析构，导致闪退或野指针
-    uint32_t *ref_count = (uint32_t *) ((char *) msgHandle + 96);
-    if (ref_count) {
-        (*ref_count)++;
-        LOGI("[create_image_message_pure_native] AddRef 成功，当前引用计数: %u", *ref_count);
-    }
-
-    // 3. 获取核心 Core 指针
-    void* targetCore = *(void**)((char*)msgHandle + 112);
-    if (!targetCore) {
-        LOGE("[create_image_message_pure_native] 核心 Core 指针返回空指针!");
-        // 记得异常时释放内存
-        return nullptr;
-    }
-
-    // 强制修正为图片类型 (企业微信图片类型通常是 7，保持你的设定)
-    *(int32_t*)((char*)targetCore + 24) = 7;
-
-    // 5. 将图片 PB 字节流解析到 targetCore 中
-    // 💡 注意：你需要在这里根据传入的 path 动态生成图片的 raw_pb（包含图片长宽、MD5、大小、CDN Url 等）
-    // 这里暂时沿用你的静态 fakeStr 逻辑
-    uint32_t thumb_w = 580;
-    uint32_t thumb_h = 558;
-    std::vector<uint8_t> pb_data = generate_image_message_proto(
-        file_name,
-        file_path,
-        file_size,
-        width, height,
-        thumb_w, thumb_h,
-        "/storage/emulated/0/Android/data/com.tencent.wework/files/uploadTempThumbimage/8ece24478cd7f75a2aaf033b56b129c5.thumbimage",
-        "/storage/emulated/0/Android/data/com.tencent.wework/files/uploadTempMidbimage/8ece24478cd7f75a2aaf033b56b129c5.midimage"
-    );
-    // 1. 💡 从本地路径动态读取二进制 PB 文件
-    // std::string bin_path = "/storage/emulated/0/Android/data/com.tencent.wework/files/image_message.bin";
-    // std::vector<uint8_t> pb_data = read_binary_file(bin_path);
-    // 2. 💡 核心：在这里把动态生成的内存内容彻底暴露在日志里！
-    dump_protobuf_hex(pb_data);
-
-    if (pb_data.empty()) {
-        LOGE("[-] 读取本地 PB 文件为空，构建中断");
-        return nullptr;
-    }
-    // size_t pb_len = sizeof(raw_pb);
-    struct FakeStdString {
-        size_t cap;
-        size_t size;
-        const unsigned char* data;
-    };
-    FakeStdString fakeStr;
-    fakeStr.cap = (pb_data.size() << 1) | 1;
-    fakeStr.size = pb_data.size();
-    fakeStr.data = pb_data.data();
-    // fakeStr.data = reinterpret_cast<const unsigned char*>(pb_data.data());
-
-    if (parse_pb_ptr) {
-        bool success = parse_pb_ptr(targetCore, &fakeStr);
-        if (success) {
-            LOGI("Protobuf 解析成功！图片数据已装载至 Core");
-        } else {
-            LOGE("Protobuf 解析失败，请检查 PB 格式或 Tag");
-            return nullptr;
-        }
-    }
-
-    LOGI("[+] ======= 纯 Native 伪造图片对象构建成功! 指针: %p ======= ", msgHandle);
-
-    // 直接返回官方的一级 Handle 指针
-    return msgHandle;
 }

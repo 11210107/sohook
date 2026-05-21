@@ -60,7 +60,7 @@ void safe_init_pb_struct(fn_sub_1363110 func_ptr, void *pb_buffer_ptr) {
     );
 }
 
-void *create_and_inject_conversation() {
+void *create_and_inject_conversation(uint64_t target_conv_id) {
     LOGI("[CreateConversation] start");
     // 获取基址并计算函数绝对地址
     unsigned long long base = get_module_base("libwework_framework.so");
@@ -105,7 +105,7 @@ void *create_and_inject_conversation() {
     std::string cpp_str_stream((char *)raw_proto, 23);
     */
     // 外部调用示例
-    uint64_t target_conv_id = 7881299599906412ULL; // 随时换成任意你想生成的 ID
+    // uint64_t target_conv_id = 7881299599906412ULL; // 随时换成任意你想生成的 ID
     std::string conv_pb = generate_conversation_proto(target_conv_id);
     // ==========================================
     // 第四步：在纯内存层解析 Protobuf 数据

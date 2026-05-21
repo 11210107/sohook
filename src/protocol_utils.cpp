@@ -150,3 +150,47 @@ void dump_protobuf_hex(const std::vector<uint8_t>& data) {
     }
     LOGI("========= [Protobuf Hex Dump 结束] =========");
 }
+
+/**
+ * 💡 动态生成企业微信文本消息 PB 流
+ * @param text_content 想要发送的纯文本内容（如 "很大的"）
+ * @return 完美对齐原始外壳的二进制字节流 (对应 Field 10 外壳)
+ */
+std::vector<uint8_t> generate_text_message_proto(const std::string& text_content) {
+    std::vector<uint8_t> root_bytes;
+
+    // -------------------------------------------------------------
+    // 【第四层】：构建最内层的文本包裹（Field 1 -> 纯文本内容）
+    // 对应 Hex 尾部的：0a 09 [e5 be 88...]
+    // -------------------------------------------------------------
+    std::vector<uint8_t> layer4_bytes;
+    // 子字段 1 (String): 真正的文本字符串
+    encode_string_field(1, text_content, layer4_bytes);
+
+    // -------------------------------------------------------------
+    // 【第三层】：构建文本内容的二级容器（包含状态码和刚才的文本包裹）
+    // 对应 Hex 中的：08 00 12 0b...
+    // -------------------------------------------------------------
+    std::vector<uint8_t> layer3_bytes;
+    // 子字段 1 (Varint): 状态/类型标记位，固定写 0
+    encode_varint_field(1, 0, layer3_bytes);
+    // 子字段 2 (Length-delimited): 将第四层的文本包裹装载进来
+    encode_length_delimited(2, layer4_bytes, layer3_bytes);
+
+    // -------------------------------------------------------------
+    // 【第二层】：构建文本消息的核心包裹外壳
+    // 对应 Hex 中的：0a 0f...
+    // -------------------------------------------------------------
+    std::vector<uint8_t> layer2_bytes;
+    // 子字段 1 (Length-delimited): 将第三层的混合数据整体装载进来
+    encode_length_delimited(1, layer3_bytes, layer2_bytes);
+
+    // -------------------------------------------------------------
+    // 【第一层 / 顶层】：注入企微统一的消息路由大外壳 Field 10
+    // 对应 Hex 开头的：52 11...
+    // -------------------------------------------------------------
+    encode_length_delimited(10, layer2_bytes, root_bytes);
+
+    // 完美打包返回
+    return root_bytes;
+}

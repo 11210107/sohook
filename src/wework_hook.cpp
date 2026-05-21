@@ -6,8 +6,11 @@
 #include <jni.h>
 #include <thread>
 #include <chrono>
-#include <stdint.h>
+#include <vector>
 #include "wework_hook.h"
+
+#include <unistd.h>
+
 #include "wework_message_factory.h"
 #include "address_utils.h"
 #include "wework_logic_center.h"
@@ -51,8 +54,30 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
 
         // uintptr_t my_create_conv = create_and_inject_conversation();
         // bool sendResult = hardcore_send_image_message();
-        int64_t sendResult =  send_model_message();
-        LOGI(">>>> [结论] 消息发送结果：%d",sendResult);
+        MessageParam text_task;
+        text_task.msg_type = WeWorkMsgType::TEXT;
+        text_task.text_content = "a message created by SoHook call native funcation";
+        MessageParam img_task;
+        img_task.msg_type = WeWorkMsgType::IMAGE;
+        img_task.file_path = "/storage/emulated/0/Android/data/com.tencent.wework/files/tempimagecache/1688858339520293/de59a59e2f3ab19203f87f4ad65cf4c8_compress.png";
+        std::vector<uint64_t> id_list = {
+            7881299599906412ULL,
+            7881300200069932ULL,
+            7881300507904689ULL,
+            7881300527908908ULL,
+            7881301482198287ULL
+            // ... 后面有多少加多少
+        };
+        // 3. 遍历发射
+        for (uint64_t cid : id_list) {
+            send_model_message(cid, text_task);
+            // 💡 逆向避坑小贴士：
+            // 虽然我们做好了完美的引用计数管理，但在大批量（几十个甚至上百个群发）时，
+            // 建议加上 50-100ms 的轻微延时，给企微底层的 TaskQueue 和网络线程让出缓冲时间。
+            usleep(50000); // 50毫秒休眠
+        }
+        // int64_t sendResult =  send_model_message(img_task);
+        // LOGI(">>>> [结论] 消息发送结果：%d",sendResult);
     }
     // 第一次拦截时，保存环境副本
     if (g_conv == nullptr) {
