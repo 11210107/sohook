@@ -6,5 +6,5 @@
 #define SOHOOK_WEWORK_CONVERSATION_SERVICE_H
 #include <stdint.h>
 #include "wework_message_factory.h"
-int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param);
+int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param,const MessageCallback& callback);
 #endif //SOHOOK_WEWORK_CONVERSATION_SERVICE_H

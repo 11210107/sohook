@@ -20,7 +20,7 @@ void encode_varint(uint64_t value, std::vector<uint8_t>& output) {
 // 🧪 实验方案：完全剔除字段 1，只保留 ConversationID 和后续字段
 std::string generate_conversation_proto(uint64_t conversation_id) {
     std::vector<uint8_t> proto_bytes;
-
+    bool is_contact = std::to_string(conversation_id).rfind("788", 0) == 0;
     // -----------------------------------------------------------------
     // 1. 写入字段 1 (图中 0-10 字节区)
     // Tag = (1 << 3) | 0 (Varint) = 0x08
@@ -37,7 +37,13 @@ std::string generate_conversation_proto(uint64_t conversation_id) {
     // 2. 写入字段 12
     // Tag = (12 << 3) | 0 (Varint) = 0x60
     proto_bytes.push_back(0x60);
-    proto_bytes.push_back(0x00);
+    if (!is_contact) {
+        // 群聊图中 Byte 19-21 为 60 01，解码值为 1
+        proto_bytes.push_back(0x01);
+    } else {
+        // 单聊原方案中该值为 0
+        proto_bytes.push_back(0x00);
+    }
 
     // 3. 写入字段 15
     // Tag = (15 << 3) | 2 (Length-delimited) = 0x7A

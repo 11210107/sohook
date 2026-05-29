@@ -60,17 +60,45 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         MessageParam img_task;
         img_task.msg_type = WeWorkMsgType::IMAGE;
         img_task.file_path = "/storage/emulated/0/Android/data/com.tencent.wework/files/tempimagecache/1688858339520293/de59a59e2f3ab19203f87f4ad65cf4c8_compress.png";
+
+        MessageCallback my_perfect_listener;
+        my_perfect_listener.onProgress = [](int64_t current, int64_t total, void* msg_handle) {
+            double pct = total > 0 ? ((double)current / total) * 100.0 : 0.0;
+            LOGI("[业务层高级扩展] 📈 正在上传，当前句柄: %p | 进度: %.2f%% (%ld/%ld)", msg_handle, pct, current, total);
+        };
+        my_perfect_listener.onResult = [](int code, void* conv_handle, void* msg_handle) {
+            if (code == 0) {
+                LOGI("[业务层高级扩展] 🎉 发送成功！会话指针: %p | 消息指针: %p", conv_handle, msg_handle);
+                // 💡 可以在这里利用 conv_handle 或者是 msg_handle 传入其他 Hook 的 Native 函数进行联动
+                // 1. 第一级寻址：解引用偏移 112 (0x70) 获取 internal_impl 指针
+                auto* internal_impl_ptr = *reinterpret_cast<uintptr_t**>(
+                    reinterpret_cast<char*>(conv_handle) + 112LL
+                );
+                if (!internal_impl_ptr) {
+                    LOGE("[ExtractConvId] 错误: internal_impl 尚未初始化或为空");
+                    return 0;
+                }
+                // 2. 第二级寻址：在 internal_impl 基础上偏移 200 (0xC8) 读取 8 字节的 uint64_t
+                uint64_t conv_id = *reinterpret_cast<uint64_t*>(
+                    reinterpret_cast<char*>(internal_impl_ptr) + 208LL
+                );
+
+                LOGI("[ExtractConvId] 成功从 conv_handle 逆向提取 ID: %llu", conv_id);
+            } else {
+                LOGE("[业务层高级扩展] ❌ 底层投递失败，错误码: %d", code);
+            }
+        };
         std::vector<uint64_t> id_list = {
-            7881299599906412ULL,
-            7881300200069932ULL,
-            7881300507904689ULL,
-            7881300527908908ULL,
-            7881301482198287ULL
+            // 7881299599906412ULL,
+            10758106104862420ULL,
+            // 7881300507904689ULL,
+            // 7881300527908908ULL,
+            // 7881301482198287ULL
             // ... 后面有多少加多少
         };
         // 3. 遍历发射
         for (uint64_t cid : id_list) {
-            send_model_message(cid, text_task);
+            send_model_message(cid, text_task,my_perfect_listener);
             // 💡 逆向避坑小贴士：
             // 虽然我们做好了完美的引用计数管理，但在大批量（几十个甚至上百个群发）时，
             // 建议加上 50-100ms 的轻微延时，给企微底层的 TaskQueue 和网络线程让出缓冲时间。

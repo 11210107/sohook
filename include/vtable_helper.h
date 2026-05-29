@@ -16,6 +16,12 @@
 static inline uintptr_t CallVirtualMethod(uintptr_t instance, int index) {
     if (!instance) return 0;
 
+    /**
+    * 等价写法
+    * void** vtable_ptr_location = (void**)instance; // 1. 先把整数地址，转成指向“指针”的指针（本质就是转化为符合当前系统位数的指针类型）
+    * void* vtable_address = *vtable_ptr_location; // 2. 解引用，取出里面存放的虚表地址
+    * uintptr_t* vtable = (uintptr_t*)vtable_address; // 3. 转换为数组指针准备后续索引
+    */
     // 1. 获取虚表指针 (对象的首 8 字节)
     uintptr_t* vtable = *(uintptr_t**)instance;
 

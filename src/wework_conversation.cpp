@@ -61,7 +61,7 @@ void safe_init_pb_struct(fn_sub_1363110 func_ptr, void *pb_buffer_ptr) {
 }
 
 void *create_and_inject_conversation(uint64_t target_conv_id) {
-    LOGI("[CreateConversation] start");
+    LOGI("[CreateConversation] start target_conv_id 为: %llu",target_conv_id);
     // 获取基址并计算函数绝对地址
     unsigned long long base = get_module_base("libwework_framework.so");
     if (!base) {

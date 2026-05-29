@@ -39,7 +39,7 @@ typedef unsigned int *(*AtomicIncRef)(unsigned int *result);
 // ====================================================
 // 2. 主业务发射器：支持多类型动态分流
 // ====================================================
-int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param) {
+int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param,const MessageCallback& callback) {
     LOGI("准备开始发送消息，类型ID: %d", static_cast<int>(param.msg_type));
     uintptr_t so_base = get_module_base("libwework_framework.so");
     if (so_base == 0) {
@@ -135,31 +135,38 @@ int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param) {
 
     int64_t msg_addr = reinterpret_cast<int64_t>(msg_handle);
 
-    // A. 构建 Progress 闭包空间
-    auto *progress_closure = reinterpret_cast<uintptr_t *>(operator new(0x48uLL));
-    std::memset(progress_closure, 0, 0x48);
+    // B. 构建 Result 闭包空间 (扩容至 0xC0 字节，容纳 2个 std::function)
+    auto *result_closure = reinterpret_cast<uintptr_t *>(operator new(0xC0uLL));
+    std::memset(result_closure, 0, 0xC0);
+
+    *reinterpret_cast<uint32_t *>(reinterpret_cast<char*>(result_closure) + 0) = 1;
+    result_closure[1] = reinterpret_cast<uintptr_t>(my_custom_result_invoker);
+    result_closure[2] = 0LL;
+    result_closure[3] = reinterpret_cast<uintptr_t>(so_base + 0x5E9D49C);
+    result_closure[4] = reinterpret_cast<uintptr_t>(my_pure_native_onResult);
+    result_closure[5] = 0LL;
+    result_closure[8] = reinterpret_cast<uintptr_t>(msg_handle);
+    result_closure[9] = reinterpret_cast<uintptr_t>(conv_handle);
+    // 💡 关键改造：从索引 10 开始，就地放置业务传入的完全对齐 Callback 结构体
+    auto* cb_space = reinterpret_cast<MessageCallback*>(&result_closure[10]);
+    new (cb_space) MessageCallback(callback); // placement new 拷贝构造
+
+    uintptr_t mock_callback_shell[1] = {reinterpret_cast<uintptr_t>(result_closure)};
+
+    // A. 构建 Progress 闭包空间 (共享访问 result_closure)
+    auto *progress_closure = reinterpret_cast<uintptr_t *>(operator new(0x50uLL));
+    std::memset(progress_closure, 0, 0x50);
     *reinterpret_cast<uint32_t *>(reinterpret_cast<char*>(progress_closure) + 0) = 1;
     progress_closure[1] = reinterpret_cast<uintptr_t>(my_custom_progress_invoker);
     progress_closure[4] = reinterpret_cast<uintptr_t>(my_pure_native_onProgress);
     progress_closure[6] = reinterpret_cast<uintptr_t>(msg_handle);
     progress_closure[7] = reinterpret_cast<uintptr_t>(conv_handle);
+    // 💡 关键改造：把 Result 闭包的地址挂到 Progress 闭包的索引 8，方便顺藤摸瓜
+    progress_closure[8] = reinterpret_cast<uintptr_t>(result_closure);
 
     uintptr_t mock_progress_shell[1] = {reinterpret_cast<uintptr_t>(progress_closure)};
 
-    // B. 构建 Result 闭包空间
-    auto *fake_closure = reinterpret_cast<uintptr_t *>(operator new(0x50uLL));
-    std::memset(fake_closure, 0, 0x50);
 
-    *reinterpret_cast<uint32_t *>(reinterpret_cast<char*>(fake_closure) + 0) = 1;
-    fake_closure[1] = reinterpret_cast<uintptr_t>(my_custom_result_invoker);
-    fake_closure[2] = 0LL;
-    fake_closure[3] = reinterpret_cast<uintptr_t>(so_base + 0x5E9D49C);
-    fake_closure[4] = reinterpret_cast<uintptr_t>(my_pure_native_onResult);
-    fake_closure[5] = 0LL;
-    fake_closure[8] = reinterpret_cast<uintptr_t>(msg_handle);
-    fake_closure[9] = reinterpret_cast<uintptr_t>(conv_handle);
-
-    uintptr_t mock_callback_shell[1] = {reinterpret_cast<uintptr_t>(fake_closure)};
 
     // C. 物理发射
     int64_t result = pfn_send_msg(
@@ -207,6 +214,16 @@ int64_t my_custom_progress_invoker(uintptr_t *closure_ptr, uintptr_t x1, uintptr
         if (real_progress_target) {
             real_progress_target(current, total, msg_handle);
         }
+        // 2. 💡 顺藤摸瓜：通过索引 8 找到 fake_closure，提取出 MessageCallback 结构体
+        uintptr_t *fake_closure = reinterpret_cast<uintptr_t *>(closure_ptr[8]);
+        if (fake_closure) {
+            auto* cb_ptr = reinterpret_cast<MessageCallback*>(&fake_closure[10]);
+
+            // 3. 💡 触发业务层自定义的进度监听，完整塞入 current, total, msg_handle
+            if (cb_ptr && cb_ptr->onProgress) {
+                cb_ptr->onProgress(current, total, msg_handle);
+            }
+        }
     }
     return 0;
 }
@@ -217,7 +234,6 @@ int64_t my_custom_result_invoker(uintptr_t *closure_ptr, uintptr_t x1, uintptr_t
         auto real_target = (FnPureNativeOnResult) closure_ptr[4];
         void *msg_handle = (void *) closure_ptr[8];
         void *conv_handle = (void *) closure_ptr[9];
-
         int real_code = -1;
         if (x1 != 0) {
             real_code = *(int *) x1;
@@ -225,6 +241,17 @@ int64_t my_custom_result_invoker(uintptr_t *closure_ptr, uintptr_t x1, uintptr_t
 
         if (real_target) {
             real_target(real_code, conv_handle, msg_handle);
+        }
+        // 2. 取出我们的回调中间件
+        auto* cb_ptr = reinterpret_cast<MessageCallback*>(&closure_ptr[10]);
+        if (cb_ptr) {
+            // 💡 增加安全校验：确保 std::function 内部确实持有可调用实体
+            if (cb_ptr->onResult) {
+                cb_ptr->onResult(real_code, conv_handle, msg_handle);
+            }
+
+            // 💡 改造点 3：显式利落地调用析构，清理两个 std::function 的内部捕获代理
+            cb_ptr->~MessageCallback();
         }
 
         // 强引用 GC 释放
