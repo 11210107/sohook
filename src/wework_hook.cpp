@@ -76,7 +76,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
                 );
                 if (!internal_impl_ptr) {
                     LOGE("[ExtractConvId] 错误: internal_impl 尚未初始化或为空");
-                    return 0;
+                    return;
                 }
                 // 2. 第二级寻址：在 internal_impl 基础上偏移 200 (0xC8) 读取 8 字节的 uint64_t
                 uint64_t conv_id = *reinterpret_cast<uint64_t*>(
@@ -89,8 +89,8 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
             }
         };
         std::vector<uint64_t> id_list = {
-            // 7881299599906412ULL,
-            10758106104862420ULL,
+            7881299599906412ULL,
+            // 10758106104862420ULL,
             // 7881300507904689ULL,
             // 7881300527908908ULL,
             // 7881301482198287ULL

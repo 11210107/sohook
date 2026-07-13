@@ -1,0 +1,14 @@
+syntax = "proto2";
+
+package sohook;
+
+// 企业微信会话信息 Protobuf 定义
+// 对应 generate_conversation_proto 的手工 PB 流
+message ConversationInfo {
+    // Field 1 已被剔除（实验方案）
+    // optional uint64 field_1 = 1;
+
+    optional uint64 conversation_id = 2;  // 会话 ID
+    optional uint32 field_12 = 12;       // 0=单聊, 1=群聊
+    optional bytes field_15 = 15;        // 预留字段，通常为空
+}

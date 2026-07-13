@@ -1,7 +1,8 @@
 #!/bin/bash
 
 SO_PATH="/data/local/tmp/libsohook.so"
-LOCAL_SO="../cmake-build-android-arm64/libsohook.so"
+#LOCAL_SO="../cmake-build-android-arm64/libsohook.so"
+LOCAL_SO="../cmake-build-android/libsohook.so"
 
 echo "[1/5] 删除旧 SO..."
 adb shell "su -c 'rm -f $SO_PATH'"

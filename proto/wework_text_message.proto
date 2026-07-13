@@ -1,0 +1,27 @@
+syntax = "proto2";
+
+package sohook;
+
+// 企业微信文本消息 Protobuf 定义
+// 对应 generate_text_message_proto 的手工 PB 流
+
+// 最内层：实际文本内容
+message TextContent {
+    optional string text = 1;          // 真正的文本字符串
+}
+
+// 第三层：文本内容的二级容器（包含状态码和文本包裹）
+message TextContentWrapper {
+    optional uint32 status = 1;        // 状态/类型标记位，固定为 0
+    optional TextContent content = 2;  // 文本内容包裹
+}
+
+// 第二层：文本消息的核心包裹外壳
+message TextMessageCore {
+    optional TextContentWrapper wrapper = 1; // 文本内容包装
+}
+
+// 第一层/顶层：企微统一的消息路由大外壳
+message TextMessage {
+    optional TextMessageCore core = 10; // 消息核心（Field 10 外壳）
+}

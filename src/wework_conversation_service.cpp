@@ -3,7 +3,6 @@
 //
 #include "wework_conversation_service.h"
 #include <cstring>
-#include <cstdint>
 #include <string>
 #include <vector>
 #include "file_utils.h"
@@ -53,7 +52,7 @@ int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param,con
         native_dec_ref = reinterpret_cast<AtomicDecRef>(so_base + 0x5EB5458);
     }
 
-    uintptr_t g_conversation_service = getCurrentConvService();
+    static const uintptr_t g_conversation_service = getCurrentConvService();
     if (!g_conversation_service) {
         LOGE("g_conversation_service is null");
         return 0;
@@ -240,36 +239,56 @@ int64_t my_custom_result_invoker(uintptr_t *closure_ptr, uintptr_t x1, uintptr_t
         }
 
         if (real_target) {
+            LOGI("[DBG] → 调用 real_target (my_pure_native_onResult)...");
             real_target(real_code, conv_handle, msg_handle);
+            LOGI("[DBG] ← real_target 返回");
         }
         // 2. 取出我们的回调中间件
         auto* cb_ptr = reinterpret_cast<MessageCallback*>(&closure_ptr[10]);
         if (cb_ptr) {
             // 💡 增加安全校验：确保 std::function 内部确实持有可调用实体
             if (cb_ptr->onResult) {
+                LOGI("[DBG] → 调用 cb_ptr->onResult (业务层回调)...");
                 cb_ptr->onResult(real_code, conv_handle, msg_handle);
+                LOGI("[DBG] ← cb_ptr->onResult 返回");
             }
 
             // 💡 改造点 3：显式利落地调用析构，清理两个 std::function 的内部捕获代理
+            LOGI("[DBG] → 调用 cb_ptr->~MessageCallback()...");
             cb_ptr->~MessageCallback();
+            LOGI("[DBG] ← ~MessageCallback() 返回");
         }
 
         // 强引用 GC 释放
+        LOGI("[DBG] → 开始 msg_handle 引用释放 (native_dec_ref)...");
         if (msg_handle && native_dec_ref) {
             unsigned int *msg_ref = (unsigned int *) ((char *) msg_handle + 96);
-            if ((native_dec_ref(msg_ref) & 1) != 0) {
+            LOGI("[DBG] msg_ref 当前值: %u (msg_handle=%p)", msg_ref ? *msg_ref : 0, msg_handle);
+            int64_t dec_ret = native_dec_ref(msg_ref);
+            LOGI("[DBG] native_dec_ref(msg) 返回: %lld (LSB=%lld)", (long long)dec_ret, (long long)(dec_ret & 1));
+            if ((dec_ret & 1) != 0) {
+                LOGI("[DBG] → 调用 msg_handle 虚析构函数...");
                 (*(void (**)(void *)) (*(uintptr_t *) msg_handle + 8LL))(msg_handle);
                 LOGI("[SoHook_GC] 消息对象已完美析构释放");
             }
         }
+        LOGI("[DBG] ← msg_handle 引用释放完成");
+
+        LOGI("[DBG] → 开始 conv_handle 引用释放 (native_dec_ref)...");
         if (conv_handle && native_dec_ref) {
             unsigned int *conv_ref = (unsigned int *) ((char *) conv_handle + 96);
-            if ((native_dec_ref(conv_ref) & 1) != 0) {
+            LOGI("[DBG] conv_ref 当前值: %u (conv_handle=%p)", conv_ref ? *conv_ref : 0, conv_handle);
+            int64_t dec_ret = native_dec_ref(conv_ref);
+            LOGI("[DBG] native_dec_ref(conv) 返回: %lld (LSB=%lld)", (long long)dec_ret, (long long)(dec_ret & 1));
+            if ((dec_ret & 1) != 0) {
+                LOGI("[DBG] → 调用 conv_handle 虚析构函数...");
                 (*(void (**)(void *)) (*(uintptr_t *) conv_handle + 8LL))(conv_handle);
                 LOGI("[SoHook_GC] 会话对象已完美析构释放");
             }
         }
+        LOGI("[DBG] ← conv_handle 引用释放完成");
 
+        LOGI("[DBG] → 调用 operator delete(closure_ptr)...");
         operator delete(closure_ptr);
         LOGI("[SoHook_GC] 结果闭包堆内存已释放，全调用链生命周期闭环。");
     }

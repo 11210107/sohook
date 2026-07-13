@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+package sohook;
+
+// 企业微信图片消息 Protobuf 定义
+// 对应 generate_image_message_proto 的手工 PB 流
+
+// 图片消息的子消息体（嵌套在 Field 10 中）
+message ImageContent {
+    optional string file_name = 2;     // 文件名
+    optional string orig_path = 3;     // 原图绝对路径
+    optional uint64 file_size = 4;     // 文件大小（字节）
+    optional uint32 width = 5;         // 原图宽度
+    optional uint32 height = 6;        // 原图高度
+    optional uint32 thumb_width = 28;  // 缩略图宽度
+    optional uint32 thumb_height = 29; // 缩略图高度
+    optional string thumb_path = 202;  // 缩略图路径
+    optional string mid_path = 203;    // 中等图路径
+}
+
+// 图片消息的顶层结构
+message ImageMessage {
+    optional uint32 msg_type = 7;      // 消息类型，固定为 7（图片）
+    optional ImageContent content = 10; // 图片内容（嵌套子消息）
+}

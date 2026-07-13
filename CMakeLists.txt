@@ -1,11 +1,16 @@
 cmake_minimum_required(VERSION 4.0)
 project(sohook)
 
-set(CMAKE_CXX_STANDARD 11)
+set(CMAKE_CXX_STANDARD 17)
 
 # --- 关键修改点 1: 指定头文件搜索路径 ---
 # 这会让编译器在编译 main.cpp 时自动搜索 include 目录
 include_directories(include)
+# protobuf/abseil 头文件路径
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/include)
+# protobuf 生成的 .pb.h 文件路径
+include_directories(${CMAKE_SOURCE_DIR}/proto/gen)
+
 # 我们只用 main.cpp 里的逻辑生成库，它里面的 main 函数在库模式下会被忽略
 #add_executable(sohook main.cpp)
 #add_library(sohook SHARED src/main.cpp)
@@ -22,6 +27,10 @@ add_library(dobby STATIC IMPORTED)
 set_target_properties(dobby PROPERTIES
         IMPORTED_LOCATION ${CMAKE_SOURCE_DIR}/thirdparty/dobby/arm64-v8a/libdobby.a
 )
+
+# 收集所有 abseil 静态库
+file(GLOB absl_libs "${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/absl/*.a")
+
 # 3. 生成 libsohook.so 插件库
 # 包含了你的入口文件和核心 Hook 逻辑文件
 add_library(sohook SHARED
@@ -34,10 +43,18 @@ add_library(sohook SHARED
         src/wework_conversation.cpp     # 会话构建：Protobuf 模拟
         src/wework_conversation_service.cpp     # 会话服务：消息发送
         src/wework_hook.cpp             # Hook 入口：拦截与触发
+        proto/gen/wework_conversation.pb.cc    # PB 生成代码
+        proto/gen/wework_image_message.pb.cc   # PB 生成代码
+        proto/gen/wework_text_message.pb.cc    # PB 生成代码
 )
 
 # 链接
-target_link_libraries(sohook dobby ${log-lib})
+target_link_libraries(sohook dobby ${log-lib}
+        ${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/libprotobuf-lite.a
+        ${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/libprotobuf.a
+        ${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/libutf8_validity.a
+        ${absl_libs}
+)
 
 
 

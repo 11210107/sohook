@@ -4,6 +4,8 @@
 cmake-build-*/
 cmake-build-debug/
 cmake-build-android-arm64/
+cmake-build-android/
+build/
 
 # ====================
 # IDE 配置
