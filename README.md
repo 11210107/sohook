@@ -28,3 +28,7 @@ Hook nativeSetInfo。
 你会发现这是一个标准的 Protobuf 格式。
 
 图片消息的 ContentType 通常是 2。
+
+### Protobuf 序列化
+//cd /Users/user/AndroidStudioProjects/wxsdk/app/src/main/cpp
+//protoc --proto_path=func/pb --cpp_out=func/msg func/pb/conv.proto

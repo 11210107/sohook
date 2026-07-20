@@ -20,7 +20,8 @@ include_directories(${CMAKE_SOURCE_DIR}/proto/gen)
 # 寻找日志库
 find_library(log-lib log)
 #target_link_libraries(sohook ${log-lib})
-
+#  找到或者声明寻找系统 android 库
+find_library(ANDROID_LIB android)
 # 声明 Dobby 静态库
 add_library(dobby STATIC IMPORTED)
 # 设置静态库的具体路径（根据架构自动选择）
@@ -43,13 +44,14 @@ add_library(sohook SHARED
         src/wework_conversation.cpp     # 会话构建：Protobuf 模拟
         src/wework_conversation_service.cpp     # 会话服务：消息发送
         src/wework_hook.cpp             # Hook 入口：拦截与触发
+        src/main_thread_executor.cpp         # 保障：主线程执行
         proto/gen/wework_conversation.pb.cc    # PB 生成代码
         proto/gen/wework_image_message.pb.cc   # PB 生成代码
         proto/gen/wework_text_message.pb.cc    # PB 生成代码
 )
 
 # 链接
-target_link_libraries(sohook dobby ${log-lib}
+target_link_libraries(sohook dobby ${log-lib} ${ANDROID_LIB}
         ${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/libprotobuf-lite.a
         ${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/libprotobuf.a
         ${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/libutf8_validity.a

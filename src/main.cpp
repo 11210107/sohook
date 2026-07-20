@@ -6,7 +6,7 @@
 #include "wework_hook.h"
 #include <string>
 #include <fstream>
-
+#include "main_thread_executor.h"
 #include <jni.h>
 
 // 获取进程名，确保只在主进程注入，避免干扰小程序等子进程
@@ -27,6 +27,7 @@ void my_init() {
     // 既然能走到这里，说明 Zygisk 已经通过 preAppSpecialize 确认了进程
     LOGI("--- SoHook Library Loaded Successfully ---");
 
+    // MainThreadExecutor::getInstance().initialize();
     // 直接初始化，不再判断 proc_name == "com.tencent.wework"
     init_wework_hook();
 }

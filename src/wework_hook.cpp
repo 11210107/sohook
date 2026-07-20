@@ -16,6 +16,7 @@
 #include "wework_logic_center.h"
 #include "wework_conversation_service.h"
 #include "vtable_helper.h"
+#include "main_thread_executor.h"
 #include "wework_conversation.h"
 // 1.定义原函数指针，用户 Hook 之后调用原逻辑
 // void (*orig_nativeSend)(JNIEnv* env, jobject thiz,jlong handle,jobject conv,jobject msg,jobject cb);
@@ -171,5 +172,10 @@ void init_wework_hook() {
         } else {
             LOGE("Dobby Hook Failed!");
         }
+        // MainThreadExecutor::getInstance().post([]() {
+        //     // 此处已经是纯正的 Android 主线程环境
+        //     LOGI("Main Thread Executor Task Executed!");
+        //
+        // });
     }).detach();
 }
