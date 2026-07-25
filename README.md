@@ -30,5 +30,7 @@ Hook nativeSetInfo。
 图片消息的 ContentType 通常是 2。
 
 ### Protobuf 序列化
-//cd /Users/user/AndroidStudioProjects/wxsdk/app/src/main/cpp
-//protoc --proto_path=func/pb --cpp_out=func/msg func/pb/conv.proto
+* protobuf库版本查看：thirdparty/protobuf/arm64-v8a/include/google/protobuf/stubs/common.h
+* #define GOOGLE_PROTOBUF_VERSION 7035001
+* protoc 本地版本使用 3.35.1 /opt/homebrew/bin/protoc
+* 根据描述文件生成 C++ 的类实现（.pb.cc）和类声明（.pb.h） /Users/user/CLionProjects/sohook/opt/homebrew/bin/protoc --proto_path=proto --cpp_out=proto/gen wework_conversation.proto wework_text_message.proto wework_image_message.proto

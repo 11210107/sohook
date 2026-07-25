@@ -24,9 +24,12 @@
 #include "google/protobuf/generated_message_tctable_decl.h"
 #include "google/protobuf/generated_message_util.h"
 #include "google/protobuf/metadata_lite.h"
+#include "google/protobuf/generated_message_reflection.h"
+#include "google/protobuf/message.h"
 #include "google/protobuf/message_lite.h"
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
 #include "google/protobuf/extension_set.h"  // IWYU pragma: export
+#include "google/protobuf/unknown_field_set.h"
 // @@protoc_insertion_point(includes)
 
 // Must be included last.
@@ -47,12 +50,15 @@ template <typename T>
 struct TableStruct_wework_5ftext_5fmessage_2eproto {
   static const ::uint32_t offsets[];
 };
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_wework_5ftext_5fmessage_2eproto;
+}  // extern "C"
 namespace sohook {
 class TextContent;
 struct TextContentGlobalsTypeInternal;
 #ifndef PROTOBUF_MESSAGE_GLOBALS
 extern TextContentGlobalsTypeInternal TextContent_globals_;
-extern const ::google::protobuf::internal::ClassDataLite TextContent_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull TextContent_class_data_;
 #else
 extern const TextContentGlobalsTypeInternal TextContent_globals_;
 #endif  // PROTOBUF_MESSAGE_GLOBALS
@@ -60,7 +66,7 @@ class TextContentWrapper;
 struct TextContentWrapperGlobalsTypeInternal;
 #ifndef PROTOBUF_MESSAGE_GLOBALS
 extern TextContentWrapperGlobalsTypeInternal TextContentWrapper_globals_;
-extern const ::google::protobuf::internal::ClassDataLite TextContentWrapper_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull TextContentWrapper_class_data_;
 #else
 extern const TextContentWrapperGlobalsTypeInternal TextContentWrapper_globals_;
 #endif  // PROTOBUF_MESSAGE_GLOBALS
@@ -68,7 +74,7 @@ class TextMessage;
 struct TextMessageGlobalsTypeInternal;
 #ifndef PROTOBUF_MESSAGE_GLOBALS
 extern TextMessageGlobalsTypeInternal TextMessage_globals_;
-extern const ::google::protobuf::internal::ClassDataLite TextMessage_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull TextMessage_class_data_;
 #else
 extern const TextMessageGlobalsTypeInternal TextMessage_globals_;
 #endif  // PROTOBUF_MESSAGE_GLOBALS
@@ -76,7 +82,7 @@ class TextMessageCore;
 struct TextMessageCoreGlobalsTypeInternal;
 #ifndef PROTOBUF_MESSAGE_GLOBALS
 extern TextMessageCoreGlobalsTypeInternal TextMessageCore_globals_;
-extern const ::google::protobuf::internal::ClassDataLite TextMessageCore_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull TextMessageCore_class_data_;
 #else
 extern const TextMessageCoreGlobalsTypeInternal TextMessageCore_globals_;
 #endif  // PROTOBUF_MESSAGE_GLOBALS
@@ -93,7 +99,7 @@ namespace sohook {
 
 // -------------------------------------------------------------------
 
-class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContent final : public ::google::protobuf::MessageLite
+class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContent final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:sohook.TextContent) */ {
  public:
   inline TextContent() : TextContent(nullptr) {}
@@ -127,15 +133,25 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContent final : public ::google
     return *this;
   }
 
-  [[nodiscard]] inline const ::std::string& unknown_fields() const
+  [[nodiscard]] inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString);
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  [[nodiscard]] inline ::std::string* PROTOBUF_NONNULL
+  [[nodiscard]] inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL
   mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::std::string>();
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL
+  GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  [[nodiscard]] static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   [[nodiscard]] static const TextContent& default_instance() {
     return *::google::protobuf::internal::MessageGlobalsBase::ToDefaultInstance<TextContent>(&TextContent_globals_);
   }
@@ -159,9 +175,11 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContent final : public ::google
 
   [[nodiscard]] TextContent* PROTOBUF_NONNULL
   New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::MessageLite::DefaultConstruct<TextContent>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<TextContent>(arena);
   }
+  using ::google::protobuf::Message::CopyFrom;
   void CopyFrom(const TextContent& from);
+  using ::google::protobuf::Message::MergeFrom;
   void MergeFrom(const TextContent& from) { TextContent::MergeImpl(*this, from); }
 
   private:
@@ -224,6 +242,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContent final : public ::google
       const MessageLite& prototype,
       const ::google::protobuf::internal::TcParseTableBase* PROTOBUF_NULLABLE tc_table = nullptr);
 
+  [[nodiscard]] ::google::protobuf::Metadata GetMetadata() const;
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
@@ -288,7 +307,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContent final : public ::google
 };
 // -------------------------------------------------------------------
 
-class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContentWrapper final : public ::google::protobuf::MessageLite
+class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContentWrapper final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:sohook.TextContentWrapper) */ {
  public:
   inline TextContentWrapper() : TextContentWrapper(nullptr) {}
@@ -322,15 +341,25 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContentWrapper final : public :
     return *this;
   }
 
-  [[nodiscard]] inline const ::std::string& unknown_fields() const
+  [[nodiscard]] inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString);
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  [[nodiscard]] inline ::std::string* PROTOBUF_NONNULL
+  [[nodiscard]] inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL
   mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::std::string>();
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL
+  GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  [[nodiscard]] static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   [[nodiscard]] static const TextContentWrapper& default_instance() {
     return *::google::protobuf::internal::MessageGlobalsBase::ToDefaultInstance<TextContentWrapper>(&TextContentWrapper_globals_);
   }
@@ -354,9 +383,11 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContentWrapper final : public :
 
   [[nodiscard]] TextContentWrapper* PROTOBUF_NONNULL
   New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::MessageLite::DefaultConstruct<TextContentWrapper>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<TextContentWrapper>(arena);
   }
+  using ::google::protobuf::Message::CopyFrom;
   void CopyFrom(const TextContentWrapper& from);
+  using ::google::protobuf::Message::MergeFrom;
   void MergeFrom(const TextContentWrapper& from) { TextContentWrapper::MergeImpl(*this, from); }
 
   private:
@@ -419,6 +450,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContentWrapper final : public :
       const MessageLite& prototype,
       const ::google::protobuf::internal::TcParseTableBase* PROTOBUF_NULLABLE tc_table = nullptr);
 
+  [[nodiscard]] ::google::protobuf::Metadata GetMetadata() const;
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
@@ -496,7 +528,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextContentWrapper final : public :
 };
 // -------------------------------------------------------------------
 
-class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessageCore final : public ::google::protobuf::MessageLite
+class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessageCore final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:sohook.TextMessageCore) */ {
  public:
   inline TextMessageCore() : TextMessageCore(nullptr) {}
@@ -530,15 +562,25 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessageCore final : public ::go
     return *this;
   }
 
-  [[nodiscard]] inline const ::std::string& unknown_fields() const
+  [[nodiscard]] inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString);
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  [[nodiscard]] inline ::std::string* PROTOBUF_NONNULL
+  [[nodiscard]] inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL
   mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::std::string>();
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL
+  GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  [[nodiscard]] static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   [[nodiscard]] static const TextMessageCore& default_instance() {
     return *::google::protobuf::internal::MessageGlobalsBase::ToDefaultInstance<TextMessageCore>(&TextMessageCore_globals_);
   }
@@ -562,9 +604,11 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessageCore final : public ::go
 
   [[nodiscard]] TextMessageCore* PROTOBUF_NONNULL
   New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::MessageLite::DefaultConstruct<TextMessageCore>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<TextMessageCore>(arena);
   }
+  using ::google::protobuf::Message::CopyFrom;
   void CopyFrom(const TextMessageCore& from);
+  using ::google::protobuf::Message::MergeFrom;
   void MergeFrom(const TextMessageCore& from) { TextMessageCore::MergeImpl(*this, from); }
 
   private:
@@ -627,6 +671,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessageCore final : public ::go
       const MessageLite& prototype,
       const ::google::protobuf::internal::TcParseTableBase* PROTOBUF_NULLABLE tc_table = nullptr);
 
+  [[nodiscard]] ::google::protobuf::Metadata GetMetadata() const;
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
@@ -690,7 +735,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessageCore final : public ::go
 };
 // -------------------------------------------------------------------
 
-class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessage final : public ::google::protobuf::MessageLite
+class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessage final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:sohook.TextMessage) */ {
  public:
   inline TextMessage() : TextMessage(nullptr) {}
@@ -724,15 +769,25 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessage final : public ::google
     return *this;
   }
 
-  [[nodiscard]] inline const ::std::string& unknown_fields() const
+  [[nodiscard]] inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString);
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  [[nodiscard]] inline ::std::string* PROTOBUF_NONNULL
+  [[nodiscard]] inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL
   mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::std::string>();
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL
+  GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  [[nodiscard]] static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   [[nodiscard]] static const TextMessage& default_instance() {
     return *::google::protobuf::internal::MessageGlobalsBase::ToDefaultInstance<TextMessage>(&TextMessage_globals_);
   }
@@ -756,9 +811,11 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessage final : public ::google
 
   [[nodiscard]] TextMessage* PROTOBUF_NONNULL
   New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::MessageLite::DefaultConstruct<TextMessage>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<TextMessage>(arena);
   }
+  using ::google::protobuf::Message::CopyFrom;
   void CopyFrom(const TextMessage& from);
+  using ::google::protobuf::Message::MergeFrom;
   void MergeFrom(const TextMessage& from) { TextMessage::MergeImpl(*this, from); }
 
   private:
@@ -821,6 +878,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED TextMessage final : public ::google
       const MessageLite& prototype,
       const ::google::protobuf::internal::TcParseTableBase* PROTOBUF_NULLABLE tc_table = nullptr);
 
+  [[nodiscard]] ::google::protobuf::Metadata GetMetadata() const;
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
@@ -1064,7 +1122,7 @@ inline ::sohook::TextContent* PROTOBUF_NULLABLE TextContentWrapper::unsafe_arena
 inline ::sohook::TextContent* PROTOBUF_NONNULL TextContentWrapper::_internal_mutable_content() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.content_ == nullptr) {
-    auto* p = ::google::protobuf::MessageLite::DefaultConstruct<::sohook::TextContent>(GetArena());
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::sohook::TextContent>(GetArena());
     _impl_.content_ = reinterpret_cast<::sohook::TextContent*>(p);
   }
   return _impl_.content_;
@@ -1166,7 +1224,7 @@ inline ::sohook::TextContentWrapper* PROTOBUF_NULLABLE TextMessageCore::unsafe_a
 inline ::sohook::TextContentWrapper* PROTOBUF_NONNULL TextMessageCore::_internal_mutable_wrapper() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.wrapper_ == nullptr) {
-    auto* p = ::google::protobuf::MessageLite::DefaultConstruct<::sohook::TextContentWrapper>(GetArena());
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::sohook::TextContentWrapper>(GetArena());
     _impl_.wrapper_ = reinterpret_cast<::sohook::TextContentWrapper*>(p);
   }
   return _impl_.wrapper_;
@@ -1268,7 +1326,7 @@ inline ::sohook::TextMessageCore* PROTOBUF_NULLABLE TextMessage::unsafe_arena_re
 inline ::sohook::TextMessageCore* PROTOBUF_NONNULL TextMessage::_internal_mutable_core() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.core_ == nullptr) {
-    auto* p = ::google::protobuf::MessageLite::DefaultConstruct<::sohook::TextMessageCore>(GetArena());
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::sohook::TextMessageCore>(GetArena());
     _impl_.core_ = reinterpret_cast<::sohook::TextMessageCore*>(p);
   }
   return _impl_.core_;

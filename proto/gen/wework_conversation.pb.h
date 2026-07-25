@@ -24,9 +24,12 @@
 #include "google/protobuf/generated_message_tctable_decl.h"
 #include "google/protobuf/generated_message_util.h"
 #include "google/protobuf/metadata_lite.h"
+#include "google/protobuf/generated_message_reflection.h"
+#include "google/protobuf/message.h"
 #include "google/protobuf/message_lite.h"
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
 #include "google/protobuf/extension_set.h"  // IWYU pragma: export
+#include "google/protobuf/unknown_field_set.h"
 // @@protoc_insertion_point(includes)
 
 // Must be included last.
@@ -47,12 +50,15 @@ template <typename T>
 struct TableStruct_wework_5fconversation_2eproto {
   static const ::uint32_t offsets[];
 };
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_wework_5fconversation_2eproto;
+}  // extern "C"
 namespace sohook {
 class ConversationInfo;
 struct ConversationInfoGlobalsTypeInternal;
 #ifndef PROTOBUF_MESSAGE_GLOBALS
 extern ConversationInfoGlobalsTypeInternal ConversationInfo_globals_;
-extern const ::google::protobuf::internal::ClassDataLite ConversationInfo_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull ConversationInfo_class_data_;
 #else
 extern const ConversationInfoGlobalsTypeInternal ConversationInfo_globals_;
 #endif  // PROTOBUF_MESSAGE_GLOBALS
@@ -69,7 +75,7 @@ namespace sohook {
 
 // -------------------------------------------------------------------
 
-class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ConversationInfo final : public ::google::protobuf::MessageLite
+class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ConversationInfo final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:sohook.ConversationInfo) */ {
  public:
   inline ConversationInfo() : ConversationInfo(nullptr) {}
@@ -103,15 +109,25 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ConversationInfo final : public ::g
     return *this;
   }
 
-  [[nodiscard]] inline const ::std::string& unknown_fields() const
+  [[nodiscard]] inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString);
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  [[nodiscard]] inline ::std::string* PROTOBUF_NONNULL
+  [[nodiscard]] inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL
   mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::std::string>();
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL
+  GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  [[nodiscard]] static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   [[nodiscard]] static const ConversationInfo& default_instance() {
     return *::google::protobuf::internal::MessageGlobalsBase::ToDefaultInstance<ConversationInfo>(&ConversationInfo_globals_);
   }
@@ -135,9 +151,11 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ConversationInfo final : public ::g
 
   [[nodiscard]] ConversationInfo* PROTOBUF_NONNULL
   New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::MessageLite::DefaultConstruct<ConversationInfo>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<ConversationInfo>(arena);
   }
+  using ::google::protobuf::Message::CopyFrom;
   void CopyFrom(const ConversationInfo& from);
+  using ::google::protobuf::Message::MergeFrom;
   void MergeFrom(const ConversationInfo& from) { ConversationInfo::MergeImpl(*this, from); }
 
   private:
@@ -200,11 +218,13 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ConversationInfo final : public ::g
       const MessageLite& prototype,
       const ::google::protobuf::internal::TcParseTableBase* PROTOBUF_NULLABLE tc_table = nullptr);
 
+  [[nodiscard]] ::google::protobuf::Metadata GetMetadata() const;
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
   enum : int {
     kField15FieldNumber = 15,
+    kLocalIdFieldNumber = 1,
     kConversationIdFieldNumber = 2,
     kField12FieldNumber = 12,
   };
@@ -223,6 +243,18 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ConversationInfo final : public ::g
   const ::std::string& _internal_field_15() const;
   PROTOBUF_ALWAYS_INLINE void _internal_set_field_15(const ::std::string& value);
   ::std::string* PROTOBUF_NONNULL _internal_mutable_field_15();
+
+  public:
+  // optional uint64 local_id = 1;
+  [[nodiscard]] bool has_local_id()
+      const;
+  void clear_local_id() ;
+  [[nodiscard]] ::uint64_t local_id() const;
+  void set_local_id(::uint64_t value);
+
+  private:
+  ::uint64_t _internal_local_id() const;
+  void _internal_set_local_id(::uint64_t value);
 
   public:
   // optional uint64 conversation_id = 2;
@@ -253,7 +285,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ConversationInfo final : public ::g
  private:
   class _Internal;
   using ParseTableT_ =
-      ::google::protobuf::internal::TcParseTable<2, 3,
+      ::google::protobuf::internal::TcParseTable<2, 4,
                           0, 0,
                           2>;
   static constexpr ParseTableT_ InternalGenerateParseTable_(
@@ -283,6 +315,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ConversationInfo final : public ::g
     ::google::protobuf::internal::HasBits<1> _has_bits_;
     ::google::protobuf::internal::CachedSize _cached_size_;
     ::google::protobuf::internal::ArenaStringPtr field_15_;
+    ::uint64_t local_id_;
     ::uint64_t conversation_id_;
     ::uint32_t field_12_;
     PROTOBUF_TSAN_DECLARE_MEMBER
@@ -307,15 +340,43 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ConversationInfo final : public ::g
 
 // ConversationInfo
 
+// optional uint64 local_id = 1;
+inline bool ConversationInfo::has_local_id() const {
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
+  return value;
+}
+inline void ConversationInfo::clear_local_id() {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.local_id_ = ::uint64_t{0u};
+  ClearHasBit(_impl_._has_bits_[0], 0x00000002U);
+}
+inline ::uint64_t ConversationInfo::local_id() const {
+  // @@protoc_insertion_point(field_get:sohook.ConversationInfo.local_id)
+  return _internal_local_id();
+}
+inline void ConversationInfo::set_local_id(::uint64_t value) {
+  _internal_set_local_id(value);
+  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+  // @@protoc_insertion_point(field_set:sohook.ConversationInfo.local_id)
+}
+inline ::uint64_t ConversationInfo::_internal_local_id() const {
+  ::google::protobuf::internal::TSanRead(&_impl_);
+  return _impl_.local_id_;
+}
+inline void ConversationInfo::_internal_set_local_id(::uint64_t value) {
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  _impl_.local_id_ = value;
+}
+
 // optional uint64 conversation_id = 2;
 inline bool ConversationInfo::has_conversation_id() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000002U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
   return value;
 }
 inline void ConversationInfo::clear_conversation_id() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.conversation_id_ = ::uint64_t{0u};
-  ClearHasBit(_impl_._has_bits_[0], 0x00000002U);
+  ClearHasBit(_impl_._has_bits_[0], 0x00000004U);
 }
 inline ::uint64_t ConversationInfo::conversation_id() const {
   // @@protoc_insertion_point(field_get:sohook.ConversationInfo.conversation_id)
@@ -323,7 +384,7 @@ inline ::uint64_t ConversationInfo::conversation_id() const {
 }
 inline void ConversationInfo::set_conversation_id(::uint64_t value) {
   _internal_set_conversation_id(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000002U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
   // @@protoc_insertion_point(field_set:sohook.ConversationInfo.conversation_id)
 }
 inline ::uint64_t ConversationInfo::_internal_conversation_id() const {
@@ -337,13 +398,13 @@ inline void ConversationInfo::_internal_set_conversation_id(::uint64_t value) {
 
 // optional uint32 field_12 = 12;
 inline bool ConversationInfo::has_field_12() const {
-  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000004U);
+  bool value = CheckHasBit(_impl_._has_bits_[0], 0x00000008U);
   return value;
 }
 inline void ConversationInfo::clear_field_12() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   _impl_.field_12_ = 0u;
-  ClearHasBit(_impl_._has_bits_[0], 0x00000004U);
+  ClearHasBit(_impl_._has_bits_[0], 0x00000008U);
 }
 inline ::uint32_t ConversationInfo::field_12() const {
   // @@protoc_insertion_point(field_get:sohook.ConversationInfo.field_12)
@@ -351,7 +412,7 @@ inline ::uint32_t ConversationInfo::field_12() const {
 }
 inline void ConversationInfo::set_field_12(::uint32_t value) {
   _internal_set_field_12(value);
-  SetHasBit(_impl_._has_bits_[0], 0x00000004U);
+  SetHasBit(_impl_._has_bits_[0], 0x00000008U);
   // @@protoc_insertion_point(field_set:sohook.ConversationInfo.field_12)
 }
 inline ::uint32_t ConversationInfo::_internal_field_12() const {

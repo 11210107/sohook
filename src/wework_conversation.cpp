@@ -146,3 +146,131 @@ void *create_and_inject_conversation(uint64_t target_conv_id) {
     // ==========================================
     return (void *) my_c_conv_ptr;
 }
+
+
+
+// 底层函数指针定义
+typedef int64_t (*fn_sub_2477954)(); // 全局 Engine/ProfileManager 根节点获取函数
+typedef int64_t (*fn_sub_126D9D4)(void *key_buffer, uint32_t conv_type, int64_t remote_id);
+typedef int64_t (*fn_sub_5EB5470)(uint32_t *ref_count_ptr); // 引用计数 +1
+
+// X8 寄存器传参专用汇编包装
+int64_t call_sub_258B330_via_x8(uintptr_t func_addr, int64_t map_root, void *key_buf, int64_t *out_conv_ptr) {
+    int64_t ret = 0;
+    asm volatile(
+        "mov x0, %1\n"
+        "mov x1, %2\n"
+        "mov x8, %3\n"
+        "blr %4\n"
+        "mov %0, x0\n"
+        : "=r"(ret)
+        : "r"(map_root), "r"(key_buf), "r"(out_conv_ptr), "r"(func_addr)
+        : "x0", "x1", "x2", "x3", "x4", "x5", "x6", "x7", "x8", "x16", "x17", "lr", "memory"
+    );
+    return ret;
+}
+
+/**
+ * 纯 C++ 内部自动寻找 Current Profile，并通过 conv_type 和 remote_id 获取 Conversation 对象
+ *
+ * @param conv_type   会话类型 (如 0)
+ * @param remote_id   远程会话 ID (如 7881299599906412ULL)
+ * @return void*      返回 C++ Conversation 物理对象指针，失败返回 nullptr
+ */
+void* get_cache_conversation_by_key_native(uint32_t conv_type, uint64_t remote_id) {
+    LOGI("[GetCacheConv] Start searching natively: conv_type=%u, remote_id=%llu", conv_type, remote_id);
+
+    // 1. 获取目标 SO 基址
+    unsigned long long base = get_module_base("libwework_framework.so");
+    if (!base) {
+        LOGE("[GetCacheConv] 错误: 找不到目标 SO 基址");
+        return nullptr;
+    }
+
+    // 2. 绑定函数偏移地址
+    auto get_profile_root = (fn_sub_2477954)(base + 0x2477954);
+    auto init_conv_key    = (fn_sub_126D9D4)(base + 0x126D9D4);
+    auto add_ref_count    = (fn_sub_5EB5470)(base + 0x5EB5470);
+    uintptr_t find_in_rb_tree_addr = base + 0x258B330;
+
+    // =========================================================
+    // 第一步：纯 Native 获取当前 Profile C++ 实体指针 (v8)
+    // 模仿 nativeGetCurrentProfile 内核逻辑，免去 Handle 包装与解包
+    // =========================================================
+    int64_t v0 = get_profile_root(); // 获取 ProfileManager 单例
+    if (!v0) {
+        LOGE("[GetCacheConv] 错误: get_profile_root() 返回为空");
+        return nullptr;
+    }
+
+    // 调用 v0 虚函数 offset 24 (第 3 个虚函数) -> 获取 ProfileManager* (v1)
+    uintptr_t vtable_v0 = *reinterpret_cast<uintptr_t*>(v0);
+    auto get_v1 = reinterpret_cast<int64_t(*)(int64_t)>(*reinterpret_cast<uintptr_t*>(vtable_v0 + 24LL));
+    int64_t v1 = get_v1(v0);
+    if (!v1) {
+        LOGE("[GetCacheConv] 错误: 获取 ProfileManager*(v1) 失败");
+        return nullptr;
+    }
+
+    // 调用 v1 虚函数 offset 24 (第 3 个虚函数) -> 获取 Current Profile* (v8 / v3)
+    uintptr_t vtable_v1 = *reinterpret_cast<uintptr_t*>(v1);
+    auto get_v8 = reinterpret_cast<int64_t(*)(int64_t)>(*reinterpret_cast<uintptr_t*>(vtable_v1 + 24LL));
+    int64_t v8 = get_v8(v1); // v8 就是真正的 C++ Profile 实体对象指针！
+    if (!v8) {
+        LOGE("[GetCacheConv] 错误: 当前未登录或 Profile*(v8) 为空");
+        return nullptr;
+    }
+
+    LOGI("[GetCacheConv] 自动定位到 Current Profile C++ 指针: 0x%lx", v8);
+
+    // =========================================================
+    // 第二步：寻址到 ConversationCache 对象 (v10)
+    // =========================================================
+    // v8 -> Virtual Table[33] (offset 264) -> ConversationManager (v9)
+    uintptr_t vtable_v8 = *reinterpret_cast<uintptr_t*>(v8);
+    auto get_conv_mgr = reinterpret_cast<int64_t(*)(int64_t)>(*reinterpret_cast<uintptr_t*>(vtable_v8 + 264LL));
+    int64_t v9 = get_conv_mgr(v8);
+    if (!v9) {
+        LOGE("[GetCacheConv] 错误: 获取 ConversationManager(v9) 失败");
+        return nullptr;
+    }
+
+    // v9 -> Virtual Table[13] (offset 104) -> ConversationCache (v10)
+    uintptr_t vtable_v9 = *reinterpret_cast<uintptr_t*>(v9);
+    auto get_conv_cache = reinterpret_cast<int64_t(*)(int64_t)>(*reinterpret_cast<uintptr_t*>(vtable_v9 + 104LL));
+    int64_t v10 = get_conv_cache(v9);
+    if (!v10) {
+        LOGE("[GetCacheConv] 错误: 获取 ConversationCache(v10) 失败");
+        return nullptr;
+    }
+
+    // =========================================================
+    // 第三步：构造 24 字节 Key 并执行红黑树查找
+    // =========================================================
+    alignas(16) char key_buffer[24] = {0};
+    init_conv_key(key_buffer, conv_type, remote_id);
+
+    int64_t map_holder = *reinterpret_cast<int64_t*>(v10 + 288LL);
+    if (!map_holder) {
+        LOGE("[GetCacheConv] 错误: map_holder 为空");
+        return nullptr;
+    }
+    int64_t map_root = *reinterpret_cast<int64_t*>(map_holder + 112LL);
+
+    int64_t out_c_conv_ptr = 0;
+    call_sub_258B330_via_x8(find_in_rb_tree_addr, map_root, key_buffer, &out_c_conv_ptr);
+
+    if (!out_c_conv_ptr) {
+        LOGE("[GetCacheConv] 未在内存缓存中找到目标 Conversation 对象");
+        return nullptr;
+    }
+
+    // =========================================================
+    // 第四步：增加引用计数，防止对象被异步释放 (UAF)
+    // =========================================================
+    add_ref_count(reinterpret_cast<uint32_t*>(out_c_conv_ptr + 96LL));
+
+    LOGI("[GetCacheConv] 🎉 成功获取 Conversation C++ 对象指针: 0x%lx", out_c_conv_ptr);
+
+    return reinterpret_cast<void*>(out_c_conv_ptr);
+}

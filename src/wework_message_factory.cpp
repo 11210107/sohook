@@ -157,7 +157,9 @@ void* create_text_message_pure_native_ptr(const std::string& text_content) {
         LOGE("[create_text_message_pure_native] 核心 Core 指针返回空指针!");
         return nullptr;
     }
-
+    // 2. 💡【步骤一：先提取】在 parse_pb_ptr 执行前，先保存 sub_137E7C4 官方生成的 local_id
+    uint64_t saved_local_id = *reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(targetCore) + 128);
+    LOGI("[+] 成功提前提取官方生成的 local_id: %llu", saved_local_id);
     // 消息类型：文本 = 1
     *reinterpret_cast<int32_t*>(reinterpret_cast<char*>(targetCore) + 24) = 1;
 
@@ -178,7 +180,14 @@ void* create_text_message_pure_native_ptr(const std::string& text_content) {
         LOGE("[-] Protobuf 反序列化装载文本至 Core 失败");
         return nullptr;
     }
+    // 5. 💡【步骤二：后还原】将暂存的 local_id 重新写回 targetCore + 128 (0x80)
+    *reinterpret_cast<uint64_t*>(reinterpret_cast<char*>(targetCore) + 128) = saved_local_id;
 
+    // 6. 💡【步骤三：补标志位】必须重新将 _has_bits_ (targetCore + 16) 的第 10 位 (0x200) 置 1
+    //    Protobuf 只有检查到 _has_bits_ 中包含了 0x200，才会认为 local_id 是有效字段！
+    *reinterpret_cast<uint32_t*>(reinterpret_cast<char*>(targetCore) + 16) |= 0x200;
+
+    LOGI("[+] ======= 成功还原 local_id (%llu) 并修复标志位！ =======", saved_local_id);
     LOGI("[+] ======= 纯 Native 伪造文本对象构建成功! 指针: %p ======= ", msgHandle);
     return msgHandle;
 }

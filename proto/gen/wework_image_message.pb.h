@@ -24,9 +24,12 @@
 #include "google/protobuf/generated_message_tctable_decl.h"
 #include "google/protobuf/generated_message_util.h"
 #include "google/protobuf/metadata_lite.h"
+#include "google/protobuf/generated_message_reflection.h"
+#include "google/protobuf/message.h"
 #include "google/protobuf/message_lite.h"
 #include "google/protobuf/repeated_field.h"  // IWYU pragma: export
 #include "google/protobuf/extension_set.h"  // IWYU pragma: export
+#include "google/protobuf/unknown_field_set.h"
 // @@protoc_insertion_point(includes)
 
 // Must be included last.
@@ -47,12 +50,15 @@ template <typename T>
 struct TableStruct_wework_5fimage_5fmessage_2eproto {
   static const ::uint32_t offsets[];
 };
+extern "C" {
+extern const ::google::protobuf::internal::DescriptorTable descriptor_table_wework_5fimage_5fmessage_2eproto;
+}  // extern "C"
 namespace sohook {
 class ImageContent;
 struct ImageContentGlobalsTypeInternal;
 #ifndef PROTOBUF_MESSAGE_GLOBALS
 extern ImageContentGlobalsTypeInternal ImageContent_globals_;
-extern const ::google::protobuf::internal::ClassDataLite ImageContent_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull ImageContent_class_data_;
 #else
 extern const ImageContentGlobalsTypeInternal ImageContent_globals_;
 #endif  // PROTOBUF_MESSAGE_GLOBALS
@@ -60,7 +66,7 @@ class ImageMessage;
 struct ImageMessageGlobalsTypeInternal;
 #ifndef PROTOBUF_MESSAGE_GLOBALS
 extern ImageMessageGlobalsTypeInternal ImageMessage_globals_;
-extern const ::google::protobuf::internal::ClassDataLite ImageMessage_class_data_;
+extern const ::google::protobuf::internal::ClassDataFull ImageMessage_class_data_;
 #else
 extern const ImageMessageGlobalsTypeInternal ImageMessage_globals_;
 #endif  // PROTOBUF_MESSAGE_GLOBALS
@@ -77,7 +83,7 @@ namespace sohook {
 
 // -------------------------------------------------------------------
 
-class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageContent final : public ::google::protobuf::MessageLite
+class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageContent final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:sohook.ImageContent) */ {
  public:
   inline ImageContent() : ImageContent(nullptr) {}
@@ -111,15 +117,25 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageContent final : public ::googl
     return *this;
   }
 
-  [[nodiscard]] inline const ::std::string& unknown_fields() const
+  [[nodiscard]] inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString);
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  [[nodiscard]] inline ::std::string* PROTOBUF_NONNULL
+  [[nodiscard]] inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL
   mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::std::string>();
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL
+  GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  [[nodiscard]] static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   [[nodiscard]] static const ImageContent& default_instance() {
     return *::google::protobuf::internal::MessageGlobalsBase::ToDefaultInstance<ImageContent>(&ImageContent_globals_);
   }
@@ -143,9 +159,11 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageContent final : public ::googl
 
   [[nodiscard]] ImageContent* PROTOBUF_NONNULL
   New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::MessageLite::DefaultConstruct<ImageContent>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<ImageContent>(arena);
   }
+  using ::google::protobuf::Message::CopyFrom;
   void CopyFrom(const ImageContent& from);
+  using ::google::protobuf::Message::MergeFrom;
   void MergeFrom(const ImageContent& from) { ImageContent::MergeImpl(*this, from); }
 
   private:
@@ -208,6 +226,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageContent final : public ::googl
       const MessageLite& prototype,
       const ::google::protobuf::internal::TcParseTableBase* PROTOBUF_NULLABLE tc_table = nullptr);
 
+  [[nodiscard]] ::google::protobuf::Metadata GetMetadata() const;
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
@@ -399,7 +418,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageContent final : public ::googl
 };
 // -------------------------------------------------------------------
 
-class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageMessage final : public ::google::protobuf::MessageLite
+class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageMessage final : public ::google::protobuf::Message
 /* @@protoc_insertion_point(class_definition:sohook.ImageMessage) */ {
  public:
   inline ImageMessage() : ImageMessage(nullptr) {}
@@ -433,15 +452,25 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageMessage final : public ::googl
     return *this;
   }
 
-  [[nodiscard]] inline const ::std::string& unknown_fields() const
+  [[nodiscard]] inline const ::google::protobuf::UnknownFieldSet& unknown_fields() const
       ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString);
+    return _internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance);
   }
-  [[nodiscard]] inline ::std::string* PROTOBUF_NONNULL
+  [[nodiscard]] inline ::google::protobuf::UnknownFieldSet* PROTOBUF_NONNULL
   mutable_unknown_fields() ABSL_ATTRIBUTE_LIFETIME_BOUND {
-    return _internal_metadata_.mutable_unknown_fields<::std::string>();
+    return _internal_metadata_.mutable_unknown_fields<::google::protobuf::UnknownFieldSet>();
   }
 
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL descriptor() {
+    return GetDescriptor();
+  }
+  [[nodiscard]] static const ::google::protobuf::Descriptor* PROTOBUF_NONNULL
+  GetDescriptor() {
+    return default_instance().GetMetadata().descriptor;
+  }
+  [[nodiscard]] static const ::google::protobuf::Reflection* PROTOBUF_NONNULL GetReflection() {
+    return default_instance().GetMetadata().reflection;
+  }
   [[nodiscard]] static const ImageMessage& default_instance() {
     return *::google::protobuf::internal::MessageGlobalsBase::ToDefaultInstance<ImageMessage>(&ImageMessage_globals_);
   }
@@ -465,9 +494,11 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageMessage final : public ::googl
 
   [[nodiscard]] ImageMessage* PROTOBUF_NONNULL
   New(::google::protobuf::Arena* PROTOBUF_NULLABLE arena = nullptr) const {
-    return ::google::protobuf::MessageLite::DefaultConstruct<ImageMessage>(arena);
+    return ::google::protobuf::Message::DefaultConstruct<ImageMessage>(arena);
   }
+  using ::google::protobuf::Message::CopyFrom;
   void CopyFrom(const ImageMessage& from);
+  using ::google::protobuf::Message::MergeFrom;
   void MergeFrom(const ImageMessage& from) { ImageMessage::MergeImpl(*this, from); }
 
   private:
@@ -530,6 +561,7 @@ class  PROTOBUF_FUTURE_ADD_EARLY_WARN_UNUSED ImageMessage final : public ::googl
       const MessageLite& prototype,
       const ::google::protobuf::internal::TcParseTableBase* PROTOBUF_NULLABLE tc_table = nullptr);
 
+  [[nodiscard]] ::google::protobuf::Metadata GetMetadata() const;
   // nested types ----------------------------------------------------
 
   // accessors -------------------------------------------------------
@@ -1131,7 +1163,7 @@ inline ::sohook::ImageContent* PROTOBUF_NULLABLE ImageMessage::unsafe_arena_rele
 inline ::sohook::ImageContent* PROTOBUF_NONNULL ImageMessage::_internal_mutable_content() {
   ::google::protobuf::internal::TSanWrite(&_impl_);
   if (_impl_.content_ == nullptr) {
-    auto* p = ::google::protobuf::MessageLite::DefaultConstruct<::sohook::ImageContent>(GetArena());
+    auto* p = ::google::protobuf::Message::DefaultConstruct<::sohook::ImageContent>(GetArena());
     _impl_.content_ = reinterpret_cast<::sohook::ImageContent*>(p);
   }
   return _impl_.content_;

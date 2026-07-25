@@ -13,7 +13,10 @@
 #include "google/protobuf/extension_set.h"
 #include "google/protobuf/generated_message_util.h"
 #include "google/protobuf/wire_format_lite.h"
-#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
+#include "google/protobuf/descriptor.h"
+#include "google/protobuf/generated_message_reflection.h"
+#include "google/protobuf/reflection_ops.h"
+#include "google/protobuf/wire_format.h"
 // @@protoc_insertion_point(includes)
 
 // Must be included last.
@@ -22,6 +25,21 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::google::protobuf;
 namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+namespace {
+PROTOBUF_CONSTINIT ::google::protobuf::internal::ReflectionData
+    file_reflection_data[] = {
+        // ::sohook::TextContent
+        {&::_pbi::kDescriptorMethods, &::descriptor_table_wework_5ftext_5fmessage_2eproto, /* tracker*/ nullptr,},
+        // ::sohook::TextContentWrapper
+        {&::_pbi::kDescriptorMethods, &::descriptor_table_wework_5ftext_5fmessage_2eproto, /* tracker*/ nullptr,},
+        // ::sohook::TextMessageCore
+        {&::_pbi::kDescriptorMethods, &::descriptor_table_wework_5ftext_5fmessage_2eproto, /* tracker*/ nullptr,},
+        // ::sohook::TextMessage
+        {&::_pbi::kDescriptorMethods, &::descriptor_table_wework_5ftext_5fmessage_2eproto, /* tracker*/ nullptr,},
+};
+}  // namespace
+#endif
 namespace sohook {
 class TextContent::_Internal {
  public:
@@ -44,7 +62,7 @@ constexpr TextContent::ParseTableT_ TextContent::InternalGenerateParseTable_(con
       offsetof(ParseTableT_, field_names),  // no aux_entries
       class_data,
       nullptr,  // post_loop_handler
-      ::_pbi::TcParser::GenericFallbackLite,  // fallback
+      ::_pbi::TcParser::GenericFallback,  // fallback
       #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
       ::_pbi::TcParser::GetTable<::sohook::TextContent>(),  // to_prefetch
       #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
@@ -77,7 +95,7 @@ inline constexpr TextContent::Impl_::Impl_(
 template <typename>
 constexpr TextContent::TextContent(::_pbi::ConstantInitialized,
                        const ::_pbi::ClassData* PROTOBUF_NONNULL class_data)
-    : ::google::protobuf::MessageLite(
+    : ::google::protobuf::Message(
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           class_data
 #endif  // PROTOBUF_CUSTOM_VTABLE
@@ -95,8 +113,8 @@ constexpr auto TextContent::InternalNewImpl_() {
 constexpr auto TextContent::InternalGenerateClassData_(
     const MessageLite& prototype,
     const ::google::protobuf::internal::TcParseTableBase* tc_table) {
-  return ::google::protobuf::internal::ClassDataLite{
-      {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
           &prototype,
 #ifndef PROTOBUF_MESSAGE_GLOBALS
           &_table_.header,
@@ -105,16 +123,22 @@ constexpr auto TextContent::InternalGenerateClassData_(
 #endif
           nullptr,  // IsInitialized
           &TextContent::MergeImpl,
-          ::google::protobuf::MessageLite::GetNewImpl<TextContent>(),
+          ::google::protobuf::Message::GetNewImpl<TextContent>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &TextContent::SharedDtor,
-          ::google::protobuf::MessageLite::GetClearImpl<TextContent>(), &TextContent::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<TextContent>(), &TextContent::ByteSizeLong,
               &TextContent::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(TextContent, _impl_._cached_size_),
-          true,
+          false,
       },
-      "sohook.TextContent",
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+      &file_reflection_data[0],
+#else   // !PROTOBUF_MESSAGE_GLOBALS
+      &::_pbi::kDescriptorMethods,
+      &descriptor_table_wework_5ftext_5fmessage_2eproto,
+      nullptr,  // tracker
+#endif  // PROTOBUF_MESSAGE_GLOBALS
   };
 }
 struct TextContentGlobalsTypeInternal : ::_pbi::MessageGlobalsBase {
@@ -181,7 +205,7 @@ constexpr TextContentWrapper::ParseTableT_ TextContentWrapper::InternalGenerateP
       offsetof(ParseTableT_, aux_entries),
       class_data,
       nullptr,  // post_loop_handler
-      ::_pbi::TcParser::GenericFallbackLite,  // fallback
+      ::_pbi::TcParser::GenericFallback,  // fallback
       #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
       ::_pbi::TcParser::GetTable<::sohook::TextContentWrapper>(),  // to_prefetch
       #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
@@ -191,7 +215,7 @@ constexpr TextContentWrapper::ParseTableT_ TextContentWrapper::InternalGenerateP
        {18, 0, 0,
         PROTOBUF_FIELD_OFFSET(TextContentWrapper, _impl_.content_)}},
       // optional uint32 status = 1;
-      {::_pbi::TcParser::FastV32S1,
+      {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(TextContentWrapper, _impl_.status_), 1>(),
        {8, 1, 0,
         PROTOBUF_FIELD_OFFSET(TextContentWrapper, _impl_.status_)}},
     }}, {{
@@ -225,7 +249,7 @@ inline constexpr TextContentWrapper::Impl_::Impl_(
 template <typename>
 constexpr TextContentWrapper::TextContentWrapper(::_pbi::ConstantInitialized,
                        const ::_pbi::ClassData* PROTOBUF_NONNULL class_data)
-    : ::google::protobuf::MessageLite(
+    : ::google::protobuf::Message(
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           class_data
 #endif  // PROTOBUF_CUSTOM_VTABLE
@@ -243,8 +267,8 @@ constexpr auto TextContentWrapper::InternalNewImpl_() {
 constexpr auto TextContentWrapper::InternalGenerateClassData_(
     const MessageLite& prototype,
     const ::google::protobuf::internal::TcParseTableBase* tc_table) {
-  return ::google::protobuf::internal::ClassDataLite{
-      {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
           &prototype,
 #ifndef PROTOBUF_MESSAGE_GLOBALS
           &_table_.header,
@@ -253,16 +277,22 @@ constexpr auto TextContentWrapper::InternalGenerateClassData_(
 #endif
           nullptr,  // IsInitialized
           &TextContentWrapper::MergeImpl,
-          ::google::protobuf::MessageLite::GetNewImpl<TextContentWrapper>(),
+          ::google::protobuf::Message::GetNewImpl<TextContentWrapper>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &TextContentWrapper::SharedDtor,
-          ::google::protobuf::MessageLite::GetClearImpl<TextContentWrapper>(), &TextContentWrapper::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<TextContentWrapper>(), &TextContentWrapper::ByteSizeLong,
               &TextContentWrapper::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(TextContentWrapper, _impl_._cached_size_),
-          true,
+          false,
       },
-      "sohook.TextContentWrapper",
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+      &file_reflection_data[1],
+#else   // !PROTOBUF_MESSAGE_GLOBALS
+      &::_pbi::kDescriptorMethods,
+      &descriptor_table_wework_5ftext_5fmessage_2eproto,
+      nullptr,  // tracker
+#endif  // PROTOBUF_MESSAGE_GLOBALS
   };
 }
 struct TextContentWrapperGlobalsTypeInternal : ::_pbi::MessageGlobalsBase {
@@ -329,7 +359,7 @@ constexpr TextMessageCore::ParseTableT_ TextMessageCore::InternalGenerateParseTa
       offsetof(ParseTableT_, aux_entries),
       class_data,
       nullptr,  // post_loop_handler
-      ::_pbi::TcParser::GenericFallbackLite,  // fallback
+      ::_pbi::TcParser::GenericFallback,  // fallback
       #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
       ::_pbi::TcParser::GetTable<::sohook::TextMessageCore>(),  // to_prefetch
       #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
@@ -366,7 +396,7 @@ inline constexpr TextMessageCore::Impl_::Impl_(
 template <typename>
 constexpr TextMessageCore::TextMessageCore(::_pbi::ConstantInitialized,
                        const ::_pbi::ClassData* PROTOBUF_NONNULL class_data)
-    : ::google::protobuf::MessageLite(
+    : ::google::protobuf::Message(
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           class_data
 #endif  // PROTOBUF_CUSTOM_VTABLE
@@ -384,8 +414,8 @@ constexpr auto TextMessageCore::InternalNewImpl_() {
 constexpr auto TextMessageCore::InternalGenerateClassData_(
     const MessageLite& prototype,
     const ::google::protobuf::internal::TcParseTableBase* tc_table) {
-  return ::google::protobuf::internal::ClassDataLite{
-      {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
           &prototype,
 #ifndef PROTOBUF_MESSAGE_GLOBALS
           &_table_.header,
@@ -394,16 +424,22 @@ constexpr auto TextMessageCore::InternalGenerateClassData_(
 #endif
           nullptr,  // IsInitialized
           &TextMessageCore::MergeImpl,
-          ::google::protobuf::MessageLite::GetNewImpl<TextMessageCore>(),
+          ::google::protobuf::Message::GetNewImpl<TextMessageCore>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &TextMessageCore::SharedDtor,
-          ::google::protobuf::MessageLite::GetClearImpl<TextMessageCore>(), &TextMessageCore::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<TextMessageCore>(), &TextMessageCore::ByteSizeLong,
               &TextMessageCore::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(TextMessageCore, _impl_._cached_size_),
-          true,
+          false,
       },
-      "sohook.TextMessageCore",
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+      &file_reflection_data[2],
+#else   // !PROTOBUF_MESSAGE_GLOBALS
+      &::_pbi::kDescriptorMethods,
+      &descriptor_table_wework_5ftext_5fmessage_2eproto,
+      nullptr,  // tracker
+#endif  // PROTOBUF_MESSAGE_GLOBALS
   };
 }
 struct TextMessageCoreGlobalsTypeInternal : ::_pbi::MessageGlobalsBase {
@@ -470,7 +506,7 @@ constexpr TextMessage::ParseTableT_ TextMessage::InternalGenerateParseTable_(con
       offsetof(ParseTableT_, aux_entries),
       class_data,
       nullptr,  // post_loop_handler
-      ::_pbi::TcParser::GenericFallbackLite,  // fallback
+      ::_pbi::TcParser::GenericFallback,  // fallback
       #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
       ::_pbi::TcParser::GetTable<::sohook::TextMessage>(),  // to_prefetch
       #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
@@ -507,7 +543,7 @@ inline constexpr TextMessage::Impl_::Impl_(
 template <typename>
 constexpr TextMessage::TextMessage(::_pbi::ConstantInitialized,
                        const ::_pbi::ClassData* PROTOBUF_NONNULL class_data)
-    : ::google::protobuf::MessageLite(
+    : ::google::protobuf::Message(
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           class_data
 #endif  // PROTOBUF_CUSTOM_VTABLE
@@ -525,8 +561,8 @@ constexpr auto TextMessage::InternalNewImpl_() {
 constexpr auto TextMessage::InternalGenerateClassData_(
     const MessageLite& prototype,
     const ::google::protobuf::internal::TcParseTableBase* tc_table) {
-  return ::google::protobuf::internal::ClassDataLite{
-      {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
           &prototype,
 #ifndef PROTOBUF_MESSAGE_GLOBALS
           &_table_.header,
@@ -535,16 +571,22 @@ constexpr auto TextMessage::InternalGenerateClassData_(
 #endif
           nullptr,  // IsInitialized
           &TextMessage::MergeImpl,
-          ::google::protobuf::MessageLite::GetNewImpl<TextMessage>(),
+          ::google::protobuf::Message::GetNewImpl<TextMessage>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &TextMessage::SharedDtor,
-          ::google::protobuf::MessageLite::GetClearImpl<TextMessage>(), &TextMessage::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<TextMessage>(), &TextMessage::ByteSizeLong,
               &TextMessage::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(TextMessage, _impl_._cached_size_),
-          true,
+          false,
       },
-      "sohook.TextMessage",
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+      &file_reflection_data[3],
+#else   // !PROTOBUF_MESSAGE_GLOBALS
+      &::_pbi::kDescriptorMethods,
+      &descriptor_table_wework_5ftext_5fmessage_2eproto,
+      nullptr,  // tracker
+#endif  // PROTOBUF_MESSAGE_GLOBALS
   };
 }
 struct TextMessageGlobalsTypeInternal : ::_pbi::MessageGlobalsBase {
@@ -591,14 +633,86 @@ const ::_pbi::ClassData* TextMessage_get_class_data() {
 }  // namespace
 #endif  // PROTOBUF_CUSTOM_VTABLE
 }  // namespace sohook
+static constexpr const ::_pb::EnumDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULLABLE
+    file_level_enum_descriptors_wework_5ftext_5fmessage_2eproto = nullptr;
+static constexpr const ::_pb::ServiceDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULLABLE
+    file_level_service_descriptors_wework_5ftext_5fmessage_2eproto = nullptr;
+const ::uint32_t
+    TableStruct_wework_5ftext_5fmessage_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
+        protodesc_cold) = {
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::sohook::TextContent, _impl_._has_bits_),
+        4, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::sohook::TextContent, _impl_.text_),
+        0,
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::sohook::TextContentWrapper, _impl_._has_bits_),
+        5, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::sohook::TextContentWrapper, _impl_.status_),
+        PROTOBUF_FIELD_OFFSET(::sohook::TextContentWrapper, _impl_.content_),
+        1,
+        0,
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::sohook::TextMessageCore, _impl_._has_bits_),
+        4, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::sohook::TextMessageCore, _impl_.wrapper_),
+        0,
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::sohook::TextMessage, _impl_._has_bits_),
+        4, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::sohook::TextMessage, _impl_.core_),
+        0,
+};
+
+static const ::_pbi::MigrationSchema
+    schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+        {0, sizeof(::sohook::TextContent)},
+        {5, sizeof(::sohook::TextContentWrapper)},
+        {12, sizeof(::sohook::TextMessageCore)},
+        {17, sizeof(::sohook::TextMessage)},
+};
+static const ::_pbi::MessageGlobalsBase* PROTOBUF_NONNULL const
+    file_message_globals[] = {
+        &::sohook::TextContent_globals_,
+        &::sohook::TextContentWrapper_globals_,
+        &::sohook::TextMessageCore_globals_,
+        &::sohook::TextMessage_globals_,
+};
+const char descriptor_table_protodef_wework_5ftext_5fmessage_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
+    protodesc_cold) = {
+    "\n\031wework_text_message.proto\022\006sohook\"\033\n\013T"
+    "extContent\022\014\n\004text\030\001 \001(\t\"J\n\022TextContentW"
+    "rapper\022\016\n\006status\030\001 \001(\r\022$\n\007content\030\002 \001(\0132"
+    "\023.sohook.TextContent\">\n\017TextMessageCore\022"
+    "+\n\007wrapper\030\001 \001(\0132\032.sohook.TextContentWra"
+    "pper\"4\n\013TextMessage\022%\n\004core\030\n \001(\0132\027.soho"
+    "ok.TextMessageCore"
+};
+static ::absl::once_flag descriptor_table_wework_5ftext_5fmessage_2eproto_once;
+PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_wework_5ftext_5fmessage_2eproto = {
+    false,
+    false,
+    258,
+    descriptor_table_protodef_wework_5ftext_5fmessage_2eproto,
+    "wework_text_message.proto",
+    &descriptor_table_wework_5ftext_5fmessage_2eproto_once,
+    nullptr,
+    0,
+    4,
+    schemas,
+    file_message_globals,
+    TableStruct_wework_5ftext_5fmessage_2eproto::offsets,
+    file_level_enum_descriptors_wework_5ftext_5fmessage_2eproto,
+    file_level_service_descriptors_wework_5ftext_5fmessage_2eproto,
+};
 namespace sohook {
 // ===================================================================
 
 TextContent::TextContent(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, TextContent_get_class_data()) {
+    : ::google::protobuf::Message(arena, TextContent_get_class_data()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:sohook.TextContent)
@@ -615,14 +729,14 @@ TextContent::TextContent(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const TextContent& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, TextContent_get_class_data()) {
+    : ::google::protobuf::Message(arena, TextContent_get_class_data()) {
 
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   TextContent* const _this = this;
   (void)_this;
-  _internal_metadata_.MergeFrom<::std::string>(
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
 
@@ -646,25 +760,29 @@ inline void TextContent::SharedDtor(MessageLite& self) {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  this_._internal_metadata_.Delete<::std::string>();
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   this_._impl_.text_.Destroy();
   this_._impl_.~Impl_();
 }
 
 #ifndef PROTOBUF_MESSAGE_GLOBALS
-PROTOBUF_CONSTINIT
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataLite TextContent_class_data_ =
-    TextContent::InternalGenerateClassData_(TextContent_globals_._default);
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull TextContent_class_data_ =
+        TextContent::InternalGenerateClassData_(TextContent_globals_._default);
 
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 TextContent::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&TextContent_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(TextContent_class_data_.tc_table);
   return TextContent_class_data_.base();
 }
 #else
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 TextContent::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&TextContent_globals_);
+  ::google::protobuf::internal::PrefetchToLocalCache(
+      ::google::protobuf::internal::MessageGlobalsBase::ToParseTableBase(&TextContent_globals_));
   return TextContent_globals_.GetClassData();
 }
 #endif  // !PROTOBUF_MESSAGE_GLOBALS
@@ -686,7 +804,7 @@ PROTOBUF_NOINLINE void TextContent::Clear() {
     _impl_.text_.ClearNonDefaultToEmpty();
   }
   _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::std::string>();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -715,9 +833,9 @@ PROTOBUF_NOINLINE void TextContent::Clear() {
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(
-        this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).data(),
-        static_cast<int>(this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size()), target);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:sohook.TextContent)
   return target;
@@ -745,11 +863,8 @@ PROTOBUF_NOINLINE void TextContent::Clear() {
                                       this_._internal_text());
     }
   }
-  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    total_size += this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size();
-  }
-  this_._impl_._cached_size_.Set(::_pbi::ToCachedSize(total_size));
-  return total_size;
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
 }
 
 void TextContent::MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -769,7 +884,7 @@ void TextContent::MergeImpl(::google::protobuf::MessageLite& to_msg,
     _this->_internal_set_text(from._internal_text());
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
-  _this->_internal_metadata_.MergeFrom<::std::string>(
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
 }
 
@@ -790,13 +905,16 @@ void TextContent::InternalSwap(TextContent* PROTOBUF_RESTRICT PROTOBUF_NONNULL o
   ::_pbi::ArenaStringPtr::InternalSwap(&_impl_.text_, &other->_impl_.text_, arena);
 }
 
+::google::protobuf::Metadata TextContent::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
 // ===================================================================
 
 TextContentWrapper::TextContentWrapper(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, TextContentWrapper_get_class_data()) {
+    : ::google::protobuf::Message(arena, TextContentWrapper_get_class_data()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:sohook.TextContentWrapper)
@@ -812,19 +930,19 @@ TextContentWrapper::TextContentWrapper(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const TextContentWrapper& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, TextContentWrapper_get_class_data()) {
+    : ::google::protobuf::Message(arena, TextContentWrapper_get_class_data()) {
 
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   TextContentWrapper* const _this = this;
   (void)_this;
-  _internal_metadata_.MergeFrom<::std::string>(
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
   _impl_.content_ = (CheckHasBit(cached_has_bits, 0x00000001U))
-                ? ::google::protobuf::MessageLite::CopyConstruct(arena, *from._impl_.content_)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.content_)
                 : nullptr;
   _impl_.status_ = from._impl_.status_;
 
@@ -853,25 +971,29 @@ inline void TextContentWrapper::SharedDtor(MessageLite& self) {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  this_._internal_metadata_.Delete<::std::string>();
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   delete this_._impl_.content_;
   this_._impl_.~Impl_();
 }
 
 #ifndef PROTOBUF_MESSAGE_GLOBALS
-PROTOBUF_CONSTINIT
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataLite TextContentWrapper_class_data_ =
-    TextContentWrapper::InternalGenerateClassData_(TextContentWrapper_globals_._default);
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull TextContentWrapper_class_data_ =
+        TextContentWrapper::InternalGenerateClassData_(TextContentWrapper_globals_._default);
 
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 TextContentWrapper::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&TextContentWrapper_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(TextContentWrapper_class_data_.tc_table);
   return TextContentWrapper_class_data_.base();
 }
 #else
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 TextContentWrapper::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&TextContentWrapper_globals_);
+  ::google::protobuf::internal::PrefetchToLocalCache(
+      ::google::protobuf::internal::MessageGlobalsBase::ToParseTableBase(&TextContentWrapper_globals_));
   return TextContentWrapper_globals_.GetClassData();
 }
 #endif  // !PROTOBUF_MESSAGE_GLOBALS
@@ -895,7 +1017,7 @@ PROTOBUF_NOINLINE void TextContentWrapper::Clear() {
   }
   _impl_.status_ = 0u;
   _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::std::string>();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -932,9 +1054,9 @@ PROTOBUF_NOINLINE void TextContentWrapper::Clear() {
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(
-        this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).data(),
-        static_cast<int>(this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size()), target);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:sohook.TextContentWrapper)
   return target;
@@ -968,11 +1090,8 @@ PROTOBUF_NOINLINE void TextContentWrapper::Clear() {
           this_._internal_status());
     }
   }
-  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    total_size += this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size();
-  }
-  this_._impl_._cached_size_.Set(::_pbi::ToCachedSize(total_size));
-  return total_size;
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
 }
 
 void TextContentWrapper::MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -993,7 +1112,7 @@ void TextContentWrapper::MergeImpl(::google::protobuf::MessageLite& to_msg,
     if (CheckHasBit(cached_has_bits, 0x00000001U)) {
       ABSL_DCHECK(from._impl_.content_ != nullptr);
       if (_this->_impl_.content_ == nullptr) {
-        _this->_impl_.content_ = ::google::protobuf::MessageLite::CopyConstruct(arena, *from._impl_.content_);
+        _this->_impl_.content_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.content_);
       } else {
         _this->_impl_.content_->MergeFrom(*from._impl_.content_);
       }
@@ -1003,7 +1122,7 @@ void TextContentWrapper::MergeImpl(::google::protobuf::MessageLite& to_msg,
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
-  _this->_internal_metadata_.MergeFrom<::std::string>(
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
 }
 
@@ -1027,13 +1146,16 @@ void TextContentWrapper::InternalSwap(TextContentWrapper* PROTOBUF_RESTRICT PROT
           reinterpret_cast<char*>(&other->_impl_.content_));
 }
 
+::google::protobuf::Metadata TextContentWrapper::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
 // ===================================================================
 
 TextMessageCore::TextMessageCore(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, TextMessageCore_get_class_data()) {
+    : ::google::protobuf::Message(arena, TextMessageCore_get_class_data()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:sohook.TextMessageCore)
@@ -1049,19 +1171,19 @@ TextMessageCore::TextMessageCore(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const TextMessageCore& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, TextMessageCore_get_class_data()) {
+    : ::google::protobuf::Message(arena, TextMessageCore_get_class_data()) {
 
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   TextMessageCore* const _this = this;
   (void)_this;
-  _internal_metadata_.MergeFrom<::std::string>(
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
   _impl_.wrapper_ = (CheckHasBit(cached_has_bits, 0x00000001U))
-                ? ::google::protobuf::MessageLite::CopyConstruct(arena, *from._impl_.wrapper_)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.wrapper_)
                 : nullptr;
 
   // @@protoc_insertion_point(copy_constructor:sohook.TextMessageCore)
@@ -1084,25 +1206,29 @@ inline void TextMessageCore::SharedDtor(MessageLite& self) {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  this_._internal_metadata_.Delete<::std::string>();
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   delete this_._impl_.wrapper_;
   this_._impl_.~Impl_();
 }
 
 #ifndef PROTOBUF_MESSAGE_GLOBALS
-PROTOBUF_CONSTINIT
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataLite TextMessageCore_class_data_ =
-    TextMessageCore::InternalGenerateClassData_(TextMessageCore_globals_._default);
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull TextMessageCore_class_data_ =
+        TextMessageCore::InternalGenerateClassData_(TextMessageCore_globals_._default);
 
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 TextMessageCore::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&TextMessageCore_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(TextMessageCore_class_data_.tc_table);
   return TextMessageCore_class_data_.base();
 }
 #else
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 TextMessageCore::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&TextMessageCore_globals_);
+  ::google::protobuf::internal::PrefetchToLocalCache(
+      ::google::protobuf::internal::MessageGlobalsBase::ToParseTableBase(&TextMessageCore_globals_));
   return TextMessageCore_globals_.GetClassData();
 }
 #endif  // !PROTOBUF_MESSAGE_GLOBALS
@@ -1125,7 +1251,7 @@ PROTOBUF_NOINLINE void TextMessageCore::Clear() {
     _impl_.wrapper_->Clear();
   }
   _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::std::string>();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -1155,9 +1281,9 @@ PROTOBUF_NOINLINE void TextMessageCore::Clear() {
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(
-        this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).data(),
-        static_cast<int>(this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size()), target);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:sohook.TextMessageCore)
   return target;
@@ -1185,11 +1311,8 @@ PROTOBUF_NOINLINE void TextMessageCore::Clear() {
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.wrapper_);
     }
   }
-  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    total_size += this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size();
-  }
-  this_._impl_._cached_size_.Set(::_pbi::ToCachedSize(total_size));
-  return total_size;
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
 }
 
 void TextMessageCore::MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -1209,13 +1332,13 @@ void TextMessageCore::MergeImpl(::google::protobuf::MessageLite& to_msg,
   if (CheckHasBit(cached_has_bits, 0x00000001U)) {
     ABSL_DCHECK(from._impl_.wrapper_ != nullptr);
     if (_this->_impl_.wrapper_ == nullptr) {
-      _this->_impl_.wrapper_ = ::google::protobuf::MessageLite::CopyConstruct(arena, *from._impl_.wrapper_);
+      _this->_impl_.wrapper_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.wrapper_);
     } else {
       _this->_impl_.wrapper_->MergeFrom(*from._impl_.wrapper_);
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
-  _this->_internal_metadata_.MergeFrom<::std::string>(
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
 }
 
@@ -1234,13 +1357,16 @@ void TextMessageCore::InternalSwap(TextMessageCore* PROTOBUF_RESTRICT PROTOBUF_N
   swap(_impl_.wrapper_, other->_impl_.wrapper_);
 }
 
+::google::protobuf::Metadata TextMessageCore::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
 // ===================================================================
 
 TextMessage::TextMessage(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, TextMessage_get_class_data()) {
+    : ::google::protobuf::Message(arena, TextMessage_get_class_data()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:sohook.TextMessage)
@@ -1256,19 +1382,19 @@ TextMessage::TextMessage(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const TextMessage& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, TextMessage_get_class_data()) {
+    : ::google::protobuf::Message(arena, TextMessage_get_class_data()) {
 
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   TextMessage* const _this = this;
   (void)_this;
-  _internal_metadata_.MergeFrom<::std::string>(
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
   _impl_.core_ = (CheckHasBit(cached_has_bits, 0x00000001U))
-                ? ::google::protobuf::MessageLite::CopyConstruct(arena, *from._impl_.core_)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.core_)
                 : nullptr;
 
   // @@protoc_insertion_point(copy_constructor:sohook.TextMessage)
@@ -1291,25 +1417,29 @@ inline void TextMessage::SharedDtor(MessageLite& self) {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  this_._internal_metadata_.Delete<::std::string>();
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   delete this_._impl_.core_;
   this_._impl_.~Impl_();
 }
 
 #ifndef PROTOBUF_MESSAGE_GLOBALS
-PROTOBUF_CONSTINIT
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataLite TextMessage_class_data_ =
-    TextMessage::InternalGenerateClassData_(TextMessage_globals_._default);
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull TextMessage_class_data_ =
+        TextMessage::InternalGenerateClassData_(TextMessage_globals_._default);
 
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 TextMessage::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&TextMessage_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(TextMessage_class_data_.tc_table);
   return TextMessage_class_data_.base();
 }
 #else
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 TextMessage::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&TextMessage_globals_);
+  ::google::protobuf::internal::PrefetchToLocalCache(
+      ::google::protobuf::internal::MessageGlobalsBase::ToParseTableBase(&TextMessage_globals_));
   return TextMessage_globals_.GetClassData();
 }
 #endif  // !PROTOBUF_MESSAGE_GLOBALS
@@ -1332,7 +1462,7 @@ PROTOBUF_NOINLINE void TextMessage::Clear() {
     _impl_.core_->Clear();
   }
   _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::std::string>();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -1362,9 +1492,9 @@ PROTOBUF_NOINLINE void TextMessage::Clear() {
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(
-        this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).data(),
-        static_cast<int>(this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size()), target);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:sohook.TextMessage)
   return target;
@@ -1392,11 +1522,8 @@ PROTOBUF_NOINLINE void TextMessage::Clear() {
                     ::google::protobuf::internal::WireFormatLite::MessageSize(*this_._impl_.core_);
     }
   }
-  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    total_size += this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size();
-  }
-  this_._impl_._cached_size_.Set(::_pbi::ToCachedSize(total_size));
-  return total_size;
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
 }
 
 void TextMessage::MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -1416,13 +1543,13 @@ void TextMessage::MergeImpl(::google::protobuf::MessageLite& to_msg,
   if (CheckHasBit(cached_has_bits, 0x00000001U)) {
     ABSL_DCHECK(from._impl_.core_ != nullptr);
     if (_this->_impl_.core_ == nullptr) {
-      _this->_impl_.core_ = ::google::protobuf::MessageLite::CopyConstruct(arena, *from._impl_.core_);
+      _this->_impl_.core_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.core_);
     } else {
       _this->_impl_.core_->MergeFrom(*from._impl_.core_);
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
-  _this->_internal_metadata_.MergeFrom<::std::string>(
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
 }
 
@@ -1441,6 +1568,9 @@ void TextMessage::InternalSwap(TextMessage* PROTOBUF_RESTRICT PROTOBUF_NONNULL o
   swap(_impl_.core_, other->_impl_.core_);
 }
 
+::google::protobuf::Metadata TextMessage::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace sohook
 namespace google {
@@ -1448,4 +1578,8 @@ namespace protobuf {
 }  // namespace protobuf
 }  // namespace google
 // @@protoc_insertion_point(global_scope)
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::std::false_type
+    _static_init2_ [[maybe_unused]] =
+        (::_pbi::AddDescriptors(&descriptor_table_wework_5ftext_5fmessage_2eproto),
+         ::std::false_type{});
 #include "google/protobuf/port_undef.inc"

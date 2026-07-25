@@ -13,7 +13,10 @@
 #include "google/protobuf/extension_set.h"
 #include "google/protobuf/generated_message_util.h"
 #include "google/protobuf/wire_format_lite.h"
-#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
+#include "google/protobuf/descriptor.h"
+#include "google/protobuf/generated_message_reflection.h"
+#include "google/protobuf/reflection_ops.h"
+#include "google/protobuf/wire_format.h"
 // @@protoc_insertion_point(includes)
 
 // Must be included last.
@@ -22,6 +25,17 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::google::protobuf;
 namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+namespace {
+PROTOBUF_CONSTINIT ::google::protobuf::internal::ReflectionData
+    file_reflection_data[] = {
+        // ::sohook::ImageContent
+        {&::_pbi::kDescriptorMethods, &::descriptor_table_wework_5fimage_5fmessage_2eproto, /* tracker*/ nullptr,},
+        // ::sohook::ImageMessage
+        {&::_pbi::kDescriptorMethods, &::descriptor_table_wework_5fimage_5fmessage_2eproto, /* tracker*/ nullptr,},
+};
+}  // namespace
+#endif
 namespace sohook {
 class ImageContent::_Internal {
  public:
@@ -44,7 +58,7 @@ constexpr ImageContent::ParseTableT_ ImageContent::InternalGenerateParseTable_(c
       offsetof(ParseTableT_, field_names),  // no aux_entries
       class_data,
       nullptr,  // post_loop_handler
-      ::_pbi::TcParser::GenericFallbackLite,  // fallback
+      ::_pbi::TcParser::GenericFallback,  // fallback
       #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
       ::_pbi::TcParser::GetTable<::sohook::ImageContent>(),  // to_prefetch
       #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
@@ -60,15 +74,15 @@ constexpr ImageContent::ParseTableT_ ImageContent::InternalGenerateParseTable_(c
        {26, 1, 0,
         PROTOBUF_FIELD_OFFSET(ImageContent, _impl_.orig_path_)}},
       // optional uint64 file_size = 4;
-      {::_pbi::TcParser::FastV64S1,
+      {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(ImageContent, _impl_.file_size_), 4>(),
        {32, 4, 0,
         PROTOBUF_FIELD_OFFSET(ImageContent, _impl_.file_size_)}},
       // optional uint32 width = 5;
-      {::_pbi::TcParser::FastV32S1,
+      {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ImageContent, _impl_.width_), 5>(),
        {40, 5, 0,
         PROTOBUF_FIELD_OFFSET(ImageContent, _impl_.width_)}},
       // optional uint32 height = 6;
-      {::_pbi::TcParser::FastV32S1,
+      {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ImageContent, _impl_.height_), 6>(),
        {48, 6, 0,
         PROTOBUF_FIELD_OFFSET(ImageContent, _impl_.height_)}},
       {::_pbi::TcParser::MiniParse, {}},
@@ -148,7 +162,7 @@ inline constexpr ImageContent::Impl_::Impl_(
 template <typename>
 constexpr ImageContent::ImageContent(::_pbi::ConstantInitialized,
                        const ::_pbi::ClassData* PROTOBUF_NONNULL class_data)
-    : ::google::protobuf::MessageLite(
+    : ::google::protobuf::Message(
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           class_data
 #endif  // PROTOBUF_CUSTOM_VTABLE
@@ -166,8 +180,8 @@ constexpr auto ImageContent::InternalNewImpl_() {
 constexpr auto ImageContent::InternalGenerateClassData_(
     const MessageLite& prototype,
     const ::google::protobuf::internal::TcParseTableBase* tc_table) {
-  return ::google::protobuf::internal::ClassDataLite{
-      {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
           &prototype,
 #ifndef PROTOBUF_MESSAGE_GLOBALS
           &_table_.header,
@@ -176,16 +190,22 @@ constexpr auto ImageContent::InternalGenerateClassData_(
 #endif
           nullptr,  // IsInitialized
           &ImageContent::MergeImpl,
-          ::google::protobuf::MessageLite::GetNewImpl<ImageContent>(),
+          ::google::protobuf::Message::GetNewImpl<ImageContent>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &ImageContent::SharedDtor,
-          ::google::protobuf::MessageLite::GetClearImpl<ImageContent>(), &ImageContent::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<ImageContent>(), &ImageContent::ByteSizeLong,
               &ImageContent::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(ImageContent, _impl_._cached_size_),
-          true,
+          false,
       },
-      "sohook.ImageContent",
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+      &file_reflection_data[0],
+#else   // !PROTOBUF_MESSAGE_GLOBALS
+      &::_pbi::kDescriptorMethods,
+      &descriptor_table_wework_5fimage_5fmessage_2eproto,
+      nullptr,  // tracker
+#endif  // PROTOBUF_MESSAGE_GLOBALS
   };
 }
 struct ImageContentGlobalsTypeInternal : ::_pbi::MessageGlobalsBase {
@@ -252,7 +272,7 @@ constexpr ImageMessage::ParseTableT_ ImageMessage::InternalGenerateParseTable_(c
       offsetof(ParseTableT_, aux_entries),
       class_data,
       nullptr,  // post_loop_handler
-      ::_pbi::TcParser::GenericFallbackLite,  // fallback
+      ::_pbi::TcParser::GenericFallback,  // fallback
       #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
       ::_pbi::TcParser::GetTable<::sohook::ImageMessage>(),  // to_prefetch
       #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
@@ -262,7 +282,7 @@ constexpr ImageMessage::ParseTableT_ ImageMessage::InternalGenerateParseTable_(c
        {82, 0, 0,
         PROTOBUF_FIELD_OFFSET(ImageMessage, _impl_.content_)}},
       // optional uint32 msg_type = 7;
-      {::_pbi::TcParser::FastV32S1,
+      {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ImageMessage, _impl_.msg_type_), 1>(),
        {56, 1, 0,
         PROTOBUF_FIELD_OFFSET(ImageMessage, _impl_.msg_type_)}},
     }}, {{
@@ -296,7 +316,7 @@ inline constexpr ImageMessage::Impl_::Impl_(
 template <typename>
 constexpr ImageMessage::ImageMessage(::_pbi::ConstantInitialized,
                        const ::_pbi::ClassData* PROTOBUF_NONNULL class_data)
-    : ::google::protobuf::MessageLite(
+    : ::google::protobuf::Message(
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           class_data
 #endif  // PROTOBUF_CUSTOM_VTABLE
@@ -314,8 +334,8 @@ constexpr auto ImageMessage::InternalNewImpl_() {
 constexpr auto ImageMessage::InternalGenerateClassData_(
     const MessageLite& prototype,
     const ::google::protobuf::internal::TcParseTableBase* tc_table) {
-  return ::google::protobuf::internal::ClassDataLite{
-      {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
           &prototype,
 #ifndef PROTOBUF_MESSAGE_GLOBALS
           &_table_.header,
@@ -324,16 +344,22 @@ constexpr auto ImageMessage::InternalGenerateClassData_(
 #endif
           nullptr,  // IsInitialized
           &ImageMessage::MergeImpl,
-          ::google::protobuf::MessageLite::GetNewImpl<ImageMessage>(),
+          ::google::protobuf::Message::GetNewImpl<ImageMessage>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &ImageMessage::SharedDtor,
-          ::google::protobuf::MessageLite::GetClearImpl<ImageMessage>(), &ImageMessage::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<ImageMessage>(), &ImageMessage::ByteSizeLong,
               &ImageMessage::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(ImageMessage, _impl_._cached_size_),
-          true,
+          false,
       },
-      "sohook.ImageMessage",
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+      &file_reflection_data[1],
+#else   // !PROTOBUF_MESSAGE_GLOBALS
+      &::_pbi::kDescriptorMethods,
+      &descriptor_table_wework_5fimage_5fmessage_2eproto,
+      nullptr,  // tracker
+#endif  // PROTOBUF_MESSAGE_GLOBALS
   };
 }
 struct ImageMessageGlobalsTypeInternal : ::_pbi::MessageGlobalsBase {
@@ -380,14 +406,89 @@ const ::_pbi::ClassData* ImageMessage_get_class_data() {
 }  // namespace
 #endif  // PROTOBUF_CUSTOM_VTABLE
 }  // namespace sohook
+static constexpr const ::_pb::EnumDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULLABLE
+    file_level_enum_descriptors_wework_5fimage_5fmessage_2eproto = nullptr;
+static constexpr const ::_pb::ServiceDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULLABLE
+    file_level_service_descriptors_wework_5fimage_5fmessage_2eproto = nullptr;
+const ::uint32_t
+    TableStruct_wework_5fimage_5fmessage_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
+        protodesc_cold) = {
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_._has_bits_),
+        12, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_.file_name_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_.orig_path_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_.file_size_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_.width_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_.height_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_.thumb_width_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_.thumb_height_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_.thumb_path_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageContent, _impl_.mid_path_),
+        0,
+        1,
+        4,
+        5,
+        6,
+        7,
+        8,
+        2,
+        3,
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageMessage, _impl_._has_bits_),
+        5, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageMessage, _impl_.msg_type_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ImageMessage, _impl_.content_),
+        1,
+        0,
+};
+
+static const ::_pbi::MigrationSchema
+    schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+        {0, sizeof(::sohook::ImageContent)},
+        {21, sizeof(::sohook::ImageMessage)},
+};
+static const ::_pbi::MessageGlobalsBase* PROTOBUF_NONNULL const
+    file_message_globals[] = {
+        &::sohook::ImageContent_globals_,
+        &::sohook::ImageMessage_globals_,
+};
+const char descriptor_table_protodef_wework_5fimage_5fmessage_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
+    protodesc_cold) = {
+    "\n\032wework_image_message.proto\022\006sohook\"\271\001\n"
+    "\014ImageContent\022\021\n\tfile_name\030\002 \001(\t\022\021\n\torig"
+    "_path\030\003 \001(\t\022\021\n\tfile_size\030\004 \001(\004\022\r\n\005width\030"
+    "\005 \001(\r\022\016\n\006height\030\006 \001(\r\022\023\n\013thumb_width\030\034 \001"
+    "(\r\022\024\n\014thumb_height\030\035 \001(\r\022\023\n\nthumb_path\030\312"
+    "\001 \001(\t\022\021\n\010mid_path\030\313\001 \001(\t\"G\n\014ImageMessage"
+    "\022\020\n\010msg_type\030\007 \001(\r\022%\n\007content\030\n \001(\0132\024.so"
+    "hook.ImageContent"
+};
+static ::absl::once_flag descriptor_table_wework_5fimage_5fmessage_2eproto_once;
+PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_wework_5fimage_5fmessage_2eproto = {
+    false,
+    false,
+    297,
+    descriptor_table_protodef_wework_5fimage_5fmessage_2eproto,
+    "wework_image_message.proto",
+    &descriptor_table_wework_5fimage_5fmessage_2eproto_once,
+    nullptr,
+    0,
+    2,
+    schemas,
+    file_message_globals,
+    TableStruct_wework_5fimage_5fmessage_2eproto::offsets,
+    file_level_enum_descriptors_wework_5fimage_5fmessage_2eproto,
+    file_level_service_descriptors_wework_5fimage_5fmessage_2eproto,
+};
 namespace sohook {
 // ===================================================================
 
 ImageContent::ImageContent(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, ImageContent_get_class_data()) {
+    : ::google::protobuf::Message(arena, ImageContent_get_class_data()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:sohook.ImageContent)
@@ -407,14 +508,14 @@ ImageContent::ImageContent(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const ImageContent& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, ImageContent_get_class_data()) {
+    : ::google::protobuf::Message(arena, ImageContent_get_class_data()) {
 
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   ImageContent* const _this = this;
   (void)_this;
-  _internal_metadata_.MergeFrom<::std::string>(
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::memcpy(reinterpret_cast<char*>(&_impl_) +
@@ -454,7 +555,7 @@ inline void ImageContent::SharedDtor(MessageLite& self) {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  this_._internal_metadata_.Delete<::std::string>();
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   this_._impl_.file_name_.Destroy();
   this_._impl_.orig_path_.Destroy();
@@ -464,18 +565,22 @@ inline void ImageContent::SharedDtor(MessageLite& self) {
 }
 
 #ifndef PROTOBUF_MESSAGE_GLOBALS
-PROTOBUF_CONSTINIT
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataLite ImageContent_class_data_ =
-    ImageContent::InternalGenerateClassData_(ImageContent_globals_._default);
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull ImageContent_class_data_ =
+        ImageContent::InternalGenerateClassData_(ImageContent_globals_._default);
 
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 ImageContent::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&ImageContent_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(ImageContent_class_data_.tc_table);
   return ImageContent_class_data_.base();
 }
 #else
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 ImageContent::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&ImageContent_globals_);
+  ::google::protobuf::internal::PrefetchToLocalCache(
+      ::google::protobuf::internal::MessageGlobalsBase::ToParseTableBase(&ImageContent_globals_));
   return ImageContent_globals_.GetClassData();
 }
 #endif  // !PROTOBUF_MESSAGE_GLOBALS
@@ -514,7 +619,7 @@ PROTOBUF_NOINLINE void ImageContent::Clear() {
   }
   _impl_.thumb_height_ = 0u;
   _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::std::string>();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -596,9 +701,9 @@ PROTOBUF_NOINLINE void ImageContent::Clear() {
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(
-        this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).data(),
-        static_cast<int>(this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size()), target);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:sohook.ImageContent)
   return target;
@@ -669,11 +774,8 @@ PROTOBUF_NOINLINE void ImageContent::Clear() {
                                       this_._internal_thumb_height());
     }
   }
-  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    total_size += this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size();
-  }
-  this_._impl_._cached_size_.Set(::_pbi::ToCachedSize(total_size));
-  return total_size;
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
 }
 
 void ImageContent::MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -719,7 +821,7 @@ void ImageContent::MergeImpl(::google::protobuf::MessageLite& to_msg,
     _this->_impl_.thumb_height_ = from._impl_.thumb_height_;
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
-  _this->_internal_metadata_.MergeFrom<::std::string>(
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
 }
 
@@ -749,13 +851,16 @@ void ImageContent::InternalSwap(ImageContent* PROTOBUF_RESTRICT PROTOBUF_NONNULL
           reinterpret_cast<char*>(&other->_impl_.file_size_));
 }
 
+::google::protobuf::Metadata ImageContent::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
 // ===================================================================
 
 ImageMessage::ImageMessage(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, ImageMessage_get_class_data()) {
+    : ::google::protobuf::Message(arena, ImageMessage_get_class_data()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:sohook.ImageMessage)
@@ -771,19 +876,19 @@ ImageMessage::ImageMessage(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const ImageMessage& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, ImageMessage_get_class_data()) {
+    : ::google::protobuf::Message(arena, ImageMessage_get_class_data()) {
 
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   ImageMessage* const _this = this;
   (void)_this;
-  _internal_metadata_.MergeFrom<::std::string>(
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::uint32_t cached_has_bits = _impl_._has_bits_[0];
   _impl_.content_ = (CheckHasBit(cached_has_bits, 0x00000001U))
-                ? ::google::protobuf::MessageLite::CopyConstruct(arena, *from._impl_.content_)
+                ? ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.content_)
                 : nullptr;
   _impl_.msg_type_ = from._impl_.msg_type_;
 
@@ -812,25 +917,29 @@ inline void ImageMessage::SharedDtor(MessageLite& self) {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  this_._internal_metadata_.Delete<::std::string>();
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   delete this_._impl_.content_;
   this_._impl_.~Impl_();
 }
 
 #ifndef PROTOBUF_MESSAGE_GLOBALS
-PROTOBUF_CONSTINIT
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataLite ImageMessage_class_data_ =
-    ImageMessage::InternalGenerateClassData_(ImageMessage_globals_._default);
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull ImageMessage_class_data_ =
+        ImageMessage::InternalGenerateClassData_(ImageMessage_globals_._default);
 
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 ImageMessage::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&ImageMessage_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(ImageMessage_class_data_.tc_table);
   return ImageMessage_class_data_.base();
 }
 #else
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 ImageMessage::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&ImageMessage_globals_);
+  ::google::protobuf::internal::PrefetchToLocalCache(
+      ::google::protobuf::internal::MessageGlobalsBase::ToParseTableBase(&ImageMessage_globals_));
   return ImageMessage_globals_.GetClassData();
 }
 #endif  // !PROTOBUF_MESSAGE_GLOBALS
@@ -854,7 +963,7 @@ PROTOBUF_NOINLINE void ImageMessage::Clear() {
   }
   _impl_.msg_type_ = 0u;
   _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::std::string>();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -891,9 +1000,9 @@ PROTOBUF_NOINLINE void ImageMessage::Clear() {
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(
-        this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).data(),
-        static_cast<int>(this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size()), target);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:sohook.ImageMessage)
   return target;
@@ -927,11 +1036,8 @@ PROTOBUF_NOINLINE void ImageMessage::Clear() {
           this_._internal_msg_type());
     }
   }
-  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    total_size += this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size();
-  }
-  this_._impl_._cached_size_.Set(::_pbi::ToCachedSize(total_size));
-  return total_size;
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
 }
 
 void ImageMessage::MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -952,7 +1058,7 @@ void ImageMessage::MergeImpl(::google::protobuf::MessageLite& to_msg,
     if (CheckHasBit(cached_has_bits, 0x00000001U)) {
       ABSL_DCHECK(from._impl_.content_ != nullptr);
       if (_this->_impl_.content_ == nullptr) {
-        _this->_impl_.content_ = ::google::protobuf::MessageLite::CopyConstruct(arena, *from._impl_.content_);
+        _this->_impl_.content_ = ::google::protobuf::Message::CopyConstruct(arena, *from._impl_.content_);
       } else {
         _this->_impl_.content_->MergeFrom(*from._impl_.content_);
       }
@@ -962,7 +1068,7 @@ void ImageMessage::MergeImpl(::google::protobuf::MessageLite& to_msg,
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
-  _this->_internal_metadata_.MergeFrom<::std::string>(
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
 }
 
@@ -986,6 +1092,9 @@ void ImageMessage::InternalSwap(ImageMessage* PROTOBUF_RESTRICT PROTOBUF_NONNULL
           reinterpret_cast<char*>(&other->_impl_.content_));
 }
 
+::google::protobuf::Metadata ImageMessage::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace sohook
 namespace google {
@@ -993,4 +1102,8 @@ namespace protobuf {
 }  // namespace protobuf
 }  // namespace google
 // @@protoc_insertion_point(global_scope)
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::std::false_type
+    _static_init2_ [[maybe_unused]] =
+        (::_pbi::AddDescriptors(&descriptor_table_wework_5fimage_5fmessage_2eproto),
+         ::std::false_type{});
 #include "google/protobuf/port_undef.inc"

@@ -13,7 +13,10 @@
 #include "google/protobuf/extension_set.h"
 #include "google/protobuf/generated_message_util.h"
 #include "google/protobuf/wire_format_lite.h"
-#include "google/protobuf/io/zero_copy_stream_impl_lite.h"
+#include "google/protobuf/descriptor.h"
+#include "google/protobuf/generated_message_reflection.h"
+#include "google/protobuf/reflection_ops.h"
+#include "google/protobuf/wire_format.h"
 // @@protoc_insertion_point(includes)
 
 // Must be included last.
@@ -22,6 +25,15 @@ PROTOBUF_PRAGMA_INIT_SEG
 namespace _pb = ::google::protobuf;
 namespace _pbi = ::google::protobuf::internal;
 namespace _fl = ::google::protobuf::internal::field_layout;
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+namespace {
+PROTOBUF_CONSTINIT ::google::protobuf::internal::ReflectionData
+    file_reflection_data[] = {
+        // ::sohook::ConversationInfo
+        {&::_pbi::kDescriptorMethods, &::descriptor_table_wework_5fconversation_2eproto, /* tracker*/ nullptr,},
+};
+}  // namespace
+#endif
 namespace sohook {
 class ConversationInfo::_Internal {
  public:
@@ -37,26 +49,29 @@ constexpr ConversationInfo::ParseTableT_ ConversationInfo::InternalGenerateParse
       0, // no _extensions_
       15, 24,  // max_field_number, fast_idx_mask
       offsetof(ParseTableT_, field_lookup_table),
-      4294948861,  // skipmap
+      4294948860,  // skipmap
       offsetof(ParseTableT_, field_entries),
-      3,  // num_field_entries
+      4,  // num_field_entries
       0,  // num_aux_entries
       offsetof(ParseTableT_, field_names),  // no aux_entries
       class_data,
       nullptr,  // post_loop_handler
-      ::_pbi::TcParser::GenericFallbackLite,  // fallback
+      ::_pbi::TcParser::GenericFallback,  // fallback
       #ifdef PROTOBUF_PREFETCH_PARSE_TABLE
       ::_pbi::TcParser::GetTable<::sohook::ConversationInfo>(),  // to_prefetch
       #endif  // PROTOBUF_PREFETCH_PARSE_TABLE
     }, {{
       // optional uint32 field_12 = 12;
-      {::_pbi::TcParser::FastV32S1,
-       {96, 2, 0,
+      {::_pbi::TcParser::SingularVarintNoZag1<::uint32_t, offsetof(ConversationInfo, _impl_.field_12_), 3>(),
+       {96, 3, 0,
         PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.field_12_)}},
-      {::_pbi::TcParser::MiniParse, {}},
+      // optional uint64 local_id = 1;
+      {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(ConversationInfo, _impl_.local_id_), 1>(),
+       {8, 1, 0,
+        PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.local_id_)}},
       // optional uint64 conversation_id = 2;
-      {::_pbi::TcParser::FastV64S1,
-       {16, 1, 0,
+      {::_pbi::TcParser::SingularVarintNoZag1<::uint64_t, offsetof(ConversationInfo, _impl_.conversation_id_), 2>(),
+       {16, 2, 0,
         PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.conversation_id_)}},
       // optional bytes field_15 = 15;
       {::_pbi::TcParser::FastBS1,
@@ -65,10 +80,12 @@ constexpr ConversationInfo::ParseTableT_ ConversationInfo::InternalGenerateParse
     }}, {{
       65535, 65535
     }}, {{
+      // optional uint64 local_id = 1;
+      {PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.local_id_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt64)},
       // optional uint64 conversation_id = 2;
-      {PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.conversation_id_), _Internal::kHasBitsOffset + 1, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt64)},
+      {PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.conversation_id_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt64)},
       // optional uint32 field_12 = 12;
-      {PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.field_12_), _Internal::kHasBitsOffset + 2, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
+      {PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.field_12_), _Internal::kHasBitsOffset + 3, 0, (0 | ::_fl::kFcOptional | ::_fl::kUInt32)},
       // optional bytes field_15 = 15;
       {PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.field_15_), _Internal::kHasBitsOffset + 0, 0, (0 | ::_fl::kFcOptional | ::_fl::kBytes | ::_fl::kRepAString)},
     }},
@@ -86,13 +103,14 @@ inline constexpr ConversationInfo::Impl_::Impl_(
         field_15_(
             &::google::protobuf::internal::fixed_address_empty_string,
             ::_pbi::ConstantInitialized()),
+        local_id_{::uint64_t{0u}},
         conversation_id_{::uint64_t{0u}},
         field_12_{0u} {}
 
 template <typename>
 constexpr ConversationInfo::ConversationInfo(::_pbi::ConstantInitialized,
                        const ::_pbi::ClassData* PROTOBUF_NONNULL class_data)
-    : ::google::protobuf::MessageLite(
+    : ::google::protobuf::Message(
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           class_data
 #endif  // PROTOBUF_CUSTOM_VTABLE
@@ -110,8 +128,8 @@ constexpr auto ConversationInfo::InternalNewImpl_() {
 constexpr auto ConversationInfo::InternalGenerateClassData_(
     const MessageLite& prototype,
     const ::google::protobuf::internal::TcParseTableBase* tc_table) {
-  return ::google::protobuf::internal::ClassDataLite{
-      {
+  return ::google::protobuf::internal::ClassDataFull{
+      ::google::protobuf::internal::ClassData{
           &prototype,
 #ifndef PROTOBUF_MESSAGE_GLOBALS
           &_table_.header,
@@ -120,16 +138,22 @@ constexpr auto ConversationInfo::InternalGenerateClassData_(
 #endif
           nullptr,  // IsInitialized
           &ConversationInfo::MergeImpl,
-          ::google::protobuf::MessageLite::GetNewImpl<ConversationInfo>(),
+          ::google::protobuf::Message::GetNewImpl<ConversationInfo>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &ConversationInfo::SharedDtor,
-          ::google::protobuf::MessageLite::GetClearImpl<ConversationInfo>(), &ConversationInfo::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<ConversationInfo>(), &ConversationInfo::ByteSizeLong,
               &ConversationInfo::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_._cached_size_),
-          true,
+          false,
       },
-      "sohook.ConversationInfo",
+#ifdef PROTOBUF_MESSAGE_GLOBALS
+      &file_reflection_data[0],
+#else   // !PROTOBUF_MESSAGE_GLOBALS
+      &::_pbi::kDescriptorMethods,
+      &descriptor_table_wework_5fconversation_2eproto,
+      nullptr,  // tracker
+#endif  // PROTOBUF_MESSAGE_GLOBALS
   };
 }
 struct ConversationInfoGlobalsTypeInternal : ::_pbi::MessageGlobalsBase {
@@ -176,14 +200,66 @@ const ::_pbi::ClassData* ConversationInfo_get_class_data() {
 }  // namespace
 #endif  // PROTOBUF_CUSTOM_VTABLE
 }  // namespace sohook
+static constexpr const ::_pb::EnumDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULLABLE
+    file_level_enum_descriptors_wework_5fconversation_2eproto = nullptr;
+static constexpr const ::_pb::ServiceDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULLABLE
+    file_level_service_descriptors_wework_5fconversation_2eproto = nullptr;
+const ::uint32_t
+    TableStruct_wework_5fconversation_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
+        protodesc_cold) = {
+        0x081, // bitmap
+        PROTOBUF_FIELD_OFFSET(::sohook::ConversationInfo, _impl_._has_bits_),
+        7, // hasbit index offset
+        PROTOBUF_FIELD_OFFSET(::sohook::ConversationInfo, _impl_.local_id_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ConversationInfo, _impl_.conversation_id_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ConversationInfo, _impl_.field_12_),
+        PROTOBUF_FIELD_OFFSET(::sohook::ConversationInfo, _impl_.field_15_),
+        1,
+        2,
+        3,
+        0,
+};
+
+static const ::_pbi::MigrationSchema
+    schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
+        {0, sizeof(::sohook::ConversationInfo)},
+};
+static const ::_pbi::MessageGlobalsBase* PROTOBUF_NONNULL const
+    file_message_globals[] = {
+        &::sohook::ConversationInfo_globals_,
+};
+const char descriptor_table_protodef_wework_5fconversation_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
+    protodesc_cold) = {
+    "\n\031wework_conversation.proto\022\006sohook\"a\n\020C"
+    "onversationInfo\022\020\n\010local_id\030\001 \001(\004\022\027\n\017con"
+    "versation_id\030\002 \001(\004\022\020\n\010field_12\030\014 \001(\r\022\020\n\010"
+    "field_15\030\017 \001(\014"
+};
+static ::absl::once_flag descriptor_table_wework_5fconversation_2eproto_once;
+PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_wework_5fconversation_2eproto = {
+    false,
+    false,
+    134,
+    descriptor_table_protodef_wework_5fconversation_2eproto,
+    "wework_conversation.proto",
+    &descriptor_table_wework_5fconversation_2eproto_once,
+    nullptr,
+    0,
+    1,
+    schemas,
+    file_message_globals,
+    TableStruct_wework_5fconversation_2eproto::offsets,
+    file_level_enum_descriptors_wework_5fconversation_2eproto,
+    file_level_service_descriptors_wework_5fconversation_2eproto,
+};
 namespace sohook {
 // ===================================================================
 
 ConversationInfo::ConversationInfo(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, ConversationInfo_get_class_data()) {
+    : ::google::protobuf::Message(arena, ConversationInfo_get_class_data()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:sohook.ConversationInfo)
@@ -200,22 +276,22 @@ ConversationInfo::ConversationInfo(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const ConversationInfo& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::MessageLite(arena, ConversationInfo_get_class_data()) {
+    : ::google::protobuf::Message(arena, ConversationInfo_get_class_data()) {
 
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::MessageLite(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   ConversationInfo* const _this = this;
   (void)_this;
-  _internal_metadata_.MergeFrom<::std::string>(
+  _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
   new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
   ::memcpy(reinterpret_cast<char*>(&_impl_) +
-               offsetof(Impl_, conversation_id_),
+               offsetof(Impl_, local_id_),
            reinterpret_cast<const char*>(&from._impl_) +
-               offsetof(Impl_, conversation_id_),
+               offsetof(Impl_, local_id_),
            offsetof(Impl_, field_12_) -
-               offsetof(Impl_, conversation_id_) +
+               offsetof(Impl_, local_id_) +
                sizeof(Impl_::field_12_));
 
   // @@protoc_insertion_point(copy_constructor:sohook.ConversationInfo)
@@ -229,10 +305,10 @@ PROTOBUF_NDEBUG_INLINE ConversationInfo::Impl_::Impl_(
 inline void ConversationInfo::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
   new (&_impl_) Impl_(internal_visibility(), arena);
   ::memset(reinterpret_cast<char*>(&_impl_) +
-               offsetof(Impl_, conversation_id_),
+               offsetof(Impl_, local_id_),
            0,
            offsetof(Impl_, field_12_) -
-               offsetof(Impl_, conversation_id_) +
+               offsetof(Impl_, local_id_) +
                sizeof(Impl_::field_12_));
 }
 ConversationInfo::~ConversationInfo() {
@@ -244,25 +320,29 @@ inline void ConversationInfo::SharedDtor(MessageLite& self) {
   if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
     this_.CheckHasBitConsistency();
   }
-  this_._internal_metadata_.Delete<::std::string>();
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
   ABSL_DCHECK(this_.GetArena() == nullptr);
   this_._impl_.field_15_.Destroy();
   this_._impl_.~Impl_();
 }
 
 #ifndef PROTOBUF_MESSAGE_GLOBALS
-PROTOBUF_CONSTINIT
-PROTOBUF_ATTRIBUTE_INIT_PRIORITY1
-const ::google::protobuf::internal::ClassDataLite ConversationInfo_class_data_ =
-    ConversationInfo::InternalGenerateClassData_(ConversationInfo_globals_._default);
+PROTOBUF_CONSTINIT PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const
+    ::google::protobuf::internal::ClassDataFull ConversationInfo_class_data_ =
+        ConversationInfo::InternalGenerateClassData_(ConversationInfo_globals_._default);
 
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 ConversationInfo::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&ConversationInfo_class_data_);
+  ::google::protobuf::internal::PrefetchToLocalCache(ConversationInfo_class_data_.tc_table);
   return ConversationInfo_class_data_.base();
 }
 #else
 PROTOBUF_ATTRIBUTE_WEAK const ::google::protobuf::internal::ClassData* PROTOBUF_NONNULL
 ConversationInfo::GetClassData() const {
+  ::google::protobuf::internal::PrefetchToLocalCache(&ConversationInfo_globals_);
+  ::google::protobuf::internal::PrefetchToLocalCache(
+      ::google::protobuf::internal::MessageGlobalsBase::ToParseTableBase(&ConversationInfo_globals_));
   return ConversationInfo_globals_.GetClassData();
 }
 #endif  // !PROTOBUF_MESSAGE_GLOBALS
@@ -283,13 +363,13 @@ PROTOBUF_NOINLINE void ConversationInfo::Clear() {
   if (CheckHasBit(cached_has_bits, 0x00000001U)) {
     _impl_.field_15_.ClearNonDefaultToEmpty();
   }
-  if (BatchCheckHasBit(cached_has_bits, 0x00000006U)) {
-    ::memset(&_impl_.conversation_id_, 0, static_cast<::size_t>(
+  if (BatchCheckHasBit(cached_has_bits, 0x0000000eU)) {
+    ::memset(&_impl_.local_id_, 0, static_cast<::size_t>(
         reinterpret_cast<char*>(&_impl_.field_12_) -
-        reinterpret_cast<char*>(&_impl_.conversation_id_)) + sizeof(_impl_.field_12_));
+        reinterpret_cast<char*>(&_impl_.local_id_)) + sizeof(_impl_.field_12_));
   }
   _impl_._has_bits_.Clear();
-  _internal_metadata_.Clear<::std::string>();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
 }
 
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -311,15 +391,22 @@ PROTOBUF_NOINLINE void ConversationInfo::Clear() {
   (void)cached_has_bits;
 
   cached_has_bits = this_._impl_._has_bits_[0];
-  // optional uint64 conversation_id = 2;
+  // optional uint64 local_id = 1;
   if (CheckHasBit(cached_has_bits, 0x00000002U)) {
+    target = stream->EnsureSpace(target);
+    target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
+        1, this_._internal_local_id(), target);
+  }
+
+  // optional uint64 conversation_id = 2;
+  if (CheckHasBit(cached_has_bits, 0x00000004U)) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteUInt64ToArray(
         2, this_._internal_conversation_id(), target);
   }
 
   // optional uint32 field_12 = 12;
-  if (CheckHasBit(cached_has_bits, 0x00000004U)) {
+  if (CheckHasBit(cached_has_bits, 0x00000008U)) {
     target = stream->EnsureSpace(target);
     target = ::_pbi::WireFormatLite::WriteUInt32ToArray(
         12, this_._internal_field_12(), target);
@@ -332,9 +419,9 @@ PROTOBUF_NOINLINE void ConversationInfo::Clear() {
   }
 
   if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    target = stream->WriteRaw(
-        this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).data(),
-        static_cast<int>(this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size()), target);
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
   }
   // @@protoc_insertion_point(serialize_to_array_end:sohook.ConversationInfo)
   return target;
@@ -356,28 +443,30 @@ PROTOBUF_NOINLINE void ConversationInfo::Clear() {
 
   ::_pbi::Prefetch5LinesFrom7Lines(&this_);
   cached_has_bits = this_._impl_._has_bits_[0];
-  if (BatchCheckHasBit(cached_has_bits, 0x00000007U)) {
+  if (BatchCheckHasBit(cached_has_bits, 0x0000000fU)) {
     // optional bytes field_15 = 15;
     if (CheckHasBit(cached_has_bits, 0x00000001U)) {
       total_size += 1 + ::google::protobuf::internal::WireFormatLite::BytesSize(
                                       this_._internal_field_15());
     }
-    // optional uint64 conversation_id = 2;
+    // optional uint64 local_id = 1;
     if (CheckHasBit(cached_has_bits, 0x00000002U)) {
+      total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
+          this_._internal_local_id());
+    }
+    // optional uint64 conversation_id = 2;
+    if (CheckHasBit(cached_has_bits, 0x00000004U)) {
       total_size += ::_pbi::WireFormatLite::UInt64SizePlusOne(
           this_._internal_conversation_id());
     }
     // optional uint32 field_12 = 12;
-    if (CheckHasBit(cached_has_bits, 0x00000004U)) {
+    if (CheckHasBit(cached_has_bits, 0x00000008U)) {
       total_size += ::_pbi::WireFormatLite::UInt32SizePlusOne(
           this_._internal_field_12());
     }
   }
-  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
-    total_size += this_._internal_metadata_.unknown_fields<::std::string>(::google::protobuf::internal::GetEmptyString).size();
-  }
-  this_._impl_._cached_size_.Set(::_pbi::ToCachedSize(total_size));
-  return total_size;
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
 }
 
 void ConversationInfo::MergeImpl(::google::protobuf::MessageLite& to_msg,
@@ -393,19 +482,22 @@ void ConversationInfo::MergeImpl(::google::protobuf::MessageLite& to_msg,
   (void)cached_has_bits;
 
   cached_has_bits = from._impl_._has_bits_[0];
-  if (BatchCheckHasBit(cached_has_bits, 0x00000007U)) {
+  if (BatchCheckHasBit(cached_has_bits, 0x0000000fU)) {
     if (CheckHasBit(cached_has_bits, 0x00000001U)) {
       _this->_internal_set_field_15(from._internal_field_15());
     }
     if (CheckHasBit(cached_has_bits, 0x00000002U)) {
-      _this->_impl_.conversation_id_ = from._impl_.conversation_id_;
+      _this->_impl_.local_id_ = from._impl_.local_id_;
     }
     if (CheckHasBit(cached_has_bits, 0x00000004U)) {
+      _this->_impl_.conversation_id_ = from._impl_.conversation_id_;
+    }
+    if (CheckHasBit(cached_has_bits, 0x00000008U)) {
       _this->_impl_.field_12_ = from._impl_.field_12_;
     }
   }
   _this->_impl_._has_bits_[0] |= cached_has_bits;
-  _this->_internal_metadata_.MergeFrom<::std::string>(
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
 }
 
@@ -427,11 +519,14 @@ void ConversationInfo::InternalSwap(ConversationInfo* PROTOBUF_RESTRICT PROTOBUF
   ::google::protobuf::internal::memswap<
       PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.field_12_)
       + sizeof(ConversationInfo::_impl_.field_12_)
-      - PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.conversation_id_)>(
-          reinterpret_cast<char*>(&_impl_.conversation_id_),
-          reinterpret_cast<char*>(&other->_impl_.conversation_id_));
+      - PROTOBUF_FIELD_OFFSET(ConversationInfo, _impl_.local_id_)>(
+          reinterpret_cast<char*>(&_impl_.local_id_),
+          reinterpret_cast<char*>(&other->_impl_.local_id_));
 }
 
+::google::protobuf::Metadata ConversationInfo::GetMetadata() const {
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
+}
 // @@protoc_insertion_point(namespace_scope)
 }  // namespace sohook
 namespace google {
@@ -439,4 +534,8 @@ namespace protobuf {
 }  // namespace protobuf
 }  // namespace google
 // @@protoc_insertion_point(global_scope)
+PROTOBUF_ATTRIBUTE_INIT_PRIORITY2 static ::std::false_type
+    _static_init2_ [[maybe_unused]] =
+        (::_pbi::AddDescriptors(&descriptor_table_wework_5fconversation_2eproto),
+         ::std::false_type{});
 #include "google/protobuf/port_undef.inc"

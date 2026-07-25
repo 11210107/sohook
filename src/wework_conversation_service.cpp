@@ -59,7 +59,8 @@ int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param,con
     }
 
     // 1. 创建会话对象
-    void *conv_handle = create_and_inject_conversation(target_conv_id);
+    // void *conv_handle = create_and_inject_conversation(target_conv_id);
+    void *conv_handle = get_cache_conversation_by_key_native(0,target_conv_id);
     if (!conv_handle) {
         LOGE("create_and_inject_conversation failed");
         return 0;
