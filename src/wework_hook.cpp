@@ -17,7 +17,7 @@
 #include "wework_conversation_service.h"
 #include "vtable_helper.h"
 #include "main_thread_executor.h"
-#include "wework_conversation.h"
+#include "protocol_utils.h"
 // 1.定义原函数指针，用户 Hook 之后调用原逻辑
 // void (*orig_nativeSend)(JNIEnv* env, jobject thiz,jlong handle,jobject conv,jobject msg,jobject cb);
 typedef void (*NativeSendFunc)(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobject msg, jobject cb);
@@ -99,7 +99,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         };
         // 3. 遍历发射
         for (uint64_t cid : id_list) {
-            send_model_message(cid, text_task,my_perfect_listener);
+            send_model_message(cid,0, generate_text_message_proto("a message created by SoHook call native funcation"),my_perfect_listener);
             // 💡 逆向避坑小贴士：
             // 虽然我们做好了完美的引用计数管理，但在大批量（几十个甚至上百个群发）时，
             // 建议加上 50-100ms 的轻微延时，给企微底层的 TaskQueue 和网络线程让出缓冲时间。

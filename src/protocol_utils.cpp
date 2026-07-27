@@ -12,14 +12,17 @@
 #include "wework_conversation.pb.h"
 #include "wework_image_message.pb.h"
 #include "wework_text_message.pb.h"
-
+// nativeIsVid 判断是否为 VID (对应底层 Native 实现: HIWORD(a3) == 6)
+static inline bool is_vid(uint64_t id) {
+    return (id >> 48) == 6;
+}
 /**
  * 使用 protobuf 生成类构造会话信息 PB 流
  * 对应 proto/wework_conversation.proto -> sohook::ConversationInfo
  */
 std::string generate_conversation_proto(uint64_t conversation_id) {
     // 判断是否为联系人会话（以 "788" 开头）
-    bool is_contact = std::to_string(conversation_id).rfind("788", 0) == 0;
+    bool is_contact = is_vid(conversation_id);
 
     sohook::ConversationInfo info;
     info.set_conversation_id(conversation_id);

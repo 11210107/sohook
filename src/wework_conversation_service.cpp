@@ -11,6 +11,7 @@
 #include "wework_conversation.h"
 #include "wework_logic_center.h"
 #include "wework_message_factory.h"
+#include "message/msg_ptr.h"
 
 // ====================================================
 // 1. 前置声明层（严格对齐签名）
@@ -38,8 +39,7 @@ typedef unsigned int *(*AtomicIncRef)(unsigned int *result);
 // ====================================================
 // 2. 主业务发射器：支持多类型动态分流
 // ====================================================
-int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param,const MessageCallback& callback) {
-    LOGI("准备开始发送消息，类型ID: %d", static_cast<int>(param.msg_type));
+int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint8_t> pb_data,const MessageCallback& callback) {
     uintptr_t so_base = get_module_base("libwework_framework.so");
     if (so_base == 0) {
         LOGE("so_base is null");
@@ -88,9 +88,9 @@ int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param,con
     };
 
     // 2. 💡 核心改造：根据参数动态路由，构造不同的 Native 消息 Handle
-    void *msg_handle = nullptr;
+    void *msg_handle = create_message_pure_native_ptr(msg_type,pb_data);
 
-    if (param.msg_type == WeWorkMsgType::TEXT) {
+    /*if (param.msg_type == WeWorkMsgType::TEXT) {
         // ------ 文本分支 ------
         msg_handle = create_text_message_pure_native_ptr(param.text_content);
     }
@@ -119,7 +119,7 @@ int64_t send_model_message(uint64_t target_conv_id,const MessageParam& param,con
             real_width,
             real_height
         );
-    }
+    }*/
 
     // 统一检查消息对象是否伪造成功
     if (!msg_handle) {

@@ -178,7 +178,7 @@ int64_t call_sub_258B330_via_x8(uintptr_t func_addr, int64_t map_root, void *key
  * @return void*      返回 C++ Conversation 物理对象指针，失败返回 nullptr
  */
 void* get_cache_conversation_by_key_native(uint32_t conv_type, uint64_t remote_id) {
-    LOGI("[GetCacheConv] Start searching natively: conv_type=%u, remote_id=%llu", conv_type, remote_id);
+    LOGI("[GetCacheConv] Start searching natively: conv_type=%u, remote_id=%lu", conv_type, remote_id);
 
     // 1. 获取目标 SO 基址
     unsigned long long base = get_module_base("libwework_framework.so");
