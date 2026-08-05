@@ -1,0 +1,10 @@
+syntax = "proto2";
+
+package sohook; // 企微相关命名空间
+
+message WWTextMessage {
+    optional bytes content = 1;          // 文本/代码块内容字节流
+    optional int32 extra_time_stamp = 2; // 额外时间戳
+    optional int32 code_language = 3;    // 代码高亮语言标识 (例如: 1-Java, 2-C++ 等)
+    optional int32 code_language2 = 4;   // 辅助/备用代码语言标识
+}

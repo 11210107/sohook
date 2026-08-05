@@ -12,7 +12,7 @@
 #include "wework_logic_center.h"
 #include "wework_message_factory.h"
 #include "message/msg_ptr.h"
-
+#include "protocol_utils.h"
 // ====================================================
 // 1. 前置声明层（严格对齐签名）
 // ====================================================
@@ -45,7 +45,7 @@ int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint
         LOGE("so_base is null");
         return 0;
     }
-
+    dump_protobuf_hex(pb_data);
     auto pfn_send_msg = reinterpret_cast<send_message>(so_base + 0x25C9374);
     auto add_ref      = reinterpret_cast<AtomicIncRef>(so_base + 0x5EB5470);
     if (!native_dec_ref) {

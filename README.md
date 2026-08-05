@@ -34,3 +34,26 @@ Hook nativeSetInfo。
 * #define GOOGLE_PROTOBUF_VERSION 7035001
 * protoc 本地版本使用 3.35.1 /opt/homebrew/bin/protoc
 * 根据描述文件生成 C++ 的类实现（.pb.cc）和类声明（.pb.h） /Users/user/CLionProjects/sohook/opt/homebrew/bin/protoc --proto_path=proto --cpp_out=proto/gen wework_conversation.proto wework_text_message.proto wework_image_message.proto
+*  /opt/homebrew/bin/protoc --proto_path=proto --cpp_out=proto/gen ww_file_message.proto
+# 构建 WwMessage.Message
+public WwMessage.Message buildWwMessage(String text) {
+    // 1. 最内层 TextMessage
+    sohook.TextMessage textMsg = new sohook.TextMessage();
+    textMsg.content = text.getBytes(StandardCharsets.UTF_8); // "如" -> e5 a6 82
+    
+    // 2. 中间层片段 Message
+    sohook.Message baseMsg = new sohook.Message();
+    baseMsg.contentType = sohook.Message.ContentType.TYPE_0; // 08 00
+    baseMsg.data = MessageNano.toByteArray(textMsg);         // 12 05 0a 03 e5 a6 82
+
+    // 3. 富文本容器 RichMessage
+    WwRichmessageBase.RichMessage richMsg = new WwRichmessageBase.RichMessage();
+    richMsg.messages = new sohook.Message[]{ baseMsg };     // 0a 09 ...
+
+    // 4. 最外层 WwMessage.Message
+    WwMessage.Message wwMessage = new WwMessage.Message();
+    wwMessage.contentType = 0;
+    wwMessage.content = MessageNano.toByteArray(richMsg);    // 52 0b ...
+
+    return wwMessage;
+}

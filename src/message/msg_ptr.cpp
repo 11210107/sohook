@@ -44,7 +44,7 @@ void *create_message_pure_native_ptr(int type, std::vector<uint8_t> pb_data) {
     }
     uint64_t saved_local_id = *reinterpret_cast<uint64_t *>(reinterpret_cast<char *>(targetCore) +
                                                             128);
-    *reinterpret_cast<int32_t *>(reinterpret_cast<char *>(targetCore) + 24) = type;
+    // *reinterpret_cast<int32_t *>(reinterpret_cast<char *>(targetCore) + 24) = type;
     // 输出消息的 pb 数据
     //    dump_protobuf_hex(pb_data);
 

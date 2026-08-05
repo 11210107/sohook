@@ -1,0 +1,73 @@
+syntax = "proto2";
+
+package sohook; // 根据 WwRichmessageBase 猜测的命名空间（如企业微信相关）
+
+// 依赖的外部消息类型，需根据项目实际情况 import 或补充定义
+import "ww_rich_message_base.proto";
+message FileDocInfo {
+    optional int32 opType = 1 [default = 1]; // 操作类型，默认为 1 (OpOpenDoc)
+    optional bytes title = 2;               // 文档标题/文件名
+    optional bytes url = 3;                 // 文档网络 URL 地址
+}
+
+message FileMessage {
+    // 静态枚举/标志位常量还原
+    enum ExtraFlags {
+        FROM_MAIL_EXPORT = 1;
+        THIRD_ENCRYPT = 2;
+        QYDISK_TO_WX_BIG_FILE = 4;
+    }
+
+    // 核心字段映射（Field Tag 必须严格匹配）
+    optional bytes file_id = 1;
+    optional bytes file_name = 2;
+    optional bytes url = 3;
+    optional uint64 size = 4;
+    optional uint32 width = 5;
+    optional uint32 height = 6;
+    optional uint32 voice_time = 7;
+    optional bytes aes_key = 8;
+    optional bool is_hd = 9;
+    optional bytes md5 = 10;
+    optional bytes sender_deviceid = 11;
+    optional bytes receiver_deviceid = 12;
+    optional bytes extra = 13;
+    optional bool iscomplex = 14;
+    optional uint32 flags = 15;
+    optional bytes encrypt_key = 16;
+    optional bytes random_key = 17;
+    optional bytes session_id = 18;
+    optional uint64 encrypt_size = 19;
+    optional bytes thumbnail_file_id = 20;
+    optional bytes mid_thumbnail_file_id = 21;
+    optional uint64 mid_img_size = 22;
+    optional uint64 thumb_img_size = 23;
+    // Tag 24 被跳过
+    optional bytes wechat_auth_key = 25;
+    optional bytes wechat_cdn_ld_url = 26;
+    optional uint32 wechat_cdn_ld_size = 27;
+    optional uint32 wechat_cdn_ld_width = 28;
+    optional uint32 wechat_cdn_ld_height = 29;
+    optional bytes wechat_cdn_ld_md5 = 30;
+    optional bytes wechat_cdn_ld_aeskey = 31;
+    optional WwRichmessageBase.OpenImCdnImg wechat_mid_image = 32;
+    optional bytes qy_file_link_cover_url = 33;
+    optional bytes qy_file_forward_info = 34;
+    optional bytes confidential_id = 35;
+    optional FileDocInfo doc_info = 36;
+    optional bytes ww_fileid = 37;
+    optional bool is_ww_fileid_just_created_by_me = 38;
+    optional bytes voice_format = 39;
+    optional bytes fowardemlinfo = 40;
+
+    // 大 Tag 序号字段
+    optional bytes path = 100;
+    optional uint32 auth = 101;
+
+    // 本地缓存/内部状态扩展字段 (带默认值还原)
+    optional int32 decrypt_ret = 201 [default = -1];
+    optional bytes thumbnail_path = 202;
+    optional bytes mid_thumbnail_path = 203;
+    optional bytes qy_file_item = 204;
+    optional bool is_need_compress = 205;
+}

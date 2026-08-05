@@ -1,0 +1,67 @@
+syntax = "proto2";
+
+package sohook;
+
+// ------------------------------------
+// 顶层 RichMessage 定义
+// ------------------------------------
+message WwRichmessageBase {
+
+    // 对应 Java 中的常量枚举定义
+    enum ContentType {
+        CONTENT_TEXT = 0;
+        CONTENT_IMAGE = 1;
+        CONTENT_FILE = 2;
+        CONTENT_EMOTION = 3;
+        CONTENT_FONT = 4;
+        CONTENT_AT = 5;
+        CONTENT_VOICE = 6;
+        CONTENT_LOCATION = 7;
+        CONTENT_CLOCK = 8;
+        CONTENT_MARKDOWN = 9;
+        CONTENT_WX_AT = 10;
+        CONTENT_NICK_NAME = 11;
+        CONTENT_GROUPSEND_TEMPLATE = 12;
+        CONTENT_RECOMMENDAPP = 72;
+        CONTENT_BLACKBOARD_LINK = 73;
+    }
+
+    enum Status {
+        NotYet = -1;
+        OK = 0;
+        Failed = 1;
+    }
+
+    // 1. GroupSendTemplateMessage
+    message GroupSendTemplateMessage {
+        optional bytes item_name = 1;
+        optional uint32 id = 2;
+    }
+
+    // 2. Message
+    message Message {
+        optional int32 content_type = 1 [default = 0];
+        optional bytes data = 2;
+    }
+
+    // 3. OpenImCdnUri
+    message OpenImCdnUri {
+        optional bytes url = 1;
+        optional bytes aeskey = 2;
+        optional bytes authkey = 3;
+        optional bytes md5 = 4;
+        optional uint32 size = 5;
+    }
+
+    // 4. OpenImCdnImg
+    message OpenImCdnImg {
+        optional OpenImCdnUri img_uri = 1;
+        optional uint32 width = 2;
+        optional uint32 height = 3;
+    }
+
+    // 5. RichMessage
+    message RichMessage {
+        repeated Message messages = 1;
+    }
+}

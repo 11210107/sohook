@@ -1,0 +1,143 @@
+syntax = "proto2";
+
+package sohook; // 根据代码中的引用猜测命名空间
+
+message ExtraContent {
+    // 空消息结构，无定义字段
+}
+message MessageAttachInfos {
+    repeated MessageAttachInfo infos = 1;
+}
+message OcrContents2 {
+    optional bytes file_id = 1;
+    optional bytes ocr_contents = 2;
+    optional uint32 content_type = 3;
+}
+// ------------------------------------
+// 外部/未在此片段中定义的依赖 Message 声明
+// ------------------------------------
+message VoiceTransInfo {}
+message TranslateSegmentPair {}
+message MessageLocalInfo {}
+message MessageAttachInfo {}
+
+message MessageExtras {
+    repeated uint64 readuins = 2;
+    optional uint64 receiver = 3;
+    optional string sendername = 4;
+    repeated uint64 unreaduins = 5;
+    optional bool is_alert_reached_readed = 6;
+    optional uint64 send_error_code = 7;
+    optional bool disable_data_detector = 8;
+    optional bytes openapi_associate_key = 9;
+    optional uint64 openapi_associate_type = 10;
+    optional int32 decrypt_ret = 11;
+    optional bool first_sent_message_that_day = 12;
+    optional bool receipt_mode_entry = 13;
+    optional bytes translation = 14;
+    optional bool show_translation = 15;
+    optional bytes translation_provider = 16;
+    optional bool can_not_be_lastmessage = 17;
+    optional uint64 staff_vid = 18;
+    optional uint32 revoke_time = 19;
+    optional VoiceTransInfo voice_text_info = 20;
+    optional bool is_svr_fail = 21;
+    optional uint32 order_time = 22;
+
+    // Field 23 缺失
+
+    optional uint64 top_msg_creator_id = 24;
+    optional bool is_cancel_send = 25;
+    optional uint64 update_msg_remote_id = 26;
+    repeated uint64 noneedreaduins = 27;
+    optional bool is_sph_live_stop = 28;
+    optional uint32 original_contenttype = 29;
+    optional bytes original_content = 30;
+    repeated TranslateSegmentPair translation_segments = 31;
+    optional uint64 trans_op = 32;
+    optional bytes msg_sent_error_msg = 33;
+    optional int32 e2_ee_decrypt_ret = 34;
+    optional int32 e2_ee_security_level = 35;
+    optional bool is_ww_security_file = 36;
+    optional bool show_wxkf_not_reply_tail = 37;
+    optional string head_img_url = 38;
+    optional string corpname = 39;
+    optional uint64 corp_id = 40;
+    optional uint64 top_msg_top_id = 41;
+    optional uint32 top_msg_updatetime = 42;
+    optional uint64 top_msg_createtime = 43;
+    repeated uint64 top_msg_cancel_vidlist = 44;
+    optional bytes tips_when_send_success = 45;
+    repeated bytes ocr_contents = 46;
+    optional uint32 report_useother_sppay_qrcode_source = 47;
+    optional bytes report_useother_sppay_qrcode_url = 48;
+    optional bool aihelper_is_typing = 49;
+    optional bytes ai_chat_summary = 50;
+    repeated OcrContents2 ocr_contents2 = 51;
+    optional MessageLocalInfo local_info = 52;
+}
+message Message {
+    // Ack 发送状态常量/枚举定义
+    enum AckSendState {
+        ACK_INIT = 0;
+        ACK_SENDING = 1;
+        ACK_SENDFAILED = 2;
+        ACK_SENT = 3;
+    }
+
+    // 内部嵌套消息: SendProgress
+    message SendProgress {
+        optional int64 now = 1;                  //
+        optional int64 total = 2;                //
+        optional int64 send_time_enqueue = 3;    //
+        optional int64 send_time_actual = 4;     //
+        optional int64 send_time_finish = 5;     //
+        optional double synthesis_progress = 6;  //
+    }
+
+    // Message 核心字段定义（Tag 严格匹配 computeSerializedSize / writeTo 方法）
+    optional uint64 id = 1;                             //
+    optional uint64 remote_id = 2;                      //
+    optional int32 conv_type = 3;                       // 会话类型
+    optional int64 conversation_id = 4;                 //[cite: 1]
+    optional uint64 seq = 5;                            //[cite: 1]
+    optional uint64 sender = 6;                         //[cite: 1]
+    optional uint32 content_type = 7;                   //[cite: 1]
+    optional uint32 send_time = 8;                      //[cite: 1]
+    optional string url = 9;                            //[cite: 1]
+    optional bytes content = 10;                        //[cite: 1]
+    // Tag 11 被跳过
+    optional int32 flag = 12;                           //[cite: 1]
+    optional bytes appinfo = 13;                        //[cite: 1]
+    optional int32 state = 14 [default = 2];            // 默认值为 2[cite: 1]
+    optional MessageExtras extras = 15;                 // 嵌套 Message[cite: 1]
+    optional int32 ack_send_state = 16;                 //[cite: 1]
+    optional int64 devinfo = 17;                        //[cite: 1]
+    optional uint64 referid = 18;                       //[cite: 1]
+    optional ExtraContent extra_content = 19;           // 嵌套 Message[cite: 1]
+    optional uint64 as_id = 20;                         //[cite: 1]
+    optional uint64 innerkf_vid = 21;                   //[cite: 1]
+
+    // 中间跳过的 Tag 段
+    optional MessageAttachInfos attach_info = 49;       // 嵌套 Message[cite: 1]
+
+    // 大 Tag 字段段
+    optional SendProgress progress = 101;               //[cite: 1]
+    optional bool do_not_add_unread_cnt = 102;         //[cite: 1]
+    optional bool is_update_msg = 103;                  //[cite: 1]
+    optional int32 out_contact = 104;                   //[cite: 1]
+    optional bool force_add_unread_cnt = 105;          //[cite: 1]
+    optional bool is_innerkf_mannager = 106;           //[cite: 1]
+    optional bool dont_increase_unread_count = 107;     //[cite: 1]
+    optional int32 send_scene = 108 [default = 4];      // 默认值为 4[cite: 1]
+    optional bytes fake_collection_msg_appinfo = 109;   //[cite: 1]
+    optional bool is_update_by_memory = 110;            //[cite: 1]
+    optional uint64 chat_req_forward_key = 111;        //[cite: 1]
+    optional int32 search_hit_flag = 112;               //[cite: 1]
+    optional int32 from_source = 113;                   //[cite: 1]
+    optional OcrContents2 search_hit_ocr = 114;         //[cite: 1]
+    repeated OcrContents2 search_hit_ocrs = 115;        // 数组/Repeated 字段[cite: 1]
+
+    // 高位 Tag 字段
+    optional double bm25_score = 201;                   //[cite: 1]
+}

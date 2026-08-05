@@ -13,11 +13,13 @@
 
 #include "wework_message_factory.h"
 #include "address_utils.h"
+#include "file_utils.h"
 #include "wework_logic_center.h"
 #include "wework_conversation_service.h"
 #include "vtable_helper.h"
 #include "main_thread_executor.h"
 #include "protocol_utils.h"
+#include "message/message_pb.h"
 // 1.定义原函数指针，用户 Hook 之后调用原逻辑
 // void (*orig_nativeSend)(JNIEnv* env, jobject thiz,jlong handle,jobject conv,jobject msg,jobject cb);
 typedef void (*NativeSendFunc)(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobject msg, jobject cb);
@@ -99,11 +101,32 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         };
         // 3. 遍历发射
         for (uint64_t cid : id_list) {
-            send_model_message(cid,0, generate_text_message_proto("a message created by SoHook call native funcation"),my_perfect_listener);
+            // 发送文本消息
+            // send_model_message(cid,0, generate_text_message_pb("a message created by SoHook call native funcation"),my_perfect_listener);
             // 💡 逆向避坑小贴士：
             // 虽然我们做好了完美的引用计数管理，但在大批量（几十个甚至上百个群发）时，
             // 建议加上 50-100ms 的轻微延时，给企微底层的 TaskQueue 和网络线程让出缓冲时间。
             usleep(50000); // 50毫秒休眠
+
+            // 发送图片消息
+            uint64_t image_size = 0;
+            uint32_t file_width = 0;
+            uint32_t file_height = 0;
+            const std::string path = "/storage/emulated/0/test.jpg";
+            // 智能解析图片物理信息（仅在图片模式下跑，不污染文本模式）
+            if (!get_image_info(path, image_size, file_width, file_height)) {
+                LOGE("[-] 解析本地图片参数失败，路径: %s", path.c_str());
+            }
+            uint32_t thumb_w = file_width * 3 / 4;
+            uint32_t thumb_h = file_height * 3 / 4;
+            // send_model_message(cid,7, generate_image_message_pb(path,file_width,file_height,image_size,false,"","",file_width * 3 / 4,file_height * 3 / 4),my_perfect_listener);
+            // 发送文件
+            const std::string file_path = "/storage/emulated/0/test.jpg";
+            uint64_t file_size = get_file_size(file_path);
+            std::string sandbox_path = copy_to_sandbox_via_jni(env, file_path);
+            LOGI("[my_nativeSend] 企业微信沙盒路径: %s", sandbox_path.c_str());
+            send_model_message(cid,8, generate_file_message_pb(sandbox_path,file_size),my_perfect_listener);
+
         }
         // int64_t sendResult =  send_model_message(img_task);
         // LOGI(">>>> [结论] 消息发送结果：%d",sendResult);

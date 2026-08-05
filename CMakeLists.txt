@@ -42,6 +42,7 @@ add_library(sohook SHARED
         src/wework_logic_center.cpp     # 业务逻辑：Service 寻址 (新增)
         src/wework_message_factory.cpp  # 消息构建：Protobuf 模拟
         src/message/msg_ptr.cpp  # 消息ptr构建
+        src/message/message_pb.cpp  # 消息pb构建
         src/wework_conversation.cpp     # 会话构建：Protobuf 模拟
         src/wework_conversation_service.cpp     # 会话服务：消息发送
         src/wework_hook.cpp             # Hook 入口：拦截与触发
@@ -49,6 +50,10 @@ add_library(sohook SHARED
         proto/gen/wework_conversation.pb.cc    # PB 生成代码
         proto/gen/wework_image_message.pb.cc   # PB 生成代码
         proto/gen/wework_text_message.pb.cc    # PB 生成代码
+        proto/gen/ww_rich_message_base.pb.cc    # PB 生成代码
+        proto/gen/ww_text_message.pb.cc   # PB 生成代码
+        proto/gen/ww_file_message.pb.cc  # PB 生成代码
+        proto/gen/wwmessage.pb.cc    # PB 生成代码
 )
 
 # 链接
