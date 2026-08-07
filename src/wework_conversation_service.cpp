@@ -39,7 +39,8 @@ typedef unsigned int *(*AtomicIncRef)(unsigned int *result);
 // ====================================================
 // 2. 主业务发射器：支持多类型动态分流
 // ====================================================
-int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint8_t> pb_data,const MessageCallback& callback) {
+int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<uint8_t> pb_data,
+                           const MessageCallback &callback) {
     uintptr_t so_base = get_module_base("libwework_framework.so");
     if (so_base == 0) {
         LOGE("so_base is null");
@@ -47,7 +48,7 @@ int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint
     }
     dump_protobuf_hex(pb_data);
     auto pfn_send_msg = reinterpret_cast<send_message>(so_base + 0x25C9374);
-    auto add_ref      = reinterpret_cast<AtomicIncRef>(so_base + 0x5EB5470);
+    auto add_ref = reinterpret_cast<AtomicIncRef>(so_base + 0x5EB5470);
     if (!native_dec_ref) {
         native_dec_ref = reinterpret_cast<AtomicDecRef>(so_base + 0x5EB5458);
     }
@@ -60,22 +61,22 @@ int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint
 
     // 1. 创建会话对象
     // void *conv_handle = create_and_inject_conversation(target_conv_id);
-    void *conv_handle = get_cache_conversation_by_key_native(0,target_conv_id);
+    void *conv_handle = get_cache_conversation_by_key_native(0, target_conv_id);
     if (!conv_handle) {
         LOGE("create_and_inject_conversation failed");
         return 0;
     }
 
-    unsigned int *conv_ref = reinterpret_cast<unsigned int*>(reinterpret_cast<char*>(conv_handle) + 96);
+    unsigned int *conv_ref = reinterpret_cast<unsigned int *>(reinterpret_cast<char *>(conv_handle) + 96);
     if (conv_ref) {
         add_ref(conv_ref);
         LOGI("conv_ref current refcount: %u", *conv_ref);
     }
 
     // 💡 错误兜底 Lambda 闭包
-    auto safety_cleanup = [conv_ref, conv_handle](void* msg_h) {
+    auto safety_cleanup = [conv_ref, conv_handle](void *msg_h) {
         if (msg_h && native_dec_ref) {
-            unsigned int *m_ref = reinterpret_cast<unsigned int*>(reinterpret_cast<char*>(msg_h) + 96);
+            unsigned int *m_ref = reinterpret_cast<unsigned int *>(reinterpret_cast<char *>(msg_h) + 96);
             if ((native_dec_ref(m_ref) & 1) != 0) {
                 (*reinterpret_cast<void (**)(void *)>(*reinterpret_cast<uintptr_t *>(msg_h) + 8LL))(msg_h);
             }
@@ -88,7 +89,7 @@ int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint
     };
 
     // 2. 💡 核心改造：根据参数动态路由，构造不同的 Native 消息 Handle
-    void *msg_handle = create_message_pure_native_ptr(msg_type,pb_data);
+    void *msg_handle = create_message_pure_native_ptr(msg_type, pb_data);
 
     /*if (param.msg_type == WeWorkMsgType::TEXT) {
         // ------ 文本分支 ------
@@ -128,7 +129,7 @@ int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint
         return 0;
     }
 
-    unsigned int *msg_ref = reinterpret_cast<unsigned int*>(reinterpret_cast<char*>(msg_handle) + 96);
+    unsigned int *msg_ref = reinterpret_cast<unsigned int *>(reinterpret_cast<char *>(msg_handle) + 96);
     if (msg_ref) {
         add_ref(msg_ref);
     }
@@ -139,7 +140,7 @@ int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint
     auto *result_closure = reinterpret_cast<uintptr_t *>(operator new(0xC0uLL));
     std::memset(result_closure, 0, 0xC0);
 
-    *reinterpret_cast<uint32_t *>(reinterpret_cast<char*>(result_closure) + 0) = 1;
+    *reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(result_closure) + 0) = 1;
     result_closure[1] = reinterpret_cast<uintptr_t>(my_custom_result_invoker);
     result_closure[2] = 0LL;
     result_closure[3] = reinterpret_cast<uintptr_t>(so_base + 0x5E9D49C);
@@ -148,15 +149,15 @@ int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint
     result_closure[8] = reinterpret_cast<uintptr_t>(msg_handle);
     result_closure[9] = reinterpret_cast<uintptr_t>(conv_handle);
     // 💡 关键改造：从索引 10 开始，就地放置业务传入的完全对齐 Callback 结构体
-    auto* cb_space = reinterpret_cast<MessageCallback*>(&result_closure[10]);
-    new (cb_space) MessageCallback(callback); // placement new 拷贝构造
+    auto *cb_space = reinterpret_cast<MessageCallback *>(&result_closure[10]);
+    new(cb_space) MessageCallback(callback); // placement new 拷贝构造
 
     uintptr_t mock_callback_shell[1] = {reinterpret_cast<uintptr_t>(result_closure)};
 
     // A. 构建 Progress 闭包空间 (共享访问 result_closure)
     auto *progress_closure = reinterpret_cast<uintptr_t *>(operator new(0x50uLL));
     std::memset(progress_closure, 0, 0x50);
-    *reinterpret_cast<uint32_t *>(reinterpret_cast<char*>(progress_closure) + 0) = 1;
+    *reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(progress_closure) + 0) = 1;
     progress_closure[1] = reinterpret_cast<uintptr_t>(my_custom_progress_invoker);
     progress_closure[4] = reinterpret_cast<uintptr_t>(my_pure_native_onProgress);
     progress_closure[6] = reinterpret_cast<uintptr_t>(msg_handle);
@@ -165,7 +166,6 @@ int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint
     progress_closure[8] = reinterpret_cast<uintptr_t>(result_closure);
 
     uintptr_t mock_progress_shell[1] = {reinterpret_cast<uintptr_t>(progress_closure)};
-
 
 
     // C. 物理发射
@@ -185,9 +185,28 @@ int64_t send_model_message(uint64_t target_conv_id,int msg_type,std::vector<uint
 // 3. 上层业务回调实现层（全局作用域平铺）
 // ====================================================
 void my_pure_native_onProgress(int64_t current, int64_t total, void *msg_handle) {
-    double percent = total > 0 ? ((double) current / total) * 100.0 : 0.0;
-    // 格式化修复：%lld 改为 %ld 消除 Clang 编译器警告
-    LOGI("[⏳ Progress] 消息正在上传... 进度: %.2f%% (%ld / %ld) | Msg: %p",
+    double percent = 0.0;
+
+    if (total > 0) {
+        // 1. 转换为 double 计算原始百分比
+        percent = (static_cast<double>(current) / static_cast<double>(total)) * 100.0;
+
+        // 2. 边界钳位（Clamp）：防止因为包头/对齐导致超过 100.0%
+        if (percent > 100.0) {
+            percent = 100.0;
+        }
+
+        // 3. 边界钳位：防止非法负数
+        if (percent < 0.0) {
+            percent = 0.0;
+        }
+    } else {
+        // 如果 total 仍为 0，说明还在初始化，进度为 0%
+        percent = 0.0;
+    }
+
+    // 4. 打印或回调上层（保留两位小数 %.2f）
+    LOGI("[⏳ Progress] 进度: %.2f%% (%ld / %ld) | Msg: %p",
          percent, current, total, msg_handle);
 }
 
@@ -217,7 +236,7 @@ int64_t my_custom_progress_invoker(uintptr_t *closure_ptr, uintptr_t x1, uintptr
         // 2. 💡 顺藤摸瓜：通过索引 8 找到 fake_closure，提取出 MessageCallback 结构体
         uintptr_t *fake_closure = reinterpret_cast<uintptr_t *>(closure_ptr[8]);
         if (fake_closure) {
-            auto* cb_ptr = reinterpret_cast<MessageCallback*>(&fake_closure[10]);
+            auto *cb_ptr = reinterpret_cast<MessageCallback *>(&fake_closure[10]);
 
             // 3. 💡 触发业务层自定义的进度监听，完整塞入 current, total, msg_handle
             if (cb_ptr && cb_ptr->onProgress) {
@@ -245,7 +264,7 @@ int64_t my_custom_result_invoker(uintptr_t *closure_ptr, uintptr_t x1, uintptr_t
             LOGI("[DBG] ← real_target 返回");
         }
         // 2. 取出我们的回调中间件
-        auto* cb_ptr = reinterpret_cast<MessageCallback*>(&closure_ptr[10]);
+        auto *cb_ptr = reinterpret_cast<MessageCallback *>(&closure_ptr[10]);
         if (cb_ptr) {
             // 💡 增加安全校验：确保 std::function 内部确实持有可调用实体
             if (cb_ptr->onResult) {

@@ -121,10 +121,11 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
             uint32_t thumb_h = file_height * 3 / 4;
             // send_model_message(cid,7, generate_image_message_pb(path,file_width,file_height,image_size,false,"","",file_width * 3 / 4,file_height * 3 / 4),my_perfect_listener);
             // 发送文件
-            const std::string file_path = "/storage/emulated/0/test.jpg";
-            uint64_t file_size = get_file_size(file_path);
-            std::string sandbox_path = copy_to_sandbox_via_jni(env, file_path);
+            const std::string file_path = "content://com.wxsdk.app.share/test.pdf";
+
+            std::string sandbox_path = resolve_content_uri_to_local(env, file_path);
             LOGI("[my_nativeSend] 企业微信沙盒路径: %s", sandbox_path.c_str());
+            uint64_t file_size = get_file_size(sandbox_path);
             send_model_message(cid,8, generate_file_message_pb(sandbox_path,file_size),my_perfect_listener);
 
         }
@@ -140,8 +141,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
     // jobject fake_msg = create_image_message(env, test_path);
     jobject fake_msg = create_image_message_pure_native(env, test_path);
     if (fake_msg && orig_nativeSend) {
-        LOGI(">>>> 触发自动重发测试... <<<<");
-
+        // LOGI(">>>> 触发自动重发测试... <<<<");
         // orig_nativeSend(env, g_thiz, handle, g_conv, fake_msg, nullptr);
     }
     // 保存句柄供后续自动化使用
