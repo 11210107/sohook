@@ -3,7 +3,7 @@
 //
 #include "wework_message_factory.h"
 #include "logger.h"
-#include "address_utils.h"
+#include "utils/address_utils.h"
 #include "protocol_utils.h"
 #include "file_utils.h"
 #include <stdint.h>

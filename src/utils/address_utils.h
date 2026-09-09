@@ -7,7 +7,8 @@
 #include <stdint.h>
 // 获取模块加载基址
 uintptr_t get_module_base(const char* module_name);
-
+// 判断模块是否加载
+bool is_so_loaded(const char *soname);
 // 传入相对于 SO 的偏移，返回运行时内存绝对地址
 uintptr_t get_absolute_address(const char* module_name, uintptr_t relative_addr);
 

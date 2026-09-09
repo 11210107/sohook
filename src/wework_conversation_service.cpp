@@ -7,7 +7,7 @@
 #include <vector>
 #include "file_utils.h"
 #include "logger.h"
-#include "address_utils.h"
+#include "utils/address_utils.h"
 #include "wework_conversation.h"
 #include "wework_logic_center.h"
 #include "wework_message_factory.h"

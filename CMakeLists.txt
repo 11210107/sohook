@@ -36,7 +36,8 @@ file(GLOB absl_libs "${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/absl/
 # 包含了你的入口文件和核心 Hook 逻辑文件
 add_library(sohook SHARED
         src/main.cpp                    # so入口
-        src/address_utils.cpp           # 基础工具：基址获取
+        src/zygisk_inject.cpp           # zygisk注入
+        src/utils/address_utils.cpp           # 基础工具：基址获取
         src/protocol_utils.cpp          # 基础工具：PB解析
         src/file_utils.cpp          # 基础工具：file文件读写
         src/wework_logic_center.cpp     # 业务逻辑：Service 寻址 (新增)

@@ -12,7 +12,7 @@
 #include <unistd.h>
 
 #include "wework_message_factory.h"
-#include "address_utils.h"
+#include "utils/address_utils.h"
 #include "file_utils.h"
 #include "wework_logic_center.h"
 #include "wework_conversation_service.h"
@@ -153,22 +153,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
     }
 }
 
-// 辅助函数：从 /proc/self/maps 中读取基地址
-uintptr_t get_module_base_addr(const char *module_name) {
-    uintptr_t addr = 0;
-    char line[1024];
-    FILE *fp = fopen("/proc/self/maps", "r");
-    if (fp) {
-        while (fgets(line, sizeof(line), fp)) {
-            if (strstr(line, module_name)) {
-                addr = strtoull(line, NULL, 16);
-                break;
-            }
-        }
-        fclose(fp);
-    }
-    return addr;
-}
+
 
 // 4.初始化
 void init_wework_hook() {
@@ -178,7 +163,7 @@ void init_wework_hook() {
 
         // 轮询等待，直到在 maps 中看到该库
         while (true) {
-            base_addr = get_module_base_addr("libwework_framework.so");
+            base_addr = get_module_base("libwework_framework.so");
             if (base_addr != 0) break;
             std::this_thread::sleep_for(std::chrono::milliseconds(500));
         }

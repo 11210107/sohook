@@ -32,6 +32,10 @@ uintptr_t get_module_base(const char *module_name) {
     return addr;
 }
 
+bool is_so_loaded(const char *soname) {
+    return get_module_base(soname) != 0;
+}
+
 uintptr_t get_absolute_address(const char *module_name, uintptr_t relative_addr) {
     uintptr_t base = get_module_base(module_name);
     if (base == 0) return 0;

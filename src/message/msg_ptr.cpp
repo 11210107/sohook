@@ -4,7 +4,7 @@
 #include "msg_ptr.h"
 #include "logger.h"
 #include "../offset.h"
-#include "address_utils.h"
+#include "../utils/address_utils.h"
 
 namespace {
     struct FakeStdString {
