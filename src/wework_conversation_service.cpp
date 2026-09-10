@@ -3,16 +3,17 @@
 //
 #include "wework_conversation_service.h"
 #include <cstring>
-#include <string>
 #include <vector>
-#include "file_utils.h"
+
+#include "conversation.h"
 #include "logger.h"
 #include "utils/address_utils.h"
-#include "wework_conversation.h"
-#include "wework_logic_center.h"
 #include "wework_message_factory.h"
 #include "message/msg_ptr.h"
 #include "protocol_utils.h"
+#include "conv_service.h"
+#include "offset.h"
+#include "contact_service.h"
 // ====================================================
 // 1. 前置声明层（严格对齐签名）
 // ====================================================
@@ -47,27 +48,28 @@ int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<ui
         return 0;
     }
     dump_protobuf_hex(pb_data);
-    auto pfn_send_msg = reinterpret_cast<send_message>(so_base + 0x25C9374);
-    auto add_ref = reinterpret_cast<AtomicIncRef>(so_base + 0x5EB5470);
+    auto pfn_send_msg = reinterpret_cast<send_message>(so_base + OFFSET_MSG_SEND);
+    auto add_ref = reinterpret_cast<AtomicIncRef>(so_base + OFFSET_ADD_REF);
     if (!native_dec_ref) {
-        native_dec_ref = reinterpret_cast<AtomicDecRef>(so_base + 0x5EB5458);
+        native_dec_ref = reinterpret_cast<AtomicDecRef>(so_base + OFFSET_DEC_REF);
     }
 
-    static const uintptr_t g_conversation_service = getCurrentConvService();
+    const uintptr_t g_conversation_service = getConversationService();
     if (!g_conversation_service) {
         LOGE("g_conversation_service is null");
         return 0;
     }
-
     // 1. 创建会话对象
-    // void *conv_handle = create_and_inject_conversation(target_conv_id);
-    void *conv_handle = get_cache_conversation_by_key_native(0, target_conv_id);
+    LOGD("isContactAdded: %d", isContactAdded(target_conv_id));
+    // void *conv_handle = create_native_conversation(target_conv_id);
+    void *conv_handle = get_cache_conversation_by_key(0, target_conv_id);
     if (!conv_handle) {
-        LOGE("create_and_inject_conversation failed");
+        LOGE("get_cache_conversation_by_key failed");
         return 0;
     }
 
-    unsigned int *conv_ref = reinterpret_cast<unsigned int *>(reinterpret_cast<char *>(conv_handle) + 96);
+    unsigned int *conv_ref = reinterpret_cast<unsigned int *>(
+        reinterpret_cast<char *>(conv_handle) + OFFSET_HANDLE_REF_COUNT);
     if (conv_ref) {
         add_ref(conv_ref);
         LOGI("conv_ref current refcount: %u", *conv_ref);
@@ -76,14 +78,17 @@ int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<ui
     // 💡 错误兜底 Lambda 闭包
     auto safety_cleanup = [conv_ref, conv_handle](void *msg_h) {
         if (msg_h && native_dec_ref) {
-            unsigned int *m_ref = reinterpret_cast<unsigned int *>(reinterpret_cast<char *>(msg_h) + 96);
+            unsigned int *m_ref = reinterpret_cast<unsigned int *>(
+                reinterpret_cast<char *>(msg_h) + OFFSET_HANDLE_REF_COUNT);
             if ((native_dec_ref(m_ref) & 1) != 0) {
-                (*reinterpret_cast<void (**)(void *)>(*reinterpret_cast<uintptr_t *>(msg_h) + 8LL))(msg_h);
+                (*reinterpret_cast<void (**)(void *)>(
+                    *reinterpret_cast<uintptr_t *>(msg_h) + OFFSET_HANDLE_VTABLE_DTOR))(msg_h);
             }
         }
         if (conv_handle && native_dec_ref && conv_ref) {
             if ((native_dec_ref(conv_ref) & 1) != 0) {
-                (*reinterpret_cast<void (**)(void *)>(*reinterpret_cast<uintptr_t *>(conv_handle) + 8LL))(conv_handle);
+                (*reinterpret_cast<void (**)(void *)>(
+                    *reinterpret_cast<uintptr_t *>(conv_handle) + OFFSET_HANDLE_VTABLE_DTOR))(conv_handle);
             }
         }
     };
@@ -129,7 +134,8 @@ int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<ui
         return 0;
     }
 
-    unsigned int *msg_ref = reinterpret_cast<unsigned int *>(reinterpret_cast<char *>(msg_handle) + 96);
+    unsigned int *msg_ref = reinterpret_cast<unsigned int *>(
+        reinterpret_cast<char *>(msg_handle) + OFFSET_HANDLE_REF_COUNT);
     if (msg_ref) {
         add_ref(msg_ref);
     }
@@ -140,10 +146,10 @@ int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<ui
     auto *result_closure = reinterpret_cast<uintptr_t *>(operator new(0xC0uLL));
     std::memset(result_closure, 0, 0xC0);
 
-    *reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(result_closure) + 0) = 1;
+    *reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(result_closure) + 0) = 1; // ref_count
     result_closure[1] = reinterpret_cast<uintptr_t>(my_custom_result_invoker);
     result_closure[2] = 0LL;
-    result_closure[3] = reinterpret_cast<uintptr_t>(so_base + 0x5E9D49C);
+    result_closure[3] = reinterpret_cast<uintptr_t>(so_base + OFFSET_MSG_SEND_CB);
     result_closure[4] = reinterpret_cast<uintptr_t>(my_pure_native_onResult);
     result_closure[5] = 0LL;
     result_closure[8] = reinterpret_cast<uintptr_t>(msg_handle);
@@ -152,8 +158,7 @@ int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<ui
     auto *cb_space = reinterpret_cast<MessageCallback *>(&result_closure[10]);
     new(cb_space) MessageCallback(callback); // placement new 拷贝构造
 
-    uintptr_t mock_callback_shell[1] = {reinterpret_cast<uintptr_t>(result_closure)};
-
+    uintptr_t result_std_fn_shell[2] = {reinterpret_cast<uintptr_t>(result_closure), 0};
     // A. 构建 Progress 闭包空间 (共享访问 result_closure)
     auto *progress_closure = reinterpret_cast<uintptr_t *>(operator new(0x50uLL));
     std::memset(progress_closure, 0, 0x50);
@@ -165,17 +170,29 @@ int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<ui
     // 💡 关键改造：把 Result 闭包的地址挂到 Progress 闭包的索引 8，方便顺藤摸瓜
     progress_closure[8] = reinterpret_cast<uintptr_t>(result_closure);
 
-    uintptr_t mock_progress_shell[1] = {reinterpret_cast<uintptr_t>(progress_closure)};
+    uintptr_t progress_std_fn_shell[2] = {reinterpret_cast<uintptr_t>(progress_closure), 0};
+    uint8_t conv_container[32] = {0};
+    *reinterpret_cast<void **>(conv_container) = conv_handle;
+    LOGI("[+] 准备调用 send_msg, Service: %p, Conv: %p, Msg: %p",
+         (void*)g_conversation_service, conv_handle, msg_handle);
 
-
-    // C. 物理发射
-    int64_t result = pfn_send_msg(
-        static_cast<int64_t>(g_conversation_service),
-        reinterpret_cast<int64_t>(conv_handle),
-        &msg_addr,
-        reinterpret_cast<int64_t>(mock_progress_shell),
-        reinterpret_cast<int64_t>(mock_callback_shell)
+    uintptr_t *vtable = *reinterpret_cast<uintptr_t **>(g_conversation_service);
+    auto pfn_send_msg_virt = reinterpret_cast<int64_t(*)(int64_t, int64_t, int64_t, int64_t, int64_t)>(vtable[848 / 8]);
+    int64_t result = pfn_send_msg_virt(
+        static_cast<int64_t>(g_conversation_service), // x0: Service (使用 static_cast 规避 const 报错)
+        reinterpret_cast<int64_t>(conv_container), // x1: Conversation 容器栈地址
+        reinterpret_cast<int64_t>(&msg_addr), // x2: &msg_handle
+        reinterpret_cast<int64_t>(progress_std_fn_shell), // x3: Progress std::function 栈壳地址
+        reinterpret_cast<int64_t>(result_std_fn_shell) // x4: Result std::function 栈壳地址
     );
+    // C. 物理发射
+    // int64_t result = pfn_send_msg(
+    //     static_cast<int64_t>(g_conversation_service),
+    //     reinterpret_cast<int64_t>(conv_handle),
+    //     &msg_addr,
+    //     reinterpret_cast<int64_t>(mock_progress_shell),
+    //     reinterpret_cast<int64_t>(mock_callback_shell)
+    // );
 
     LOGI("send_msg result %ld", result);
     return 1;

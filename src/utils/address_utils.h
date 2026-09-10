@@ -11,6 +11,8 @@ uintptr_t get_module_base(const char* module_name);
 bool is_so_loaded(const char *soname);
 // 传入相对于 SO 的偏移，返回运行时内存绝对地址
 uintptr_t get_absolute_address(const char* module_name, uintptr_t relative_addr);
+// 传入相对于 SO 的偏移，返回 void* 形式的绝对地址
+void *get_abs_addr(const char *soname, uintptr_t offset);
 
 
 #endif //SOHOOK_ADDRESS_UTILS_H

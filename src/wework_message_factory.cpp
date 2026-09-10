@@ -12,6 +12,8 @@
 #include <vector>
 #include <mutex> // 👈 引入互斥量用于线程安全
 
+#include "offset.h"
+
 /// --- 函数指针定义 ---
 typedef void * (*Message_Constructor)();
 typedef void (*Core_Constructor)(void *core_ptr);
@@ -42,9 +44,9 @@ void InitFunctions() {
         uintptr_t base = get_module_base("libwework_framework.so");
         if (base) {
             LOGI("[InitFunctions] libwework_framework.so 基地址: %p", reinterpret_cast<void*>(base));
-            create_message_ptr = (Message_Constructor)(base + 0x137E7C4);
+            create_message_ptr = (Message_Constructor)(base + OFFSET_CREATE_MSG_PTR);
             init_core_ptr      = (Core_Constructor)(base + 0x130530C);
-            parse_pb_ptr       = (ParseFromString_t)(base + 0x5F64AC4);
+            parse_pb_ptr       = (ParseFromString_t)(base + OFFSET_PARSE_FROM_MEM);
             copy_core_ptr      = (Core_CopyFrom)(base + 0x1307C5C);
             LOGI("[InitFunctions] 核心函数指针全量绑定成功。");
         } else {
