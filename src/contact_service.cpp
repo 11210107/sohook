@@ -41,7 +41,7 @@ uintptr_t getContactService() {
 }
 
 bool isContactAdded(uint64_t remote_id) {
-    LOGD("isContactAdded %llu", remote_id);
+    LOGD("isContactAdded %lu", remote_id);
     uintptr_t pContactService = getContactService();
     if (!pContactService) return false;
     // 直接使用偏移 1032LL 调用 isContactAdded

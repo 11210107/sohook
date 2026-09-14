@@ -98,7 +98,7 @@ void *create_native_conversation(uint64_t remote_id) {
 
     uint64_t original_local_id = *reinterpret_cast<uint64_t *>(internal_impl +
                                                                OFFSET_CONV_LOCAL_ID);
-    LOGD("create_conv_handle: original_local_id = %llu", original_local_id);
+    LOGD("create_conv_handle: original_local_id = %lu", original_local_id);
     alignas(16) uintptr_t pb_buffer[kPbBufferSize] = {0};
     init_buf(pb_buffer);
 

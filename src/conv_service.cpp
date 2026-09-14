@@ -88,7 +88,7 @@ void* get_cache_conversation_by_key(uint32_t conv_type, uint64_t remote_id) {
     uintptr_t conversation_ptr = holder.conv_ptr;
 
     if (!conversation_ptr) {
-        LOGW("get_cache_conv: conversation not found for remote_id: %llu", remote_id);
+        LOGW("get_cache_conv: conversation not found for remote_id: %lu", remote_id);
         return nullptr;
     }
 
