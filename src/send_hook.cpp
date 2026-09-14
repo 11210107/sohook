@@ -2,32 +2,28 @@
 // Created by user_wangzhen on 2026/5/11.
 //
 #include "dobby.h"
-#include "../include/logger.h"
+#include "logger.h"
 #include <jni.h>
 #include <thread>
 #include <chrono>
 #include <vector>
-#include "wework_hook.h"
+#include "send_hook.h"
 #include <unistd.h>
-#include "wework_message_factory.h"
 #include "utils/address_utils.h"
-#include "file_utils.h"
-#include "wework_conversation_service.h"
+#include "utils/file_utils.h"
+#include "message_sender.h"
 #include "vtable_helper.h"
 #include "main_thread_executor.h"
 #include "offset.h"
-#include "protocol_utils.h"
 #include "conv_service.h"
 #include "message/message_pb.h"
 // 1.定义原函数指针，用户 Hook 之后调用原逻辑
-// void (*orig_nativeSend)(JNIEnv* env, jobject thiz,jlong handle,jobject conv,jobject msg,jobject cb);
 typedef void (*NativeSendFunc)(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobject msg, jobject cb);
 
 NativeSendFunc orig_nativeSend = nullptr;
 // 2.定义全局变量保存关键句柄
 jlong g_wework_handle = 0;
-// 增加全局变量保存 context 和 conv
-jobject g_ctx = nullptr;
+// 保存 conv/thiz 全局引用
 jobject g_conv = nullptr;
 jobject g_thiz = nullptr;
 
@@ -36,62 +32,35 @@ void checkConvService(jlong handle) {
     static auto unwrapNativeHandle = (uintptr_t (*)(uintptr_t)) get_absolute_address("libwework_framework.so", OFFSET_UNWRAP_NATIVE_HANDLE);
     if (unwrapNativeHandle) {
         uintptr_t v10 = unwrapNativeHandle((uintptr_t) handle);
-        // v11 = (*v10 + 264)(v10)
-        uintptr_t v11 = CallVirtualMethod(v10, 33); // 264/8
-        // v12 = (*v11 + 40)(v11)
-        uintptr_t intercept_service = CallVirtualMethod(v11, 5); // 40/8
+        uintptr_t v11 = CallVMethodByOffset(v10, OFFSET_SERVICE_MANAGER);
+        uintptr_t intercept_service = CallVMethodByOffset(v11, OFFSET_CONV_SERVICE);
         // 3. 打印对比结果
-        LOGD(">>>> [对比测试] MyCreatedService: %p InterceptService: %p", (void*)my_conv_service,
+        LOGD("checkConvService [对比测试] MyCreatedService: %p InterceptService: %p", (void*)my_conv_service,
              (void*)intercept_service);
         if (my_conv_service == intercept_service) {
-            LOGI(">>>> [结论] 指针完全一致！getConversationService 逻辑正确。");
+            LOGD("checkConvService [结论] 指针完全一致！getConversationService 逻辑正确。");
         } else {
-            LOGE(">>>> [结论] 指针不一致！请检查偏移量或单例获取路径。");
+            LOGE("checkConvService [结论] 指针不一致！请检查偏移量或单例获取路径。");
         }
     }
 }
 
 // 3.拦截函数
 void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobject msg, jobject cb) {
-    LOGI(">>>> 拦截成功！当前消息 Handle: %lld <<<<", handle);
+    LOGD(">>>> 拦截成功！当前消息 Handle: %lld <<<<", static_cast<long long>(handle));
     // 2. 验证：如果 conv 和 msg 不为空，说明参数对齐了
     if (conv != nullptr && msg != nullptr) {
-        LOGI(">>>> 参数对齐验证通过，准备执行原逻辑 <<<<");
         checkConvService(handle);
-
         // bool sendResult = hardcore_send_image_message();
-        MessageParam text_task;
-        text_task.msg_type = WeWorkMsgType::TEXT;
-        text_task.text_content = "a message created by SoHook call native funcation";
-        MessageParam img_task;
-        img_task.msg_type = WeWorkMsgType::IMAGE;
-        img_task.file_path = "/storage/emulated/0/Android/data/com.tencent.wework/files/tempimagecache/1688858339520293/de59a59e2f3ab19203f87f4ad65cf4c8_compress.png";
-
-        MessageCallback my_perfect_listener;
-        my_perfect_listener.onProgress = [](int64_t current, int64_t total, void* msg_handle) {
+        auto on_progress = [](int64_t current, int64_t total, uint64_t msg_lid) {
             double pct = total > 0 ? ((double)current / total) * 100.0 : 0.0;
-            LOGI("[业务层高级扩展] 📈 正在上传，当前句柄: %p | 进度: %.2f%% (%ld/%ld)", msg_handle, pct, current, total);
+            LOGD("[on_progress] 📈 正在上传，当前消息 localId: %lu | 进度: %.2f%% (%ld/%ld)", msg_lid, pct, current, total);
         };
-        my_perfect_listener.onResult = [](int code, void* conv_handle, void* msg_handle) {
+        auto on_result = [](int code, uint64_t msg_lid) {
             if (code == 0) {
-                LOGI("[业务层高级扩展] 🎉 发送成功！会话指针: %p | 消息指针: %p", conv_handle, msg_handle);
-                // 💡 可以在这里利用 conv_handle 或者是 msg_handle 传入其他 Hook 的 Native 函数进行联动
-                // 1. 第一级寻址：解引用偏移 112 (0x70) 获取 internal_impl 指针
-                auto* internal_impl_ptr = *reinterpret_cast<uintptr_t**>(
-                    reinterpret_cast<char*>(conv_handle) + OFFSET_HANDLE_IMPL
-                );
-                if (!internal_impl_ptr) {
-                    LOGE("[ExtractConvId] 错误: internal_impl 尚未初始化或为空");
-                    return;
-                }
-                // 2. 第二级寻址：在 internal_impl 基础上偏移 200 (0xC8) 读取 8 字节的 uint64_t
-                uint64_t conv_id = *reinterpret_cast<uint64_t*>(
-                    reinterpret_cast<char*>(internal_impl_ptr) + OFFSET_CONVERSATION_ID
-                );
-
-                LOGI("[ExtractConvId] 成功从 conv_handle 逆向提取 ID: %llu", conv_id);
+                LOGD("[on_result] 🎉 发送成功！ | 消息 localId: %lu", msg_lid);
             } else {
-                LOGE("[业务层高级扩展] ❌ 底层投递失败，错误码: %d", code);
+                LOGE("[on_result] ❌ 底层投递失败，错误码: %d", code);
             }
         };
         std::vector<uint64_t> id_list = {
@@ -105,7 +74,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         // 3. 遍历发射
         for (uint64_t cid : id_list) {
             // 发送文本消息
-            send_model_message(cid,0, generate_text_message_pb("a message created by SoHook call native funcation"),my_perfect_listener);
+            send_model_message(cid,MSG_TYPE_TEXT, generate_text_message_pb("a message created by SoHook call native funcation"),on_progress,on_result);
             // 💡 逆向避坑小贴士：
             // 虽然我们做好了完美的引用计数管理，但在大批量（几十个甚至上百个群发）时，
             // 建议加上 50-100ms 的轻微延时，给企微底层的 TaskQueue 和网络线程让出缓冲时间。
@@ -122,18 +91,16 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
             }
             uint32_t thumb_w = file_width * 3 / 4;
             uint32_t thumb_h = file_height * 3 / 4;
-            // send_model_message(cid,7, generate_image_message_pb(path,file_width,file_height,image_size,false,"","",file_width * 3 / 4,file_height * 3 / 4),my_perfect_listener);
+            // send_model_message(cid,MSG_TYPE_IMAGE, generate_image_message_pb(path,file_width,file_height,image_size,false,"","",file_width * 3 / 4,file_height * 3 / 4),on_progress,on_result);
             // 发送文件
             const std::string file_path = "content://com.wxsdk.app.share/test.pdf";
 
             // std::string sandbox_path = resolve_content_uri_to_local(env, file_path);
             // LOGI("[my_nativeSend] 企业微信沙盒路径: %s", sandbox_path.c_str());
             // uint64_t file_size = get_file_size(sandbox_path);
-            // send_model_message(cid,8, generate_file_message_pb(sandbox_path,file_size),my_perfect_listener);
+            // send_model_message(cid,MSG_TYPE_FILE, generate_file_message_pb(sandbox_path,file_size),on_progress,on_result);
 
         }
-        // int64_t sendResult =  send_model_message(img_task);
-        // LOGI(">>>> [结论] 消息发送结果：%d",sendResult);
     }
     // 第一次拦截时，保存环境副本
     if (g_conv == nullptr) {
@@ -151,7 +118,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
 
 
 // 4.初始化
-void init_wework_hook() {
+void init_send_hook() {
     std::thread([]() {
         LOGD("Hook Thread Started: Monitoring maps...");
         uintptr_t base_addr = 0;
@@ -174,10 +141,10 @@ void init_wework_hook() {
         LOGD("Found libwework_framework.so in maps at: %lx", base_addr);
         // 使用你 IDA 里的偏移量
         void *target_addr = (void *) (base_addr + OFFSET_NATIVE_MSG_SEND);
-        LOGI("Final Hook Address: %p", target_addr);
+        LOGD("Final Hook Address: %p", target_addr);
         int ret = DobbyHook(target_addr, (dobby_dummy_func_t) my_nativeSend, (dobby_dummy_func_t *) &orig_nativeSend);
         if (ret == 0) {
-            LOGI(">>>> Dobby Hook Success! <<<<");
+            LOGD(">>>> Dobby Hook Success! <<<<");
         } else {
             LOGE("Dobby Hook Failed!");
         }

@@ -9,7 +9,7 @@
 #define OFFSET_JAVA_VM                      (0x92520D8) // java_vm
 
 #define OFFSET_NATIVE_GET_CURRENT_PROFILE   (0x1349A90)  // nativeGetCurrentProfile
-#define OFFSET_NATIVE_VID                   (0x11E3DC8) // nativeVid
+#define OFFSET_NATIVE_VID                   (0x1348284) // nativeVid
 
 #define OFFSET_NATIVE_MSG_SEND              (0x10E79F8) // 消息发送 nativeSendModelMessage
 #define OFFSET_MSG_SEND                     (0x24613B0) // 消息发送
@@ -43,9 +43,11 @@
 #define OFFSET_MAP_HOLDER_ROOT              (112)   // map_holder 内红黑树根节点，适配位置在 OFFSET_FIND_CONV_BY_CACHE 方法中
 #define OFFSET_PROFILE_MANAGER              (24)    // ProfileManager_nativeGetCurrentProfile   v1 = (*(__int64 (__fastcall **)(unsigned __int64))(*(_QWORD *)v0 + 24LL))(v0);
 #define OFFSET_CURRENT_PROFILE              (24)    // ProfileManager_nativeGetCurrentProfile   result = (_QWORD *)(*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v1 + 24LL))(v1);
-#define OFFSET_SERVICE_MANAGER              (264)   // Profile_nativeGetServiceManager
+#define OFFSET_SERVICE_MANAGER              (264)   // ConversationService_nativeSendModelMessage
+#define OFFSET_CONV_SERVICE                 (40)    // ServiceManager 虚表内获取 ConversationService
 #define OFFSET_CONTACT_SERVICE              (96)    // ContactService_nativeIsContactAdded
 #define OFFSET_GET_CACHE_CONV               (520)   // ConversationService_nativeGetCacheConversationByKey
+#define OFFSET_SEND_MSG_VIRT                (848)   // ConversationService 发送消息虚函数，适配位置在 nativeSendModelMessage 方法中
 
 // 取句柄 OFFSET_HANDLE_REF_COUNT 处的 32 位引用计数器
 inline uint32_t *handle_ref_count(void *handle) {

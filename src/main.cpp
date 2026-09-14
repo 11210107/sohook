@@ -3,7 +3,7 @@
 #include <fcntl.h>
 #include <stdio.h>
 #include "../include/logger.h"
-#include "wework_hook.h"
+#include "send_hook.h"
 #include <string>
 #include <fstream>
 #include "main_thread_executor.h"
@@ -29,7 +29,7 @@ void my_init() {
 
     // MainThreadExecutor::getInstance().initialize();
     // 直接初始化，不再判断 proc_name == "com.tencent.wework"
-    init_wework_hook();
+    init_send_hook();
 }
 
 

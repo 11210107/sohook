@@ -7,7 +7,7 @@
 #include "offset.h"
 #include <string>
 
-#include "protocol_utils.h"
+#include "utils/protocol_utils.h"
 #include "wework_conversation.pb.h"
 #if defined(__aarch64__) || defined(__ARM_NEON)
 

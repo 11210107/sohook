@@ -38,16 +38,15 @@ add_library(sohook SHARED
         src/main.cpp                    # so入口
         src/zygisk_inject.cpp           # zygisk注入
         src/utils/address_utils.cpp           # 基础工具：基址获取
-        src/protocol_utils.cpp          # 基础工具：PB解析
-        src/file_utils.cpp          # 基础工具：file文件读写
+        src/utils/protocol_utils.cpp          # 基础工具：PB解析
+        src/utils/file_utils.cpp          # 基础工具：file文件读写
         src/conv_service.cpp          # 业务逻辑：ConvService 寻址 (新增)
         src/conversation.cpp          # 业务逻辑：Conversation
         src/contact_service.cpp          # 业务逻辑：ContactService
-        src/wework_message_factory.cpp  # 消息构建：Protobuf 模拟
         src/message/msg_ptr.cpp  # 消息ptr构建
         src/message/message_pb.cpp  # 消息pb构建
-        src/wework_conversation_service.cpp     # 会话服务：消息发送
-        src/wework_hook.cpp             # Hook 入口：拦截与触发
+        src/message_sender.cpp          # 消息发送：闭包伪造与回调驱动
+        src/send_hook.cpp             # Hook 入口：拦截与触发
         src/main_thread_executor.cpp         # 保障：主线程执行
         proto/gen/wework_conversation.pb.cc    # PB 生成代码
         proto/gen/wework_image_message.pb.cc   # PB 生成代码
