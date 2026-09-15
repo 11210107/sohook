@@ -44,7 +44,7 @@ namespace {
         info.set_field_12(is_contact ? 0 : 1);
         info.set_field_15("");
         std::string out;
-        info.SerializeToString(&out);
+        (void)info.SerializeToString(&out);
         return out;
     }
 

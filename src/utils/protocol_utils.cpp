@@ -30,7 +30,7 @@ std::string generate_conversation_proto(uint64_t conversation_id) {
     info.set_field_15("");
 
     std::string out;
-    info.SerializeToString(&out);
+    (void)info.SerializeToString(&out);
     return out;
 }
 
@@ -65,7 +65,7 @@ std::vector<uint8_t> generate_image_message_proto(
     content->set_mid_path(final_mid);
 
     std::string out;
-    msg.SerializeToString(&out);
+    (void)msg.SerializeToString(&out);
     return std::vector<uint8_t>(out.begin(), out.end());
 }
 
@@ -84,7 +84,7 @@ std::vector<uint8_t> generate_text_message_proto(const std::string& text_content
     text->set_text(text_content);
 
     std::string out;
-    msg.SerializeToString(&out);
+    (void)msg.SerializeToString(&out);
     return std::vector<uint8_t>(out.begin(), out.end());
 }
 
