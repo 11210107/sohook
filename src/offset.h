@@ -10,7 +10,7 @@
 
 #define OFFSET_NATIVE_GET_CURRENT_PROFILE   (0x1349A90)  // nativeGetCurrentProfile
 #define OFFSET_NATIVE_VID                   (0x1348284) // nativeVid
-
+#define OFFSET_NATIVE_GET_STATE             (0x1348188) // nativeGetState 登录状态
 #define OFFSET_NATIVE_MSG_SEND              (0x10E79F8) // 消息发送 nativeSendModelMessage
 #define OFFSET_MSG_SEND                     (0x24613B0) // 消息发送
 #define OFFSET_UNWRAP_NATIVE_HANDLE         (0xF9D90C)  // currentProfile 解引用
@@ -33,21 +33,29 @@
 // ===== native 句柄对象内存布局（Message/Conversation 同构；版本升级时只需核对此处）=====
 #define OFFSET_HANDLE_REF_COUNT             (96)    // uint32 侵入式引用计数器，适配位置在 OFFSET_DEC_REF 方法入参。
 #define OFFSET_HANDLE_IMPL                  (120)   // internal_impl 核心指针，适配位置在 OFFSET_CREATE_CONV 方法中，处理operator new(296LL);分配内存
-#define OFFSET_CONVERSATION_ID              (200)   // 192 + 8  *(_QWORD *)(v5 + 192) = v2;
+
+#define OFFSET_CONVERSATION_ID              (200)   // sub_14E7EB8  *(_BYTE *)(a1 + 200) = 0;
 #define OFFSET_HANDLE_VTABLE_DTOR           (8)     // vtable 内 deleting destructor 偏移，适配位置在 nativeSendModelMessage方法中，处理delete this;释放内存
+
 #define OFFSET_MSG_LOCAL_ID                 (64)   // msg impl 内 local_id，适配位置在 OFFSET_CREATE_MSG_PTR 方法中
 #define OFFSET_IMPL_HAS_BITS                (16)    // msg/conv impl 内 has_bits，适配位置在 OFFSET_CREATE_CONV 方法中
 #define OFFSET_CONV_LOCAL_ID                (192)   // conv impl 内 localId，适配位置在 OFFSET_CREATE_CONV 方法中
 #define OFFSET_CONV_SERVICE_MAP_HOLDER      (288)   // ConversationService 内会话缓存 map_holder 指针，适配位置在 OFFSET_FIND_CONV_BY_CACHE 方法中
 
+
 #define OFFSET_MAP_HOLDER_ROOT              (112)   // map_holder 内红黑树根节点，适配位置在 OFFSET_FIND_CONV_BY_CACHE 方法中
 #define OFFSET_PROFILE_MANAGER              (24)    // ProfileManager_nativeGetCurrentProfile   v1 = (*(__int64 (__fastcall **)(unsigned __int64))(*(_QWORD *)v0 + 24LL))(v0);
+
 #define OFFSET_CURRENT_PROFILE              (24)    // ProfileManager_nativeGetCurrentProfile   result = (_QWORD *)(*(__int64 (__fastcall **)(__int64))(*(_QWORD *)v1 + 24LL))(v1);
+
 #define OFFSET_SERVICE_MANAGER              (264)   // ConversationService_nativeSendModelMessage
 #define OFFSET_CONV_SERVICE                 (40)    // ServiceManager 虚表内获取 ConversationService
 #define OFFSET_CONTACT_SERVICE              (96)    // ContactService_nativeIsContactAdded
 #define OFFSET_GET_CACHE_CONV               (520)   // ConversationService_nativeGetCacheConversationByKey
 #define OFFSET_SEND_MSG_VIRT                (848)   // ConversationService 发送消息虚函数，适配位置在 nativeSendModelMessage 方法中
+#define FLAG_CONV_HAS_UNIQUE_ID             (0x20)  // conv impl 内 localId，适配位置在 OFFSET_CREATE_CONV 方法中,OFFSET_CONV_LOCAL_ID的标志开关
+#define FLAG_MSG_HAS_UNIQUE_ID              (8)     // OFFSET_CREATE_MSG_PTR 创建消息指针时的标志开关
+
 
 // 取句柄 OFFSET_HANDLE_REF_COUNT 处的 32 位引用计数器
 inline uint32_t *handle_ref_count(void *handle) {

@@ -61,7 +61,7 @@ void *create_message_pure_native_ptr(int type, std::vector<uint8_t> pb_data) {
         return nullptr;
     }
     *reinterpret_cast<uint64_t *>(reinterpret_cast<char *>(targetCore) + OFFSET_MSG_LOCAL_ID) = saved_local_id;
-    *reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(targetCore) + OFFSET_IMPL_HAS_BITS) |= 8;
+    *reinterpret_cast<uint32_t *>(reinterpret_cast<char *>(targetCore) + OFFSET_IMPL_HAS_BITS) |= FLAG_MSG_HAS_UNIQUE_ID;
     LOGI("create_message_ ok: %p", msgHandle);
     return msgHandle;
 }

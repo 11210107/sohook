@@ -115,7 +115,7 @@ void *create_native_conversation(uint64_t remote_id) {
 
     sync_to_conv(internal_impl, pb_buffer);
     *reinterpret_cast<uint64_t *>(internal_impl + OFFSET_CONV_LOCAL_ID) = original_local_id;
-    *reinterpret_cast<uint32_t *>(internal_impl + OFFSET_IMPL_HAS_BITS) |= 0x20;
+    *reinterpret_cast<uint32_t *>(internal_impl + OFFSET_IMPL_HAS_BITS) |= FLAG_MSG_HAS_UNIQUE_ID;
     destroy_buf(pb_buffer);
     return (void *) my_c_conv_ptr;
 }

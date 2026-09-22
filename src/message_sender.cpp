@@ -190,5 +190,5 @@ int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<ui
     //     reinterpret_cast<int64_t>(mock_progress_shell),
     //     reinterpret_cast<int64_t>(mock_callback_shell)
     // );
-    return 1;
+    return get_local_id_from_msg_handle(msg_handle);
 }
