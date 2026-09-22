@@ -4,6 +4,7 @@
 #include "message_sender.h"
 #include <cstring>
 
+#include "conversation.h"
 #include "logger.h"
 #include "utils/address_utils.h"
 #include "message/msg_ptr.h"
@@ -121,6 +122,9 @@ int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<ui
     // 2. 获取会话对象（走缓存查找）
     // void *conv_handle = create_native_conversation(target_conv_id);
     void *conv_handle = get_cache_conversation_by_key(0, target_conv_id);
+    if (conv_handle == nullptr) {
+        conv_handle = create_native_conversation(target_conv_id);
+    }
     if (!conv_handle) {
         LOGE("get_cache_conversation_by_key failed");
         return 0;
