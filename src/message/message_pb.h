@@ -20,3 +20,14 @@ std::vector<uint8_t> generate_file_message_pb(
     const std::string &file_path,
     uint64_t file_size
 );
+std::vector<uint8_t> generate_image_reuse_pb(
+    const std::string &file_name,
+    uint64_t file_size,
+    int width,
+    int height,
+    int ld_width,
+    int ld_height,
+    const std::string &file_id,
+    const std::string &aes_key,
+    const std::string &md5
+);

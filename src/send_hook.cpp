@@ -17,6 +17,8 @@
 #include "offset.h"
 #include "conv_service.h"
 #include "message/message_pb.h"
+#include "cdn_cache.h"
+#include "image_broadcast.h"
 // 1.定义原函数指针，用户 Hook 之后调用原逻辑
 typedef void (*NativeSendFunc)(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobject msg, jobject cb);
 
@@ -63,18 +65,31 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
                 LOGE("[on_result] ❌ 底层投递失败，错误码: %d", code);
             }
         };
+        /*
+         ** 发送图片测试消息
         std::vector<uint64_t> id_list = {
             7881299599906412ULL,
-            // 10758106104862420ULL,
-            // 7881300507904689ULL,
-            // 7881300527908908ULL,
-            // 7881301482198287ULL
+            7881301969920617ULL,
+            7881303349316267ULL,
+            // ... 后面有多少加多少
+        };
+        // 方案1：同一张图 N 个联系人只上传一次 CDN——
+        // 首个联系人正常发送(上传一次)，其余用捕获的 fileid/aes_key/md5 构建复用模型直发
+        const std::string image_path = "/storage/emulated/0/test.jpg";
+        send_image_to_contacts(image_path, id_list, on_progress, on_result);
+        */
+        /**
+         *  发送测试消息*/
+        std::vector<uint64_t> id_list = {
+            7881299599906412ULL,
+            // 7881301969920617ULL,
+            // 7881303349316267ULL,
             // ... 后面有多少加多少
         };
         // 3. 遍历发射
         for (uint64_t cid : id_list) {
             // 发送文本消息
-            send_model_message(cid,MSG_TYPE_TEXT, generate_text_message_pb("a message created by SoHook call native funcation"),on_progress,on_result);
+            // send_model_message(cid,MSG_TYPE_TEXT, generate_text_message_pb("a message created by SoHook call native funcation"),on_progress,on_result);
             // 💡 逆向避坑小贴士：
             // 虽然我们做好了完美的引用计数管理，但在大批量（几十个甚至上百个群发）时，
             // 建议加上 50-100ms 的轻微延时，给企微底层的 TaskQueue 和网络线程让出缓冲时间。
@@ -91,7 +106,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
             }
             uint32_t thumb_w = file_width * 3 / 4;
             uint32_t thumb_h = file_height * 3 / 4;
-            // send_model_message(cid,MSG_TYPE_IMAGE, generate_image_message_pb(path,file_width,file_height,image_size,false,"","",file_width * 3 / 4,file_height * 3 / 4),on_progress,on_result);
+            send_model_message(cid,MSG_TYPE_IMAGE, generate_image_message_pb(path,file_width,file_height,image_size,false,"","",file_width * 3 / 4,file_height * 3 / 4),on_progress,on_result);
             // 发送文件
             const std::string file_path = "content://com.wxsdk.app.share/test.pdf";
 
@@ -101,6 +116,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
             // send_model_message(cid,MSG_TYPE_FILE, generate_file_message_pb(sandbox_path,file_size),on_progress,on_result);
 
         }
+
     }
     // 第一次拦截时，保存环境副本
     if (g_conv == nullptr) {
@@ -148,6 +164,7 @@ void init_send_hook() {
         } else {
             LOGE("Dobby Hook Failed!");
         }
+        init_cdn_capture_hooks(base_addr); // CDN 结果捕获（方案1：fileid 免上传）
         // MainThreadExecutor::getInstance().post([]() {
         //     // 此处已经是纯正的 Android 主线程环境
         //     LOGI("Main Thread Executor Task Executed!");

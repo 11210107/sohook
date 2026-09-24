@@ -48,6 +48,8 @@ add_library(sohook SHARED
         src/message_sender.cpp          # 消息发送：闭包伪造与回调驱动
         src/send_hook.cpp             # Hook 入口：拦截与触发
         src/main_thread_executor.cpp         # 保障：主线程执行
+        src/cdn_cache.cpp                  # 方案1：CDN 上传结果捕获与缓存
+        src/image_broadcast.cpp            # 方案1：图片群发复用编排
         proto/gen/wework_conversation.pb.cc    # PB 生成代码
         proto/gen/wework_image_message.pb.cc   # PB 生成代码
         proto/gen/wework_text_message.pb.cc    # PB 生成代码

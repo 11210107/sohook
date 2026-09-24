@@ -55,7 +55,7 @@ uintptr_t get_module_base(const char *module_name) {
     }
     fclose(fp);
     if (addr == 0) {
-        LOGD("[BASE] 🔍 未找到模块: %s (已扫描 %d 行)", module_name, line_count);
+        // LOGD("[BASE] 🔍 未找到模块: %s (已扫描 %d 行)", module_name, line_count);
     }
     return addr;
 }

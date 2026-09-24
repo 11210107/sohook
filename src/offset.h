@@ -55,7 +55,12 @@
 #define OFFSET_SEND_MSG_VIRT                (848)   // ConversationService 发送消息虚函数，适配位置在 nativeSendModelMessage 方法中
 #define FLAG_CONV_HAS_UNIQUE_ID             (0x20)  // conv impl 内 localId，适配位置在 OFFSET_CREATE_CONV 方法中,OFFSET_CONV_LOCAL_ID的标志开关
 #define FLAG_MSG_HAS_UNIQUE_ID              (8)     // OFFSET_CREATE_MSG_PTR 创建消息指针时的标志开关
-
+// ===== CDN 上传结果捕获（方案1：fileid 免上传复用）=====
+// CdnUploadTask 虚表 0xA631080：slot2=Start、slot8=OnUploadFinish
+// 图片(msgtype=7)走 DoUploadBinWithFtn(0x51130B4) 通道，完成回调不经 sub_5114DC0，
+// 必须在两通道共同汇聚点 OnUploadFinish 捕获（a4=fileid票据/a5=aeskey/a6=md5，this+88=本地路径）
+#define OFFSET_CDN_UPLOAD_START             (0x2B87DEC) // CdnUploadTask::Start（"CDNLOG Upload Start!"，计数验证用）
+#define OFFSET_CDN_ON_UPLOAD_FINISH         (0x2B88B70) // CdnUploadTask::OnUploadFinish（所有上传完成唯一汇聚点）
 
 // 取句柄 OFFSET_HANDLE_REF_COUNT 处的 32 位引用计数器
 inline uint32_t *handle_ref_count(void *handle) {
