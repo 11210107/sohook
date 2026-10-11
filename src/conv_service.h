@@ -3,6 +3,7 @@
 //
 # pragma once
 #include <cstdint>
+#include "conv_type.h"
 uintptr_t getConversationService();
 
-void* get_cache_conversation_by_key(uint32_t conv_type, uint64_t remote_id) ;
+void* get_cache_conversation_by_key(ConvType conv_type, uint64_t remote_id) ;

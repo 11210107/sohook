@@ -121,7 +121,8 @@ int64_t send_model_message(uint64_t target_conv_id, int msg_type, std::vector<ui
 
     // 2. 获取会话对象（走缓存查找）
     // void *conv_handle = create_native_conversation(target_conv_id);
-    void *conv_handle = get_cache_conversation_by_key(0, target_conv_id);
+    ConvType conv_type = resolve_conv_type(target_conv_id);
+    void *conv_handle = get_cache_conversation_by_key(conv_type, target_conv_id);
     if (conv_handle == nullptr) {
         conv_handle = create_native_conversation(target_conv_id);
     }

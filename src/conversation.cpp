@@ -24,24 +24,32 @@ namespace {
     constexpr size_t kConvKeySize = 24;
     constexpr int kVidPrefixShift = 48;
     constexpr uint64_t kVidPrefix = 6;
+    constexpr uint64_t kWeixinXidPrefix = 28;
+
+    // 会话类型 convType 完整定义见 conv_type.h（与 libwework_framework 的 CONVTYPE 一致）
+
+    // 内置服务会话的固定 conversation_id
+    constexpr uint64_t kConvIdEmail = 10004;            // 邮件，convType=应用会话
+    constexpr uint64_t kConvIdFileAssistant = 10006;    // 文件传输助手
 
     bool is_vid(uint64_t id) {
         return (id >> kVidPrefixShift) == kVidPrefix;
     }
-    /**
-     * @brief 判断给定的 Long 型 ID 是否为微信 XID 用户 (对应 Java 的 isWeixinXidUser)
-     * @param id 用户 ID 或 64 位整型 ID
-     * @return true 表示高 16 位 Tag 等于 28
-     */
-    bool isWeixinXidUser(uint64_t id) {
-        return (id >> kVidPrefixShift) == 28;
+
+    // 对应 libwework_framework 的 isWeixinXidUser：(id >> 48) == 28
+    bool is_weixin_xid_user(uint64_t id) {
+        return (id >> kVidPrefixShift) == kWeixinXidPrefix;
     }
-    std::string build_conv_pb(uint64_t local_id, uint64_t conversation_id) {
-        bool is_contact = isWeixinXidUser(conversation_id);
+
+    // 对应 isNormalUserId：vid 或微信 xid 均为单聊（个人会话）
+    bool is_normal_user_id(uint64_t id) {
+        return is_vid(id) || is_weixin_xid_user(id);
+    }
+    std::string build_conv_pb(ConvType conv_type,uint64_t local_id, uint64_t conversation_id) {
         sohook::ConversationInfo info;
         info.set_local_id(local_id);
         info.set_conversation_id(conversation_id);
-        info.set_field_12(is_contact ? 0 : 1);
+        info.set_field_12(static_cast<uint32_t>(conv_type));
         info.set_field_15("");
         std::string out;
         (void)info.SerializeToString(&out);
@@ -61,7 +69,19 @@ namespace {
         uint64_t val3;
     };
 }
-
+ConvType resolve_conv_type(uint64_t conversation_id) {
+    if (is_normal_user_id(conversation_id)) {
+        return ConvType::kPerson;
+    }
+    if (conversation_id == kConvIdFileAssistant) {
+        return ConvType::kFileAssistant;
+    }
+    if (conversation_id == kConvIdEmail) {
+        return ConvType::kApp;
+    }
+    // 其余按群聊处理（与原 build_conv_pb 中非 vid 取 1 的行为一致）
+    return ConvType::kRoom;
+}
 void *create_native_conversation(uint64_t remote_id) {
     using CreateConvObjFn = IndirectResult (*)();
     using InitPbFn = int64x2_t (*)(void *);
@@ -101,8 +121,8 @@ void *create_native_conversation(uint64_t remote_id) {
     LOGD("create_conv_handle: original_local_id = %lu", original_local_id);
     alignas(16) uintptr_t pb_buffer[kPbBufferSize] = {0};
     init_buf(pb_buffer);
-
-    std::string conv_pb = build_conv_pb(original_local_id,remote_id);
+    ConvType conv_type = resolve_conv_type(remote_id);
+    std::string conv_pb = build_conv_pb(conv_type,original_local_id,remote_id);
     // 【新增】：转换为 vector 并打印 Hex Dump
     std::vector<uint8_t> pb_vector(conv_pb.begin(), conv_pb.end());
     dump_protobuf_hex(pb_vector);

@@ -58,7 +58,7 @@ struct NativeResultHolder {
 };
 
 // 3. 虚表包装函数
-void* get_cache_conversation_by_key(uint32_t conv_type, uint64_t remote_id) {
+void* get_cache_conversation_by_key(ConvType conv_type, uint64_t remote_id) {
     // 1. 获取 ConversationService 指针
     uintptr_t conv_service = getConversationService();
     if (!conv_service) {
