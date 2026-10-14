@@ -2,8 +2,16 @@ syntax = "proto2";
 
 package sohook; // 根据代码中的引用猜测命名空间
 
+// ExtraContent —— 对应 Java: ExtendableMessageNano<ExtraContent>（protobuf nano 可扩展消息）
+// 本体无任何声明字段：clear()/mergeFrom() 仅处理 unknownFieldData；内容全部由其他
+// 消息类以 nano 扩展形式注册进来，未注册的扩展按未知字段原样保留。
+// 实测扩展（视频号消息全量解析，即 raw_pb.cpp 引用的 1973 字节样例）：
+//   3045: {1: 32B 二进制 key | 2: 13(=content_type)
+//          | 3: {1: 发送时间(秒) | 2: 1 | 3: 23B base64 token
+//               | 4: {2: 0} | 6: 视频发布时间(微秒) | 7: 1}}
+// C++ 侧暂不定义具体 extend：未知字段由 UnknownFieldSet 透传，解析/回写无损。
 message ExtraContent {
-    // 空消息结构，无定义字段
+    extensions 1 to max; // ExtendableMessageNano 的扩展宿主语义
 }
 message MessageAttachInfos {
     repeated MessageAttachInfo infos = 1;

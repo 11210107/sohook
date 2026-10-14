@@ -896,7 +896,7 @@ constexpr ExtraContent::ParseTableT_ ExtraContent::InternalGenerateParseTable_(c
     {
       PROTOBUF_FIELD_OFFSET(ExtraContent,
                             _impl_._cached_size_),  // no hasbits
-      0, // no _extensions_
+      PROTOBUF_FIELD_OFFSET(ExtraContent, _impl_._extensions_),
       0, 0,  // max_field_number, fast_idx_mask
       offsetof(ParseTableT_, field_lookup_table),
       4294967295,  // skipmap
@@ -920,14 +920,21 @@ constexpr ExtraContent::ParseTableT_ ExtraContent::InternalGenerateParseTable_(c
   };
 }
 
+
+inline constexpr ExtraContent::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    ::_pbi::ConstantInitialized) noexcept
+      : _cached_size_{0} {}
+
 template <typename>
 constexpr ExtraContent::ExtraContent(::_pbi::ConstantInitialized,
                        const ::_pbi::ClassData* PROTOBUF_NONNULL class_data)
-    : ::google::protobuf::internal::ZeroFieldsBase(
+    : ::google::protobuf::Message(
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           class_data
 #endif  // PROTOBUF_CUSTOM_VTABLE
-      ) {
+          ),
+      _impl_(internal_visibility(), ::_pbi::ConstantInitialized()) {
 }
 inline void* PROTOBUF_NONNULL ExtraContent::PlacementNew_(
     const void* PROTOBUF_NONNULL, void* PROTOBUF_NONNULL mem,
@@ -948,12 +955,12 @@ constexpr auto ExtraContent::InternalGenerateClassData_(
 #else
           tc_table,
 #endif
-          nullptr,  // IsInitialized
+          ExtraContent::IsInitializedImpl,
           &ExtraContent::MergeImpl,
-          ::google::protobuf::internal::ZeroFieldsBase::GetNewImpl<ExtraContent>(),
+          ::google::protobuf::Message::GetNewImpl<ExtraContent>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
           &ExtraContent::SharedDtor,
-          ::google::protobuf::internal::ZeroFieldsBase::GetClearImpl<ExtraContent>(), &ExtraContent::ByteSizeLong,
+          ::google::protobuf::Message::GetClearImpl<ExtraContent>(), &ExtraContent::ByteSizeLong,
               &ExtraContent::_InternalSerialize,
 #endif  // PROTOBUF_CUSTOM_VTABLE
           PROTOBUF_FIELD_OFFSET(ExtraContent, _impl_._cached_size_),
@@ -2000,7 +2007,7 @@ constexpr auto Message::InternalGenerateClassData_(
 #else
           tc_table,
 #endif
-          nullptr,  // IsInitialized
+          Message::IsInitializedImpl,
           &Message::MergeImpl,
           ::google::protobuf::Message::GetNewImpl<Message>(),
 #if defined(PROTOBUF_CUSTOM_VTABLE)
@@ -2071,7 +2078,8 @@ static constexpr const ::_pb::ServiceDescriptor* PROTOBUF_NONNULL* PROTOBUF_NULL
 const ::uint32_t
     TableStruct_wwmessage_2eproto::offsets[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
         protodesc_cold) = {
-        0x000, // bitmap
+        0x002, // bitmap
+        PROTOBUF_FIELD_OFFSET(::sohook::ExtraContent, _impl_._extensions_),
         0x081, // bitmap
         PROTOBUF_FIELD_OFFSET(::sohook::MessageAttachInfos, _impl_._has_bits_),
         4, // hasbit index offset
@@ -2290,15 +2298,15 @@ const ::uint32_t
 static const ::_pbi::MigrationSchema
     schemas[] ABSL_ATTRIBUTE_SECTION_VARIABLE(protodesc_cold) = {
         {0, sizeof(::sohook::ExtraContent)},
-        {1, sizeof(::sohook::MessageAttachInfos)},
-        {6, sizeof(::sohook::OcrContents2)},
-        {15, sizeof(::sohook::VoiceTransInfo)},
-        {16, sizeof(::sohook::TranslateSegmentPair)},
-        {17, sizeof(::sohook::MessageLocalInfo)},
-        {18, sizeof(::sohook::MessageAttachInfo)},
-        {19, sizeof(::sohook::MessageExtras)},
-        {122, sizeof(::sohook::Message_SendProgress)},
-        {137, sizeof(::sohook::Message)},
+        {2, sizeof(::sohook::MessageAttachInfos)},
+        {7, sizeof(::sohook::OcrContents2)},
+        {16, sizeof(::sohook::VoiceTransInfo)},
+        {17, sizeof(::sohook::TranslateSegmentPair)},
+        {18, sizeof(::sohook::MessageLocalInfo)},
+        {19, sizeof(::sohook::MessageAttachInfo)},
+        {20, sizeof(::sohook::MessageExtras)},
+        {123, sizeof(::sohook::Message_SendProgress)},
+        {138, sizeof(::sohook::Message)},
 };
 static const ::_pbi::MessageGlobalsBase* PROTOBUF_NONNULL const
     file_message_globals[] = {
@@ -2315,85 +2323,85 @@ static const ::_pbi::MessageGlobalsBase* PROTOBUF_NONNULL const
 };
 const char descriptor_table_protodef_wwmessage_2eproto[] ABSL_ATTRIBUTE_SECTION_VARIABLE(
     protodesc_cold) = {
-    "\n\017wwmessage.proto\022\006sohook\"\016\n\014ExtraConten"
-    "t\">\n\022MessageAttachInfos\022(\n\005infos\030\001 \003(\0132\031"
-    ".sohook.MessageAttachInfo\"K\n\014OcrContents"
-    "2\022\017\n\007file_id\030\001 \001(\014\022\024\n\014ocr_contents\030\002 \001(\014"
-    "\022\024\n\014content_type\030\003 \001(\r\"\020\n\016VoiceTransInfo"
-    "\"\026\n\024TranslateSegmentPair\"\022\n\020MessageLocal"
-    "Info\"\023\n\021MessageAttachInfo\"\234\013\n\rMessageExt"
-    "ras\022\020\n\010readuins\030\002 \003(\004\022\020\n\010receiver\030\003 \001(\004\022"
-    "\022\n\nsendername\030\004 \001(\t\022\022\n\nunreaduins\030\005 \003(\004\022"
-    "\037\n\027is_alert_reached_readed\030\006 \001(\010\022\027\n\017send"
-    "_error_code\030\007 \001(\004\022\035\n\025disable_data_detect"
-    "or\030\010 \001(\010\022\035\n\025openapi_associate_key\030\t \001(\014\022"
-    "\036\n\026openapi_associate_type\030\n \001(\004\022\023\n\013decry"
-    "pt_ret\030\013 \001(\005\022#\n\033first_sent_message_that_"
-    "day\030\014 \001(\010\022\032\n\022receipt_mode_entry\030\r \001(\010\022\023\n"
-    "\013translation\030\016 \001(\014\022\030\n\020show_translation\030\017"
-    " \001(\010\022\034\n\024translation_provider\030\020 \001(\014\022\036\n\026ca"
-    "n_not_be_lastmessage\030\021 \001(\010\022\021\n\tstaff_vid\030"
-    "\022 \001(\004\022\023\n\013revoke_time\030\023 \001(\r\022/\n\017voice_text"
-    "_info\030\024 \001(\0132\026.sohook.VoiceTransInfo\022\023\n\013i"
-    "s_svr_fail\030\025 \001(\010\022\022\n\norder_time\030\026 \001(\r\022\032\n\022"
-    "top_msg_creator_id\030\030 \001(\004\022\026\n\016is_cancel_se"
-    "nd\030\031 \001(\010\022\034\n\024update_msg_remote_id\030\032 \001(\004\022\026"
-    "\n\016noneedreaduins\030\033 \003(\004\022\030\n\020is_sph_live_st"
-    "op\030\034 \001(\010\022\034\n\024original_contenttype\030\035 \001(\r\022\030"
-    "\n\020original_content\030\036 \001(\014\022:\n\024translation_"
-    "segments\030\037 \003(\0132\034.sohook.TranslateSegment"
-    "Pair\022\020\n\010trans_op\030  \001(\004\022\032\n\022msg_sent_error"
-    "_msg\030! \001(\014\022\031\n\021e2_ee_decrypt_ret\030\" \001(\005\022\034\n"
-    "\024e2_ee_security_level\030# \001(\005\022\033\n\023is_ww_sec"
-    "urity_file\030$ \001(\010\022 \n\030show_wxkf_not_reply_"
-    "tail\030% \001(\010\022\024\n\014head_img_url\030& \001(\t\022\020\n\010corp"
-    "name\030\' \001(\t\022\017\n\007corp_id\030( \001(\004\022\026\n\016top_msg_t"
-    "op_id\030) \001(\004\022\032\n\022top_msg_updatetime\030* \001(\r\022"
-    "\032\n\022top_msg_createtime\030+ \001(\004\022\036\n\026top_msg_c"
-    "ancel_vidlist\030, \003(\004\022\036\n\026tips_when_send_su"
-    "ccess\030- \001(\014\022\024\n\014ocr_contents\030. \003(\014\022+\n#rep"
-    "ort_useother_sppay_qrcode_source\030/ \001(\r\022("
-    "\n report_useother_sppay_qrcode_url\0300 \001(\014"
-    "\022\032\n\022aihelper_is_typing\0301 \001(\010\022\027\n\017ai_chat_"
-    "summary\0302 \001(\014\022+\n\rocr_contents2\0303 \003(\0132\024.s"
-    "ohook.OcrContents2\022,\n\nlocal_info\0304 \001(\0132\030"
-    ".sohook.MessageLocalInfo\"\246\t\n\007Message\022\n\n\002"
-    "id\030\001 \001(\004\022\021\n\tremote_id\030\002 \001(\004\022\021\n\tconv_type"
-    "\030\003 \001(\005\022\027\n\017conversation_id\030\004 \001(\003\022\013\n\003seq\030\005"
-    " \001(\004\022\016\n\006sender\030\006 \001(\004\022\024\n\014content_type\030\007 \001"
-    "(\r\022\021\n\tsend_time\030\010 \001(\r\022\013\n\003url\030\t \001(\t\022\017\n\007co"
-    "ntent\030\n \001(\014\022\014\n\004flag\030\014 \001(\005\022\017\n\007appinfo\030\r \001"
-    "(\014\022\020\n\005state\030\016 \001(\005:\0012\022%\n\006extras\030\017 \001(\0132\025.s"
-    "ohook.MessageExtras\022\026\n\016ack_send_state\030\020 "
-    "\001(\005\022\017\n\007devinfo\030\021 \001(\003\022\017\n\007referid\030\022 \001(\004\022+\n"
-    "\rextra_content\030\023 \001(\0132\024.sohook.ExtraConte"
-    "nt\022\r\n\005as_id\030\024 \001(\004\022\023\n\013innerkf_vid\030\025 \001(\004\022/"
-    "\n\013attach_info\0301 \001(\0132\032.sohook.MessageAtta"
-    "chInfos\022.\n\010progress\030e \001(\0132\034.sohook.Messa"
-    "ge.SendProgress\022\035\n\025do_not_add_unread_cnt"
-    "\030f \001(\010\022\025\n\ris_update_msg\030g \001(\010\022\023\n\013out_con"
-    "tact\030h \001(\005\022\034\n\024force_add_unread_cnt\030i \001(\010"
-    "\022\033\n\023is_innerkf_mannager\030j \001(\010\022\"\n\032dont_in"
-    "crease_unread_count\030k \001(\010\022\025\n\nsend_scene\030"
-    "l \001(\005:\0014\022#\n\033fake_collection_msg_appinfo\030"
-    "m \001(\014\022\033\n\023is_update_by_memory\030n \001(\010\022\034\n\024ch"
-    "at_req_forward_key\030o \001(\004\022\027\n\017search_hit_f"
-    "lag\030p \001(\005\022\023\n\013from_source\030q \001(\005\022,\n\016search"
-    "_hit_ocr\030r \001(\0132\024.sohook.OcrContents2\022-\n\017"
-    "search_hit_ocrs\030s \003(\0132\024.sohook.OcrConten"
-    "ts2\022\023\n\nbm25_score\030\311\001 \001(\001\032\225\001\n\014SendProgres"
-    "s\022\013\n\003now\030\001 \001(\003\022\r\n\005total\030\002 \001(\003\022\031\n\021send_ti"
-    "me_enqueue\030\003 \001(\003\022\030\n\020send_time_actual\030\004 \001"
-    "(\003\022\030\n\020send_time_finish\030\005 \001(\003\022\032\n\022synthesi"
-    "s_progress\030\006 \001(\001\"O\n\014AckSendState\022\014\n\010ACK_"
-    "INIT\020\000\022\017\n\013ACK_SENDING\020\001\022\022\n\016ACK_SENDFAILE"
-    "D\020\002\022\014\n\010ACK_SENT\020\003"
+    "\n\017wwmessage.proto\022\006sohook\"\030\n\014ExtraConten"
+    "t*\010\010\001\020\200\200\200\200\002\">\n\022MessageAttachInfos\022(\n\005inf"
+    "os\030\001 \003(\0132\031.sohook.MessageAttachInfo\"K\n\014O"
+    "crContents2\022\017\n\007file_id\030\001 \001(\014\022\024\n\014ocr_cont"
+    "ents\030\002 \001(\014\022\024\n\014content_type\030\003 \001(\r\"\020\n\016Voic"
+    "eTransInfo\"\026\n\024TranslateSegmentPair\"\022\n\020Me"
+    "ssageLocalInfo\"\023\n\021MessageAttachInfo\"\234\013\n\r"
+    "MessageExtras\022\020\n\010readuins\030\002 \003(\004\022\020\n\010recei"
+    "ver\030\003 \001(\004\022\022\n\nsendername\030\004 \001(\t\022\022\n\nunreadu"
+    "ins\030\005 \003(\004\022\037\n\027is_alert_reached_readed\030\006 \001"
+    "(\010\022\027\n\017send_error_code\030\007 \001(\004\022\035\n\025disable_d"
+    "ata_detector\030\010 \001(\010\022\035\n\025openapi_associate_"
+    "key\030\t \001(\014\022\036\n\026openapi_associate_type\030\n \001("
+    "\004\022\023\n\013decrypt_ret\030\013 \001(\005\022#\n\033first_sent_mes"
+    "sage_that_day\030\014 \001(\010\022\032\n\022receipt_mode_entr"
+    "y\030\r \001(\010\022\023\n\013translation\030\016 \001(\014\022\030\n\020show_tra"
+    "nslation\030\017 \001(\010\022\034\n\024translation_provider\030\020"
+    " \001(\014\022\036\n\026can_not_be_lastmessage\030\021 \001(\010\022\021\n\t"
+    "staff_vid\030\022 \001(\004\022\023\n\013revoke_time\030\023 \001(\r\022/\n\017"
+    "voice_text_info\030\024 \001(\0132\026.sohook.VoiceTran"
+    "sInfo\022\023\n\013is_svr_fail\030\025 \001(\010\022\022\n\norder_time"
+    "\030\026 \001(\r\022\032\n\022top_msg_creator_id\030\030 \001(\004\022\026\n\016is"
+    "_cancel_send\030\031 \001(\010\022\034\n\024update_msg_remote_"
+    "id\030\032 \001(\004\022\026\n\016noneedreaduins\030\033 \003(\004\022\030\n\020is_s"
+    "ph_live_stop\030\034 \001(\010\022\034\n\024original_contentty"
+    "pe\030\035 \001(\r\022\030\n\020original_content\030\036 \001(\014\022:\n\024tr"
+    "anslation_segments\030\037 \003(\0132\034.sohook.Transl"
+    "ateSegmentPair\022\020\n\010trans_op\030  \001(\004\022\032\n\022msg_"
+    "sent_error_msg\030! \001(\014\022\031\n\021e2_ee_decrypt_re"
+    "t\030\" \001(\005\022\034\n\024e2_ee_security_level\030# \001(\005\022\033\n"
+    "\023is_ww_security_file\030$ \001(\010\022 \n\030show_wxkf_"
+    "not_reply_tail\030% \001(\010\022\024\n\014head_img_url\030& \001"
+    "(\t\022\020\n\010corpname\030\' \001(\t\022\017\n\007corp_id\030( \001(\004\022\026\n"
+    "\016top_msg_top_id\030) \001(\004\022\032\n\022top_msg_updatet"
+    "ime\030* \001(\r\022\032\n\022top_msg_createtime\030+ \001(\004\022\036\n"
+    "\026top_msg_cancel_vidlist\030, \003(\004\022\036\n\026tips_wh"
+    "en_send_success\030- \001(\014\022\024\n\014ocr_contents\030. "
+    "\003(\014\022+\n#report_useother_sppay_qrcode_sour"
+    "ce\030/ \001(\r\022(\n report_useother_sppay_qrcode"
+    "_url\0300 \001(\014\022\032\n\022aihelper_is_typing\0301 \001(\010\022\027"
+    "\n\017ai_chat_summary\0302 \001(\014\022+\n\rocr_contents2"
+    "\0303 \003(\0132\024.sohook.OcrContents2\022,\n\nlocal_in"
+    "fo\0304 \001(\0132\030.sohook.MessageLocalInfo\"\246\t\n\007M"
+    "essage\022\n\n\002id\030\001 \001(\004\022\021\n\tremote_id\030\002 \001(\004\022\021\n"
+    "\tconv_type\030\003 \001(\005\022\027\n\017conversation_id\030\004 \001("
+    "\003\022\013\n\003seq\030\005 \001(\004\022\016\n\006sender\030\006 \001(\004\022\024\n\014conten"
+    "t_type\030\007 \001(\r\022\021\n\tsend_time\030\010 \001(\r\022\013\n\003url\030\t"
+    " \001(\t\022\017\n\007content\030\n \001(\014\022\014\n\004flag\030\014 \001(\005\022\017\n\007a"
+    "ppinfo\030\r \001(\014\022\020\n\005state\030\016 \001(\005:\0012\022%\n\006extras"
+    "\030\017 \001(\0132\025.sohook.MessageExtras\022\026\n\016ack_sen"
+    "d_state\030\020 \001(\005\022\017\n\007devinfo\030\021 \001(\003\022\017\n\007referi"
+    "d\030\022 \001(\004\022+\n\rextra_content\030\023 \001(\0132\024.sohook."
+    "ExtraContent\022\r\n\005as_id\030\024 \001(\004\022\023\n\013innerkf_v"
+    "id\030\025 \001(\004\022/\n\013attach_info\0301 \001(\0132\032.sohook.M"
+    "essageAttachInfos\022.\n\010progress\030e \001(\0132\034.so"
+    "hook.Message.SendProgress\022\035\n\025do_not_add_"
+    "unread_cnt\030f \001(\010\022\025\n\ris_update_msg\030g \001(\010\022"
+    "\023\n\013out_contact\030h \001(\005\022\034\n\024force_add_unread"
+    "_cnt\030i \001(\010\022\033\n\023is_innerkf_mannager\030j \001(\010\022"
+    "\"\n\032dont_increase_unread_count\030k \001(\010\022\025\n\ns"
+    "end_scene\030l \001(\005:\0014\022#\n\033fake_collection_ms"
+    "g_appinfo\030m \001(\014\022\033\n\023is_update_by_memory\030n"
+    " \001(\010\022\034\n\024chat_req_forward_key\030o \001(\004\022\027\n\017se"
+    "arch_hit_flag\030p \001(\005\022\023\n\013from_source\030q \001(\005"
+    "\022,\n\016search_hit_ocr\030r \001(\0132\024.sohook.OcrCon"
+    "tents2\022-\n\017search_hit_ocrs\030s \003(\0132\024.sohook"
+    ".OcrContents2\022\023\n\nbm25_score\030\311\001 \001(\001\032\225\001\n\014S"
+    "endProgress\022\013\n\003now\030\001 \001(\003\022\r\n\005total\030\002 \001(\003\022"
+    "\031\n\021send_time_enqueue\030\003 \001(\003\022\030\n\020send_time_"
+    "actual\030\004 \001(\003\022\030\n\020send_time_finish\030\005 \001(\003\022\032"
+    "\n\022synthesis_progress\030\006 \001(\001\"O\n\014AckSendSta"
+    "te\022\014\n\010ACK_INIT\020\000\022\017\n\013ACK_SENDING\020\001\022\022\n\016ACK"
+    "_SENDFAILED\020\002\022\014\n\010ACK_SENT\020\003"
 };
 static ::absl::once_flag descriptor_table_wwmessage_2eproto_once;
 PROTOBUF_CONSTINIT const ::_pbi::DescriptorTable descriptor_table_wwmessage_2eproto = {
     false,
     false,
-    2897,
+    2907,
     descriptor_table_protodef_wwmessage_2eproto,
     "wwmessage.proto",
     &descriptor_table_wwmessage_2eproto_once,
@@ -2418,27 +2426,62 @@ PROTOBUF_CONSTINIT const uint32_t Message_AckSendState_internal_data_[] = {
 
 ExtraContent::ExtraContent(::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, ExtraContent_get_class_data()) {
+    : ::google::protobuf::Message(arena, ExtraContent_get_class_data()) {
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
+  SharedCtor(arena);
   // @@protoc_insertion_point(arena_constructor:sohook.ExtraContent)
 }
+PROTOBUF_NDEBUG_INLINE ExtraContent::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena, const Impl_& from,
+    [[maybe_unused]] const ::sohook::ExtraContent& from_msg)
+      : _extensions_ {}
+        ,
+        _cached_size_{0} {}
+
 ExtraContent::ExtraContent(
     ::google::protobuf::Arena* PROTOBUF_NULLABLE arena,
     const ExtraContent& from)
 #if defined(PROTOBUF_CUSTOM_VTABLE)
-    : ::google::protobuf::internal::ZeroFieldsBase(arena, ExtraContent_get_class_data()) {
+    : ::google::protobuf::Message(arena, ExtraContent_get_class_data()) {
 
 #else   // PROTOBUF_CUSTOM_VTABLE
-    : ::google::protobuf::internal::ZeroFieldsBase(arena) {
+    : ::google::protobuf::Message(arena) {
 #endif  // PROTOBUF_CUSTOM_VTABLE
   ExtraContent* const _this = this;
   (void)_this;
   _internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
       from._internal_metadata_);
+  new (&_impl_) Impl_(internal_visibility(), arena, from._impl_, from);
+  _impl_._extensions_.MergeFrom(arena, this, from._impl_._extensions_,
+                                from.GetArena());
 
   // @@protoc_insertion_point(copy_constructor:sohook.ExtraContent)
+}
+PROTOBUF_NDEBUG_INLINE ExtraContent::Impl_::Impl_(
+    [[maybe_unused]] ::google::protobuf::internal::InternalVisibility visibility,
+    [[maybe_unused]] ::google::protobuf::Arena* PROTOBUF_NULLABLE arena)
+      : _extensions_ {}
+        ,
+        _cached_size_{0} {}
+
+inline void ExtraContent::SharedCtor(::_pb::Arena* PROTOBUF_NULLABLE arena) {
+  new (&_impl_) Impl_(internal_visibility(), arena);
+}
+ExtraContent::~ExtraContent() {
+  // @@protoc_insertion_point(destructor:sohook.ExtraContent)
+  SharedDtor(*this);
+}
+inline void ExtraContent::SharedDtor(MessageLite& self) {
+  ExtraContent& this_ = static_cast<ExtraContent&>(self);
+  if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
+    this_.CheckHasBitConsistency();
+  }
+  this_._internal_metadata_.Delete<::google::protobuf::UnknownFieldSet>();
+  ABSL_DCHECK(this_.GetArena() == nullptr);
+  this_._impl_.~Impl_();
 }
 
 #ifndef PROTOBUF_MESSAGE_GLOBALS
@@ -2467,15 +2510,110 @@ PROTOBUF_ATTRIBUTE_INIT_PRIORITY1 const ExtraContent::ParseTableT_
     ExtraContent::_table_ =
         ExtraContent::InternalGenerateParseTable_(ExtraContent_class_data_.base());
 #endif  // !PROTOBUF_MESSAGE_GLOBALS
+PROTOBUF_NOINLINE void ExtraContent::Clear() {
+// @@protoc_insertion_point(message_clear_start:sohook.ExtraContent)
+  ::google::protobuf::internal::TSanWrite(&_impl_);
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void) cached_has_bits;
 
+  _impl_._extensions_.Clear();
+  _internal_metadata_.Clear<::google::protobuf::UnknownFieldSet>();
+}
 
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::uint8_t* PROTOBUF_NONNULL ExtraContent::_InternalSerialize(
+    const ::google::protobuf::MessageLite& base, ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) {
+  const ExtraContent& this_ = static_cast<const ExtraContent&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::uint8_t* PROTOBUF_NONNULL ExtraContent::_InternalSerialize(
+    ::uint8_t* PROTOBUF_NONNULL target,
+    ::google::protobuf::io::EpsCopyOutputStream* PROTOBUF_NONNULL stream) const {
+  const ExtraContent& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
+    this_.CheckHasBitConsistency();
+  }
+  // @@protoc_insertion_point(serialize_to_array_start:sohook.ExtraContent)
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
 
+  // All extensions.
+  target = this_._impl_._extensions_._InternalSerializeAll(&default_instance(),
+                                                    target, stream);
+  if (ABSL_PREDICT_FALSE(this_._internal_metadata_.have_unknown_fields())) {
+    target =
+        ::_pbi::WireFormat::InternalSerializeUnknownFieldsToArray(
+            this_._internal_metadata_.unknown_fields<::google::protobuf::UnknownFieldSet>(::google::protobuf::UnknownFieldSet::default_instance), target, stream);
+  }
+  // @@protoc_insertion_point(serialize_to_array_end:sohook.ExtraContent)
+  return target;
+}
 
+#if defined(PROTOBUF_CUSTOM_VTABLE)
+::size_t ExtraContent::ByteSizeLong(const MessageLite& base) {
+  const ExtraContent& this_ = static_cast<const ExtraContent&>(base);
+#else   // PROTOBUF_CUSTOM_VTABLE
+::size_t ExtraContent::ByteSizeLong() const {
+  const ExtraContent& this_ = *this;
+#endif  // PROTOBUF_CUSTOM_VTABLE
+  // @@protoc_insertion_point(message_byte_size_start:sohook.ExtraContent)
+  ::size_t total_size = 0;
+  total_size += this_._impl_._extensions_.ByteSize();
 
+  ::uint32_t cached_has_bits = 0;
+  // Prevent compiler warnings about cached_has_bits being unused
+  (void)cached_has_bits;
 
+  return this_.MaybeComputeUnknownFieldsSize(total_size,
+                                             &this_._impl_._cached_size_);
+}
+
+void ExtraContent::MergeImpl(::google::protobuf::MessageLite& to_msg,
+                      const ::google::protobuf::MessageLite& from_msg) {
+   auto* const _this = static_cast<ExtraContent*>(&to_msg);
+  auto& from = static_cast<const ExtraContent&>(from_msg);
+  if constexpr (::_pbi::DebugHardenCheckHasBitConsistency()) {
+    from.CheckHasBitConsistency();
+  }
+  ::google::protobuf::Arena* arena = _this->GetArena();
+  // @@protoc_insertion_point(class_specific_merge_from_start:sohook.ExtraContent)
+  ABSL_DCHECK_NE(&from, _this);
+  ::uint32_t cached_has_bits = 0;
+  (void)cached_has_bits;
+
+  _this->_impl_._extensions_.MergeFrom(arena, &default_instance(),
+                                from._impl_._extensions_, from.GetArena());
+  _this->_internal_metadata_.MergeFrom<::google::protobuf::UnknownFieldSet>(
+      from._internal_metadata_);
+}
+
+void ExtraContent::CopyFrom(const ExtraContent& from) {
+  // @@protoc_insertion_point(class_specific_copy_from_start:sohook.ExtraContent)
+  if (&from == this) return;
+  Clear();
+  MergeFrom(from);
+}
+
+PROTOBUF_NOINLINE bool ExtraContent::IsInitializedImpl(
+    const MessageLite& msg) {
+  auto& this_ = static_cast<const ExtraContent&>(msg);
+  if (!this_._impl_._extensions_.IsInitialized(this_.GetArena(),
+                                        &default_instance())) {
+    return false;
+  }
+  return true;
+}
+
+void ExtraContent::InternalSwap(ExtraContent* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
+  using ::std::swap;
+  _impl_._extensions_.InternalSwap(&other->_impl_._extensions_);
+  _internal_metadata_.InternalSwap(&other->_internal_metadata_);
+}
 
 ::google::protobuf::Metadata ExtraContent::GetMetadata() const {
-  return ::google::protobuf::internal::ZeroFieldsBase::GetMetadataImpl(GetClassData()->full());
+  return ::google::protobuf::Message::GetMetadataImpl(GetClassData()->full());
 }
 // ===================================================================
 
@@ -5596,6 +5734,14 @@ void Message::CopyFrom(const Message& from) {
   MergeFrom(from);
 }
 
+PROTOBUF_NOINLINE bool Message::IsInitializedImpl(
+    const MessageLite& msg) {
+  auto& this_ = static_cast<const Message&>(msg);
+  if (CheckHasBit(this_._impl_._has_bits_[0], 0x00000020U)) {
+    if (!this_._impl_.extra_content_->IsInitialized()) return false;
+  }
+  return true;
+}
 
 void Message::InternalSwap(Message* PROTOBUF_RESTRICT PROTOBUF_NONNULL other) {
   using ::std::swap;

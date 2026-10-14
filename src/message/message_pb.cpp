@@ -17,6 +17,7 @@
 //
 #include <string>
 #include "message_pb.h"
+#include "logger.h"
 #include "ww_text_message.pb.h"
 #include "wwmessage.pb.h"
 #include "ww_rich_message_base.pb.h"
@@ -174,6 +175,7 @@ std::vector<uint8_t> generate_file_message_pb(
 
     return std::vector<uint8_t>(final_bytes.begin(), final_bytes.end());
 }
+
 /**
  * v4 复用模型：CDN fileid 免上传直发（方案1）
  *  - file_id/aes_key/md5 来自 OnUploadFinish 捕获的首传 CDN 上传结果；
@@ -195,16 +197,16 @@ std::vector<uint8_t> generate_image_reuse_pb(
     const std::string &md5
 ) {
     sohook::FileMessage file_msg;
-    file_msg.set_file_id(file_id);        // Tag 1:  fileid（服务器文件票据，免上传判定键）
-    file_msg.set_file_name(file_name);    // Tag 2:  文件名
+    file_msg.set_file_id(file_id); // Tag 1:  fileid（服务器文件票据，免上传判定键）
+    file_msg.set_file_name(file_name); // Tag 2:  文件名
     // Tag 3 (url/本地路径) 刻意留空 —— 留空即复用，填了会进上传子树
-    file_msg.set_size(file_size);         // Tag 4:  文件大小
-    file_msg.set_width(width);            // Tag 5
-    file_msg.set_height(height);          // Tag 6
-    file_msg.set_aes_key(aes_key);        // Tag 8:  CDN AES key
-    file_msg.set_md5(md5);                // Tag 10: 内容 MD5
+    file_msg.set_size(file_size); // Tag 4:  文件大小
+    file_msg.set_width(width); // Tag 5
+    file_msg.set_height(height); // Tag 6
+    file_msg.set_aes_key(aes_key); // Tag 8:  CDN AES key
+    file_msg.set_md5(md5); // Tag 10: 内容 MD5
     if (ld_width > 0 && ld_height > 0) {
-        file_msg.set_wechat_cdn_ld_width(ld_width);   // Tag 28: 缩略图宽
+        file_msg.set_wechat_cdn_ld_width(ld_width); // Tag 28: 缩略图宽
         file_msg.set_wechat_cdn_ld_height(ld_height); // Tag 29: 缩略图高
     }
     // Tag 202/203（本地缩略图路径）刻意不带：不带才不触发第二媒体部件(state 20)上传
@@ -213,9 +215,35 @@ std::vector<uint8_t> generate_image_reuse_pb(
     file_msg.SerializeToString(&file_msg_bytes);
 
     sohook::Message ww_message;
-    ww_message.set_content_type(14);      // v4: CDN 图片类型 → LABEL_243 → state 15 "renew cdn file" 续期
+    ww_message.set_content_type(14); // v4: CDN 图片类型 → LABEL_243 → state 15 "renew cdn file" 续期
     ww_message.set_content(file_msg_bytes);
 
+    std::string final_bytes;
+    ww_message.SerializeToString(&final_bytes);
+    return std::vector<uint8_t>(final_bytes.begin(), final_bytes.end());
+}
+
+std::vector<uint8_t> generate_wwmessage_pb(
+    int32_t content_type,
+    const std::vector<uint8_t> &content
+) {
+    sohook::Message ww_message;
+    ww_message.set_content_type(content_type); // Tag 7
+    // Tag 10: DB content 原值（bytes 字段，vector → string 一次搬运）
+    ww_message.set_content(std::string(content.begin(), content.end()));
+    /*
+    if (!extra_content.empty()) {
+        // Tag 19: 3045 扩展以未知字段保留；解析失败则放弃扩展，content 不受影响
+        // ParseFromArray 收 const void*，vector 直传免中间拷贝
+        // （ParseFromString 形参已是 absl::string_view，不收 vector）
+        if (!ww_message.mutable_extra_content()->ParseFromArray(
+            extra_content.data(), static_cast<int>(extra_content.size()))) {
+            LOGE("[message_pb] extraContent PB 解析失败（%zu 字节），按无扩展发送",
+                 extra_content.size());
+            ww_message.clear_extra_content();
+        }
+    }*/
+    // 序列化为出站字节流（与 generate_image_message_pb 等一致，直接投 send_model_message）
     std::string final_bytes;
     ww_message.SerializeToString(&final_bytes);
     return std::vector<uint8_t>(final_bytes.begin(), final_bytes.end());

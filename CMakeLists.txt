@@ -50,6 +50,9 @@ add_library(sohook SHARED
         src/main_thread_executor.cpp         # 保障：主线程执行
         src/cdn_cache.cpp                  # 方案1：CDN 上传结果捕获与缓存
         src/image_broadcast.cpp            # 方案1：图片群发复用编排
+        src/message/raw_pb.cpp             # 直接 PB 流发送：hex 解析 + 出站清洗
+        src/raw_pb_broadcast.cpp           # 直接 PB 流发送：文件驱动 + 群发编排
+        src/wwmessage_db_call.cpp           # 直接 PB 流发送：数据库 PB
         proto/gen/wework_conversation.pb.cc    # PB 生成代码
         proto/gen/wework_image_message.pb.cc   # PB 生成代码
         proto/gen/wework_text_message.pb.cc    # PB 生成代码

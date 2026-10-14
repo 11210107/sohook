@@ -2,7 +2,9 @@
 // Created by user_wangzhen on 2026/8/4.
 //
 #pragma once
+#include <cstdint>
 #include <vector>
+#include "wwmessage.pb.h"
 
 std::vector<uint8_t> generate_text_message_pb(const std::string& text_content);
 std::vector<uint8_t> generate_image_message_pb(
@@ -30,4 +32,9 @@ std::vector<uint8_t> generate_image_reuse_pb(
     const std::string &file_id,
     const std::string &aes_key,
     const std::string &md5
+);
+
+std::vector<uint8_t> generate_wwmessage_pb(
+    int32_t content_type,
+    const std::vector<uint8_t> &content
 );

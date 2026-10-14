@@ -19,6 +19,9 @@
 #include "message/message_pb.h"
 #include "cdn_cache.h"
 #include "image_broadcast.h"
+#include "raw_pb_broadcast.h"
+#include "wwmessage_db_call.h"
+
 // 1.定义原函数指针，用户 Hook 之后调用原逻辑
 typedef void (*NativeSendFunc)(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobject msg, jobject cb);
 
@@ -31,7 +34,8 @@ jobject g_thiz = nullptr;
 
 void checkConvService(jlong handle) {
     uintptr_t my_conv_service = getConversationService();
-    static auto unwrapNativeHandle = (uintptr_t (*)(uintptr_t)) get_absolute_address("libwework_framework.so", OFFSET_UNWRAP_NATIVE_HANDLE);
+    static auto unwrapNativeHandle = (uintptr_t (*)(uintptr_t)) get_absolute_address(
+        "libwework_framework.so", OFFSET_UNWRAP_NATIVE_HANDLE);
     if (unwrapNativeHandle) {
         uintptr_t v10 = unwrapNativeHandle((uintptr_t) handle);
         uintptr_t v11 = CallVMethodByOffset(v10, OFFSET_SERVICE_MANAGER);
@@ -55,7 +59,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         checkConvService(handle);
         // bool sendResult = hardcore_send_image_message();
         auto on_progress = [](int64_t current, int64_t total, uint64_t msg_lid) {
-            double pct = total > 0 ? ((double)current / total) * 100.0 : 0.0;
+            double pct = total > 0 ? ((double) current / total) * 100.0 : 0.0;
             LOGD("[on_progress] 📈 正在上传，当前消息 localId: %lu | 进度: %.2f%% (%ld/%ld)", msg_lid, pct, current, total);
         };
         auto on_result = [](int code, uint64_t msg_lid) {
@@ -80,43 +84,50 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         */
         /**
          *  发送测试消息*/
-        std::vector<uint64_t> id_list = {
-            7881299599906412ULL,
-            // 7881301969920617ULL,
-            // 7881303349316267ULL,
-            // ... 后面有多少加多少
-        };
-        // 3. 遍历发射
-        for (uint64_t cid : id_list) {
-            // 发送文本消息
-            // send_model_message(cid,MSG_TYPE_TEXT, generate_text_message_pb("a message created by SoHook call native funcation"),on_progress,on_result);
-            // 💡 逆向避坑小贴士：
-            // 虽然我们做好了完美的引用计数管理，但在大批量（几十个甚至上百个群发）时，
-            // 建议加上 50-100ms 的轻微延时，给企微底层的 TaskQueue 和网络线程让出缓冲时间。
-            usleep(50000); // 50毫秒休眠
+        if (!try_send_raw_pb_from_files(on_progress, on_result)) {
 
-            // 发送图片消息
-            uint64_t image_size = 0;
-            uint32_t file_width = 0;
-            uint32_t file_height = 0;
-            const std::string path = "/storage/emulated/0/test.jpg";
-            // 智能解析图片物理信息（仅在图片模式下跑，不污染文本模式）
-            if (!get_image_info(path, image_size, file_width, file_height)) {
-                LOGE("[-] 解析本地图片参数失败，路径: %s", path.c_str());
+            std::vector<uint64_t> id_list = {
+                7881299599906412ULL,
+                // 7881301969920617ULL,
+                // 7881303349316267ULL,
+                // ... 后面有多少加多少
+            };
+            // 发送数据库 PB
+            send_wwmessage_from_db(id_list, on_progress, on_result);   // ← DB 三字段直发
+            // 3. 遍历发射
+            for (uint64_t cid: id_list) {
+                // 发送文本消息
+                // send_model_message(cid,MSG_TYPE_TEXT, generate_text_message_pb("a message created by SoHook call native funcation"),on_progress,on_result);
+                // 💡 逆向避坑小贴士：
+                // 虽然我们做好了完美的引用计数管理，但在大批量（几十个甚至上百个群发）时，
+                // 建议加上 50-100ms 的轻微延时，给企微底层的 TaskQueue 和网络线程让出缓冲时间。
+                usleep(50000); // 50毫秒休眠
+
+                // 发送图片消息
+                uint64_t image_size = 0;
+                uint32_t file_width = 0;
+                uint32_t file_height = 0;
+                const std::string path = "/storage/emulated/0/test.jpg";
+                // 智能解析图片物理信息（仅在图片模式下跑，不污染文本模式）
+                if (!get_image_info(path, image_size, file_width, file_height)) {
+                    LOGE("[-] 解析本地图片参数失败，路径: %s", path.c_str());
+                }
+                uint32_t thumb_w = file_width * 3 / 4;
+                uint32_t thumb_h = file_height * 3 / 4;
+                // 发送图片消息
+                // send_model_message(cid, MSG_TYPE_IMAGE,
+                //                    generate_image_message_pb(path, file_width, file_height, image_size, false, "", "",
+                //                                              file_width * 3 / 4, file_height * 3 / 4), on_progress,
+                //                    on_result);
+                // 发送文件
+                const std::string file_path = "content://com.wxsdk.app.share/test.pdf";
+
+                // std::string sandbox_path = resolve_content_uri_to_local(env, file_path);
+                // LOGI("[my_nativeSend] 企业微信沙盒路径: %s", sandbox_path.c_str());
+                // uint64_t file_size = get_file_size(sandbox_path);
+                // send_model_message(cid,MSG_TYPE_FILE, generate_file_message_pb(sandbox_path,file_size),on_progress,on_result);
             }
-            uint32_t thumb_w = file_width * 3 / 4;
-            uint32_t thumb_h = file_height * 3 / 4;
-            send_model_message(cid,MSG_TYPE_IMAGE, generate_image_message_pb(path,file_width,file_height,image_size,false,"","",file_width * 3 / 4,file_height * 3 / 4),on_progress,on_result);
-            // 发送文件
-            const std::string file_path = "content://com.wxsdk.app.share/test.pdf";
-
-            // std::string sandbox_path = resolve_content_uri_to_local(env, file_path);
-            // LOGI("[my_nativeSend] 企业微信沙盒路径: %s", sandbox_path.c_str());
-            // uint64_t file_size = get_file_size(sandbox_path);
-            // send_model_message(cid,MSG_TYPE_FILE, generate_file_message_pb(sandbox_path,file_size),on_progress,on_result);
-
         }
-
     }
     // 第一次拦截时，保存环境副本
     if (g_conv == nullptr) {
@@ -130,7 +141,6 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         orig_nativeSend(env, thiz, handle, conv, msg, cb);
     }
 }
-
 
 
 // 4.初始化
