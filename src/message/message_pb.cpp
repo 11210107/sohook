@@ -22,6 +22,7 @@
 #include "wwmessage.pb.h"
 #include "ww_rich_message_base.pb.h"
 #include "ww_file_message.pb.h"
+#include "ww_emotion_message.pb.h"
 /**
  * 使用 protobuf 生成类构造文本消息 PB 流
  */
@@ -247,4 +248,43 @@ std::vector<uint8_t> generate_wwmessage_pb(
     std::string final_bytes;
     ww_message.SerializeToString(&final_bytes);
     return std::vector<uint8_t>(final_bytes.begin(), final_bytes.end());
+}
+
+/**
+ * 图片→表情：EmotionMessage content PB 组包（contentType=29 的 content 槽，§8）
+ *  - 生成类构造（ww_emotion_message.proto ↔ Java EmotionMessage 反编译还原）；
+ *    字段升序 1,3,4,5,6,7,8,9,11,12，缺省字段一律不 set（proto2 未 set 即不编码——
+ *    type(2) 即使 GIF 也不带，与 2026-10-16 真机捕获 452 字节实包逐字节一致）；
+ *  - 值来源：url/static_url = 兑换 s1/s2；file_id/aes_key/md5 = 上传三元组；
+ *    size/width/height = 本地图片；description/source_type 由调用方给定
+ *    （emotion_send 固定 "自定义表情" / 2=USER_ADD）。
+ */
+std::vector<uint8_t> build_emotion_content_pb(
+    const std::string &url,
+    const std::string &file_id,
+    uint64_t size,
+    const std::string &aes_key,
+    const std::string &md5,
+    uint32_t width,
+    uint32_t height,
+    const std::string &description,
+    uint32_t source_type,
+    const std::string &static_url
+) {
+    sohook::EmotionMessage emotion;
+    emotion.set_url(url);                 // Tag 1: 主图 lasting URL（= 兑换 s1）
+    // Tag 2 type：捕获实包未 set（缺省 EMOTION_STATIC=1，即使 GIF 亦不带）——保持逐字节一致
+    emotion.set_file_id(file_id);         // Tag 3: 上传 fileId 票据
+    emotion.set_size(size);               // Tag 4: 本地文件字节
+    emotion.set_aes_key(aes_key);         // Tag 5
+    emotion.set_md5(md5);                 // Tag 6
+    emotion.set_width(width);             // Tag 7
+    emotion.set_height(height);           // Tag 8
+    emotion.set_description(description); // Tag 9
+    emotion.set_source_type(static_cast<::sohook::EmotionMessage_EmotionSourceType>(source_type)); // Tag 11
+    emotion.set_static_url(static_url);   // Tag 12: 封面 URL（= 兑换 s2）
+
+    std::string emotion_bytes;
+    emotion.SerializeToString(&emotion_bytes);
+    return std::vector<uint8_t>(emotion_bytes.begin(), emotion_bytes.end());
 }

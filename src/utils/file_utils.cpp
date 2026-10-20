@@ -318,3 +318,53 @@ bool get_image_info(const std::string& path, uint64_t& out_size, uint32_t& out_w
     LOGE("[-] 未知或不支持的图片格式: %s", path.c_str());
     return false;
 }
+
+// ===== 图片头解析（PNG/JPEG/GIF/BMP；工程 get_image_info 无 GIF，本模块自带）=====
+bool parse_image_info(const std::vector<uint8_t> &data, uint32_t &w, uint32_t &h) {
+    if (data.size() < 12) return false;
+    // PNG：89 50 4E 47，IHDR 宽高 BE @16/@20
+    if (data[0] == 0x89 && data[1] == 'P' && data[2] == 'N' && data[3] == 'G') {
+        if (data.size() < 24) return false;
+        w = (static_cast<uint32_t>(data[16]) << 24) | (static_cast<uint32_t>(data[17]) << 16) |
+            (static_cast<uint32_t>(data[18]) << 8) | data[19];
+        h = (static_cast<uint32_t>(data[20]) << 24) | (static_cast<uint32_t>(data[21]) << 16) |
+            (static_cast<uint32_t>(data[22]) << 8) | data[23];
+        return w > 0 && h > 0;
+    }
+    // GIF：GIF8，LSD 宽高 LE @6/@8
+    if (data[0] == 'G' && data[1] == 'I' && data[2] == 'F' && data[3] == '8') {
+        w = data[6] | (static_cast<uint32_t>(data[7]) << 8);
+        h = data[8] | (static_cast<uint32_t>(data[9]) << 8);
+        return w > 0 && h > 0;
+    }
+    // JPEG：FF D8，扫描 SOF0/1/2 段（段内高 BE 在前、宽在后）
+    if (data[0] == 0xFF && data[1] == 0xD8) {
+        size_t pos = 2;
+        while (pos + 9 <= data.size()) {
+            if (data[pos] != 0xFF) break;
+            const uint8_t marker = data[pos + 1];
+            if (marker == 0xC0 || marker == 0xC1 || marker == 0xC2) {
+                h = (static_cast<uint32_t>(data[pos + 5]) << 8) | data[pos + 6];
+                w = (static_cast<uint32_t>(data[pos + 7]) << 8) | data[pos + 8];
+                return w > 0 && h > 0;
+            }
+            if (pos + 4 > data.size()) break;
+            // 其他段：2 字节段长（含自身）整段跳过
+            const size_t seg_len = (static_cast<size_t>(data[pos + 2]) << 8) | data[pos + 3];
+            if (seg_len < 2) break;
+            pos += 2 + seg_len;
+        }
+        return false;
+    }
+    // BMP：BM，宽高 LE int32 @18/@22（height 可为负=顶向下，取绝对值）
+    if (data[0] == 'B' && data[1] == 'M' && data.size() >= 26) {
+        w = data[18] | (static_cast<uint32_t>(data[19]) << 8) |
+            (static_cast<uint32_t>(data[20]) << 16) | (static_cast<uint32_t>(data[21]) << 24);
+        h = data[22] | (static_cast<uint32_t>(data[23]) << 8) |
+            (static_cast<uint32_t>(data[24]) << 16) | (static_cast<uint32_t>(data[25]) << 24);
+        if (w & 0x80000000u) w = ~w + 1;
+        if (h & 0x80000000u) h = ~h + 1;
+        return w > 0 && h > 0 && w <= 0xFFFF && h <= 0xFFFF;
+    }
+    return false;
+}

@@ -40,6 +40,7 @@ add_library(sohook SHARED
         src/utils/address_utils.cpp           # 基础工具：基址获取
         src/utils/protocol_utils.cpp          # 基础工具：PB解析
         src/utils/file_utils.cpp          # 基础工具：file文件读写
+        src/utils/receiver_utils.cpp      # 基础工具：接收者列表解析（rawpb/emotion 共用）
         src/conv_service.cpp          # 业务逻辑：ConvService 寻址 (新增)
         src/conversation.cpp          # 业务逻辑：Conversation
         src/contact_service.cpp          # 业务逻辑：ContactService
@@ -53,6 +54,8 @@ add_library(sohook SHARED
         src/message/raw_pb.cpp             # 直接 PB 流发送：hex 解析 + 出站清洗
         src/raw_pb_broadcast.cpp           # 直接 PB 流发送：文件驱动 + 群发编排
         src/wwmessage_db_call.cpp           # 直接 PB 流发送：数据库 PB
+        src/cdn_url_exchange.cpp           # 表情GIF：独立上传+服务端换URL
+        src/emotion_send.cpp                # 图片→表情：上传+换URL+29号content PB群发
         proto/gen/wework_conversation.pb.cc    # PB 生成代码
         proto/gen/wework_image_message.pb.cc   # PB 生成代码
         proto/gen/wework_text_message.pb.cc    # PB 生成代码
@@ -60,6 +63,7 @@ add_library(sohook SHARED
         proto/gen/ww_text_message.pb.cc   # PB 生成代码
         proto/gen/ww_file_message.pb.cc  # PB 生成代码
         proto/gen/wwmessage.pb.cc    # PB 生成代码
+        proto/gen/ww_emotion_message.pb.cc  # PB 生成代码（表情 content，sohook::EmotionMessage）
 )
 
 # 链接

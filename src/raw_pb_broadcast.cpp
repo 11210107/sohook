@@ -33,6 +33,7 @@
 #include "message/raw_pb.h"
 #include "utils/file_utils.h"
 #include "utils/protocol_utils.h"
+#include "utils/receiver_utils.h"
 
 // 配置目录可被宿主单测覆写；Android 构建走默认值
 #ifndef RAW_PB_CONFIG_DIR
@@ -69,56 +70,6 @@ constexpr const char *kReceiversPath = RAW_PB_CONFIG_DIR "/receivers.txt";
 std::string read_text_file(const char *path) {
     const std::vector<uint8_t> bytes = read_binary_file(path);
     return std::string(bytes.begin(), bytes.end());
-}
-
-// receivers.txt 解析：'#' 注释 + 空白/逗号/分号分隔的 uint64 会话 ID
-bool parse_receivers(const std::string &text, std::vector<uint64_t> &out) {
-    out.clear();
-    size_t line_no = 1;
-    std::string token;
-
-    auto flush = [&]() -> bool {
-        if (token.empty()) {
-            return true;
-        }
-        char *end = nullptr;
-        const unsigned long long id = std::strtoull(token.c_str(), &end, 10);
-        if (end == nullptr || *end != '\0' || id == 0) {
-            LOGE("[raw_pb] receivers.txt 第 %zu 行：非法会话 ID \"%s\"", line_no, token.c_str());
-            return false;
-        }
-        out.push_back(static_cast<uint64_t>(id));
-        token.clear();
-        return true;
-    };
-
-    for (size_t i = 0; i < text.size(); ++i) {
-        const char c = text[i];
-        if (c == '#') {
-            if (!flush()) {
-                return false;
-            }
-            while (i + 1 < text.size() && text[i + 1] != '\n') {
-                ++i;
-            }
-            continue;
-        }
-        if (c == ' ' || c == '\t' || c == '\r' || c == ',' || c == ';') {
-            if (!flush()) {
-                return false;
-            }
-            continue;
-        }
-        if (c == '\n') {
-            if (!flush()) {
-                return false;
-            }
-            line_no++; // 先 flush 后计数：报错行号对齐 token 所在行
-            continue;
-        }
-        token.push_back(c);
-    }
-    return flush();
 }
 
 } // namespace
@@ -167,7 +118,7 @@ void send_raw_pb_to_contacts(const std::vector<uint8_t> &raw_pb,
                      seq, total, current_tid(), static_cast<unsigned long long>(rid));
                 // msg_type 参数为死代码（README §11：模型 PB 经 ParseFromMem
                 // 全权解析），传 content_type 仅为日志可读
-                dump_protobuf_hex(raw_pb);
+                // dump_protobuf_hex(raw_pb);
                 send_model_message(rid, content_type, raw_pb, onProgress, onResult);
                 LOGD("[raw_pb] 发送任务#%zu/%zu 已返回", seq, total);
             };

@@ -1,4 +1,16 @@
 //
+// vtable_helper.h — CallVMethodByOffset 的 Ret=void 修复版（覆盖 include/vtable_helper.h）
+//
+// 变更（v2，随 gif_url_exchange 补丁）：gif_url_exchange.cpp 是工程内首个使用
+// CallVMethodByOffset<void>(...)（无返回值虚调用）的模块，原实现的守卫路径
+// `return Ret{};` 在 Ret=void 时非法（clang: illegal initializer type 'void'），
+// Android 构建同样报错——host_test 宿主编译首先捕获。修复：新增
+// vtable_call_default<Ret>() + void 显式特化（C++11 兼容，不依赖 if constexpr）。
+// 其余内容与原 include/vtable_helper.h 逐字一致。
+//
+// 落位：include/vtable_helper.h（覆盖）；host_test/stub/vtable_helper.h 为本文件
+// 加桩横幅的同源拷贝。
+//
 // Created by user_wangzhen on 2026/5/15.
 //
 
@@ -34,6 +46,16 @@ static inline uintptr_t CallVirtualMethod(uintptr_t instance, int index) {
 }
 
 /**
+ * @brief 虚调用失败时的默认返回（Ret=void 显式特化：Ret{} 对 void 非法；
+ *        gif_url_exchange.cpp 首次用到 Ret=void 无返回值虚调用）
+ */
+template <typename Ret>
+inline Ret vtable_call_default() { return Ret{}; }
+
+template <>
+inline void vtable_call_default<void>() {}
+
+/**
  * @brief 通过字节偏移（Offset）调用虚函数
  * @tparam Ret 返回值类型，默认为 uintptr_t
  * @tparam Args 参数类型包
@@ -43,15 +65,15 @@ static inline uintptr_t CallVirtualMethod(uintptr_t instance, int index) {
  */
 template <typename Ret = uintptr_t, typename... Args>
 inline Ret CallVMethodByOffset(uintptr_t instance, size_t offset_bytes, Args... args) {
-    if (!instance || (instance % 8 != 0)) return Ret{};
+    if (!instance || (instance % 8 != 0)) return vtable_call_default<Ret>();
 
     // 1. 读取对象的首 8 字节获取 vtable 地址
     auto vtable = *reinterpret_cast<uintptr_t**>(instance);
-    if (!vtable || (reinterpret_cast<uintptr_t>(vtable) % 8 != 0)) return Ret{};
+    if (!vtable || (reinterpret_cast<uintptr_t>(vtable) % 8 != 0)) return vtable_call_default<Ret>();
 
     // 2. 将字节偏移转为虚表数组索引 (64 位下为 offset / 8)
     auto func_ptr = reinterpret_cast<Ret(*)(uintptr_t, Args...)>(vtable[offset_bytes / 8]);
-    if (!func_ptr) return Ret{};
+    if (!func_ptr) return vtable_call_default<Ret>();
 
     // 3. 执行虚函数调用
     return func_ptr(instance, args...);

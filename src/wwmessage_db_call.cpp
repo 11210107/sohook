@@ -265,7 +265,7 @@ bool send_wwmessage_from_db(const std::vector<uint64_t> &id_list,
     // 2) 三字段 → 出站 PB。generate_wwmessage_pb 内部：
     //    Tag7=content_type、Tag10=content、Tag19=extra（解析失败自动弃扩展保 content）
     std::vector<uint8_t> pb = generate_wwmessage_pb(content_type,content_pb);
-    dump_protobuf_hex(pb);
+    // dump_protobuf_hex(pb);
     if (pb.empty()) {
         LOGE("[wwmessage] DB 重构序列化失败");
         return false;

@@ -1,0 +1,79 @@
+syntax = "proto2";
+
+package sohook;
+// 工程仅链接 libprotobuf-lite（无完整运行时），必须以 lite 运行时生成
+// （与 ww_text_message.proto 同款；否则生成代码引用 descriptor/reflection
+//   符号，链接时报 undefined symbol: google::protobuf::Message 等）
+option optimize_for = LITE_RUNTIME;
+
+// EmotionMessage —— 对应 Java: EmotionMessage extends ExtendableMessageNano<EmotionMessage>
+// （protobuf-nano 反编译还原；字段号/线型/默认值严格对照 computeSerializedSize/writeTo/
+//  mergeFrom，wire tag: 10,16,26,32,42,50,56,64,74,82,88,98,104,112,122,130,138,146,
+//  802,810,818,824,2410。基类 ExtendableMessageNano → 未识别字段经 UnknownFieldSet
+//  原样保留，解析/回写无损。）
+//
+// 用途：表情条目 PB。自定义表情收藏链路实测（wework5010 frida/add_custom_expression.js）：
+//   br5.j C()==3 分支 -> ylj.G().d0(ylj.C(29), zqg.A()(*_thumb 缩略文件),
+//     br5$f(zqg, EmotionMessage, mqo), 42) 上传拿 fileId/aesKey/md5 三元组
+//   -> zqg 回填 -> brg.a().addEmojiItem(EmotionMessage, ...) 服务端入库分配 qpic URL
+//   （trace/addCustomEmojiInfo.md 实测：r()=377221_.../0 主图、j()=220454_.../0
+//    缩略图、mCollectionId=3、mDesc="自定义表情"）。
+//
+// 与 gif_url_exchange 模块的对应（CollectionProtocol.getGifUrlByFileId 兑换）：
+//   兑换回调 s1(new url)/s2(cover url)/s3(md5) 与本消息 url(1)/static_url(12)/
+//   md5(6) 三槽位同位——Java 侧 i8r.b 映射 gifUrl/gifCoverUrl/md5 同源
+//   （2026-10-16 真机定名，wework5010/sohook_patch/README.md §7.6）。
+//
+// 枚举说明：nano 把枚举生成为类常量，反编译后三组枚举被拍平进同一常量池；
+// 以下按 mergeFrom 的合法值域拆分还原（Random/NoRandom 归属 src 为常量池
+// 剩余配对推断）。
+
+message EmotionMessage {
+    // 表情动静类型（字段 2 合法值域 {1,2}，clear() 缺省 1）
+    enum EmotionType {
+        EMOTION_STATIC = 1;   // 静态表情（图片）
+        EMOTION_DYNAMIC = 2;  // 动态表情（GIF）
+    }
+    // 表情来源（字段 11 合法值域 {1,2,101,102,103}，clear() 缺省 1）
+    enum EmotionSourceType {
+        EMOTION_PRE_INSTALL = 1;  // 预置表情
+        EMOTION_USER_ADD = 2;     // 用户添加
+        EMOTION_WX_MARKET = 101;  // 微信表情市场
+        EMOTION_WX_CUSTOM = 102;  // 微信自定义
+        EMOTION_WX_SEARCH = 103;  // 微信搜索
+    }
+    // 随机表情标记（字段 14 合法值域 {1,2}，clear() 缺省 2；与 random_url 配对）
+    enum EmotionSrcType {
+        EMOTION_Random = 1;    // 随机表情
+        EMOTION_NoRandom = 2;  // 非随机表情
+    }
+
+    // 核心字段映射（Field Tag 严格匹配）
+    optional bytes url = 1;                            // 主图 qpic URL（zqg.r()；兑换 s1）
+    optional EmotionType type = 2 [default = EMOTION_STATIC];
+    optional bytes file_id = 3;                        // CDN 文件 ID（上传三元组）
+    optional uint64 size = 4;                          // 文件字节数（zqg.K()）
+    optional bytes aes_key = 5;                        // CDN AES 密钥（上传三元组）
+    optional bytes md5 = 6;                            // 文件 MD5（zqg.G() 唯一键；兑换 s3）
+    optional uint32 width = 7;                         // 宽（像素）
+    optional uint32 height = 8;                        // 高（像素）
+    optional bytes description = 9;                    // 描述（实测 mDesc="自定义表情"）
+    optional bytes group_id = 10;                      // 表情组/收藏集 ID（实测 mCollectionId=3）
+    optional EmotionSourceType source_type = 11 [default = EMOTION_PRE_INSTALL];
+    optional bytes static_url = 12;                    // 静态封面/缩略图 URL（zqg.j()；兑换 s2 同位）
+    optional uint64 create_time = 13;                  // 创建时间
+    optional EmotionSrcType src = 14 [default = EMOTION_NoRandom];
+    optional bytes random_url = 15;                    // 随机表情 URL
+    optional bytes wx_emotion_buffer = 16;             // 微信表情原始数据
+    optional bytes from_url = 17;                      // 来源 URL
+    optional bytes from_des = 18;                      // 来源描述
+
+    // 微信搜索扩展段（Tag 100..103）
+    optional bytes wx_search_doc_id = 100;
+    optional bytes wx_search_keyword = 101;
+    optional bytes wx_search_searchid = 102;
+    optional uint64 wx_search_index = 103;
+
+    // 企微 wetype 段
+    optional bytes wetype_md5 = 301;                   // wetype 表情 md5（用途未实证）
+}

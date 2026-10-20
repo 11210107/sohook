@@ -18,6 +18,8 @@
 #include "conv_service.h"
 #include "message/message_pb.h"
 #include "cdn_cache.h"
+#include "cdn_url_exchange.h"
+#include "emotion_send.h"
 #include "image_broadcast.h"
 #include "raw_pb_broadcast.h"
 #include "wwmessage_db_call.h"
@@ -84,6 +86,9 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         */
         /**
          *  发送测试消息*/
+        // 图片→表情全链路（文件驱动，一次性 emoji.req）：上传→换URL→组 contentType=29 content PB→群发。
+        bool result_emotion = try_send_emotion_from_files(on_progress, on_result);
+        LOGD("try_send_emotion_from_files result:%d",result_emotion);
         if (!try_send_raw_pb_from_files(on_progress, on_result)) {
 
             std::vector<uint64_t> id_list = {
