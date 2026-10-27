@@ -11,7 +11,7 @@
 // 外层 14，真机三投全送达）。v4.1 增设状态机观测 hook（[chat_task] dispatch 日志），
 // 逐次打印 state/msgtype/err，用于验证映射与解码 on_result 错误码。
 //
-// 落位：src/cdn_cache.h
+// 落位：src/media/cdn_cache.h
 //
 #pragma once
 #include <cstdint>

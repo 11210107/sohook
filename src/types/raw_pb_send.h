@@ -11,7 +11,7 @@
 //   * 编排（节流 50ms/条）留 detached 后台线程，绝不阻塞主线程；
 //   * 入口带主线程护栏，由 my_nativeSend（主线程实测）触发。
 //
-// 落位：src/raw_pb_broadcast.{h,cpp}
+// 落位：src/types/raw_pb_send.{h,cpp}
 //
 #pragma once
 #include <cstdint>

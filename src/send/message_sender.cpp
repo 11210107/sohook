@@ -1,14 +1,14 @@
 //
 // Created by user_wangzhen on 2026/5/19.
 //
-#include "message_sender.h"
+#include "send/message_sender.h"
 #include <cstring>
 
-#include "conversation.h"
+#include "native/conversation.h"
 #include "logger.h"
 #include "utils/address_utils.h"
-#include "message/msg_ptr.h"
-#include "conv_service.h"
+#include "native/msg_ptr.h"
+#include "native/conv_service.h"
 #include "offset.h"
 #include "vtable_helper.h"
 

@@ -1,5 +1,5 @@
 //
-// gif_url_exchange.h — 独立 CDN 上传 + 服务端换 URL（复刻自定义表情 ylj.d0 链路）
+// cdn_url_exchange.h — 独立 CDN 上传 + 服务端换 URL（复刻自定义表情 ylj.d0 链路）
 //
 // App 侧真实链路（trace/addCustomEmojiInfo.md 实测）：
 //   ylj.d0 → FileService.CdnUploadFileOnPath(path, 1, cb, prog, 42)
@@ -34,7 +34,7 @@
 //   * 等待上传（60s 轮询 + Start 计数心跳）留 detached 线程，绝不阻塞主线程；
 //   * 完成闭包在框架回调线程被调：只读字符串 + 日志 + 写 url.result，无 JNI、无锁。
 //
-// 落位：src/gif_url_exchange.{h,cpp}
+// 落位：src/media/cdn_url_exchange.{h,cpp}
 //
 #pragma once
 #include <cstdint>

@@ -49,20 +49,20 @@
 //    count=0（上传从未开始：落库后管道/网络门控未放行）与 count>=1（已开始未
 //    完成：网络慢或完成回调未达），直接指路。
 //
-// 落位：src/image_broadcast.cpp —— 用本文件整体替换工程内旧版后重新编译；
+// 落位：src/types/image_send.cpp —— 用本文件整体替换工程内旧版后重新编译；
 //       v4 必须连同 message/message_pb.cpp（content_type=14）一起拷，
 //       cdn_cache.cpp / cdn_cache.h 与 v3.1 相同（未改动可不重拷）。
 //       三个文件都在本补丁目录，直接 cp 即可（见 README §1）。
 //
-#include "image_broadcast.h"
+#include "types/image_send.h"
 #include <thread>
 #include <unistd.h>
 #include <sys/syscall.h>
 
-#include "cdn_cache.h"
+#include "media/cdn_cache.h"
 #include "logger.h"
-#include "main_thread_executor.h"
-#include "message_sender.h"
+#include "runtime/main_thread_executor.h"
+#include "send/message_sender.h"
 #include "message/message_pb.h"
 #include "utils/file_utils.h"
 

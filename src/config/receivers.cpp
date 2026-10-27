@@ -6,7 +6,7 @@
 // （先 flush 后计数行号）。日志前缀取中性的 [receivers]——调用方各自的
 // 外层失败日志（[raw_pb] / [emotion]）补来源上下文。
 //
-#include "receiver_utils.h"
+#include "config/receivers.h"
 
 #include <cstdlib>
 

@@ -27,9 +27,9 @@
 // 主线程投递）；全量回调（框架 CGI 线程）只做组包 + detached 节流线程群发，每次
 // send_model_message 投递主线程——无共享状态、无轮询。
 //
-// 落位：src/emotion_send.{h,cpp}；接线见本补丁目录 README §8。
+// 落位：src/types/emotion_send.{h,cpp}；接线见本补丁目录 README §8。
 //
-#include "emotion_send.h"
+#include "types/emotion_send.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -39,13 +39,13 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-#include "cdn_url_exchange.h"
+#include "media/cdn_url_exchange.h"
 #include "logger.h"
-#include "main_thread_executor.h"
-#include "message_sender.h"
+#include "runtime/main_thread_executor.h"
+#include "send/message_sender.h"
 #include "message/message_pb.h"
 #include "utils/file_utils.h"
-#include "utils/receiver_utils.h"
+#include "config/receivers.h"
 
 // 配置目录与 gif_url_exchange 共用（可被宿主单测覆写；Android 构建走默认值）
 #ifndef GIF_URL_CONFIG_DIR

@@ -82,3 +82,103 @@ public static ConversationService getService() {
 |   nativeGetServiceManager    |       Profile.getServiceManager()       | v3 = *a3;          (*(*v3 + 264LL))(v3) | vtable + 264 (0x108) |   解引用句柄 a3，调用 Profile 虚表获取 ServiceManager    |
 | nativeGetConversationService | ServiceManager.GetConversationService() |           (*(*a3 + 40LL))(a3)           |  vtable + 40 (0x28)  | 直接使用 ServiceManager 虚表获取 ConversationService |
 
+## src 目录组织（目标结构，按流水线层次而非文件类型）
+
+> **状态（2026-10-27）**：目录迁移**已落地**——`src/` 根只剩 `main.cpp` + `offset.h`，其余按下列层次分目录；
+> include 全部改为工程相对路径（`include_directories(src)`，禁 `../`），`CMakeLists.txt` 改为按目录
+> `GLOB_RECURSE ... CONFIGURE_DEPENDS` 收集源文件（新增/移动文件不再需要改构建脚本，收录清单与原显式
+> 列表 24 个 src + 10 个 proto/gen 逐一对齐）。重命名到位：`image_broadcast→types/image_send`、
+> `raw_pb_broadcast→types/raw_pb_send`、`wwmessage_db_call→types/db_message_send`、
+> `utils/req_utils→config/req_config`、`utils/receiver_utils→config/receivers`。
+>
+> **尚未做的部分**（★ 标记 = 待新建文件，都是"收敛已有重复"的产物，不是新发明的抽象）：
+> `hook/cdn_capture`（从 cdn_cache 拆出 4 个 DobbyHook）、`native/closure`（从 message_sender 抽出闭包伪造）、
+> `send/broadcast`（5 份群发编排合一）、`config/paths.h`（5 份 `*_CONFIG_DIR` 宏合一）、
+> `runtime/thread_utils`（6 份 `current_tid/is_main_thread` 合一）、`media/cdn_upload`（cdn_url_exchange 拆分）、
+> `types/text_send`、`types/file_send`（目前只是 message_pb 里的生成函数，无独立编排入口）；
+> 另有 `include/` 瘦身（dobby.h → thirdparty、logger.h/vtable_helper.h → src/base）与
+> `utils/protocol_utils.cpp`（第一代死码）的处置未做。
+
+```text
+src/
+├── main.cpp                     so constructor：只做"启动 hook"
+├── offset.h                     原生偏移 + 内存布局单点（版本升级只动这里）
+│
+├── hook/                        拦截面（唯一知道"企微在哪被拦"的地方）
+│   ├── send_hook.{h,cpp}        nativeSendModelMessage 拦截 + 分发到 types/
+│   └── cdn_capture.{h,cpp}      ← 从 cdn_cache.cpp 拆出的 4 个 DobbyHook
+│
+├── native/                      ABI 伪造层：所有"手写企微对象内存布局"都在这
+│   ├── conv_type.h              （原 src/conv_type.h）
+│   ├── conv_service.{h,cpp}     ConversationService 寻址 + 缓存会话查找
+│   ├── conversation.{h,cpp}     会话句柄创建
+│   ├── contact_service.{h,cpp}
+│   ├── msg_ptr.{h,cpp}          消息句柄 ← 原 message/msg_ptr
+│   └── closure.{h,cpp}          Progress/Result 闭包伪造 ← 从 message_sender.cpp 抽出
+│
+├── message/                     消息模型（纯函数、零原生调用 → 最适合宿主单测）
+│   ├── message_pb.{h,cpp}
+│   └── raw_pb.{h,cpp}
+│
+├── send/                        发送：一个原语 + 一个编排
+│   ├── message_sender.{h,cpp}   send_model_message（全工程唯一发射口）
+│   └── broadcast.{h,cpp}        ★群发编排（detached 节流 + 主线程投递），收 5 份拷贝
+│
+├── types/                       一种消息类型一个文件，每个都很薄
+│   ├── text_send.{h,cpp}        ★待建（现仅 message_pb 的 generate_text_message_pb，无编排入口）
+│   ├── image_send.{h,cpp}       ← image_broadcast（含 CDN 票据复用模型）
+│   ├── file_send.{h,cpp}        ★待建（同上，仅有 generate_file_message_pb）
+│   ├── emotion_send.{h,cpp}
+│   ├── video_send.{h,cpp}
+│   ├── link_send.{h,cpp}
+│   ├── raw_pb_send.{h,cpp}      ← raw_pb_broadcast
+│   └── db_message_send.{h,cpp}  ← wwmessage_db_call
+│
+├── media/                       素材与上传
+│   ├── cdn_cache.{h,cpp}        只留"票据缓存 + 查表"（hook 部分拆给 hook/cdn_capture）
+│   ├── cdn_upload.{h,cpp}       ← cdn_url_exchange 的上传半程
+│   └── cdn_url_exchange.{h,cpp} 兑换半程（Collection CGI）
+│
+├── config/                      触发配置（*.req）
+│   ├── paths.h                  ★设备目录/文件名常量单点（干掉 5 份 *_CONFIG_DIR 宏）
+│   ├── req_config.{h,cpp}       ← utils/req_utils（key=value 文法 + 字段白名单）
+│   └── receivers.{h,cpp}        ← utils/receiver_utils
+│
+├── runtime/                     执行环境
+│   ├── main_thread_executor.{h,cpp}
+│   ├── zygisk_inject.cpp        ← src/zygisk_inject.cpp
+│   └── thread_utils.{h,cpp}     ★current_tid / is_main_thread（收 6 份拷贝）
+│
+└── utils/                       真·杂项（不含业务语义）
+    ├── address_utils.{h,cpp}
+    ├── file_utils.{h,cpp}
+    └── protocol_utils.{h,cpp}   第一代死码 → 建议删除或移入 legacy/
+```
+
+`include/` 同步瘦身：第三方头 `dobby.h` → `thirdparty/dobby/include/`；项目自己的 `logger.h`、`vtable_helper.h` → `src/base/`。
+
+### 配套规范（让目录结构可执行）
+
+1. **include 一律工程相对路径**：`CMakeLists.txt` 加 `include_directories(src)`，于是全部写成 `#include "native/conv_service.h"`、`#include "config/paths.h"`；禁止 `../` 写法（现存 5 处）。
+2. **依赖方向单向**：`hook → types → send → {message, native, media} → {config, runtime, utils}`。反向即违规：`native/` 不得 include `types/`，`utils/` 不得 include 任何业务头。
+3. **types/ 每类固定两个入口**：`try_send_<type>_from_files(...)`（生产接线，文件驱动；配置不存在返回 `false` = 该类型未启用）+ `send_<type>_to_contacts(...)`（参数直传）。回调一律 `std::function<void(int64_t, int64_t, uint64_t)> onProgress, std::function<void(int, uint64_t)> onResult` 直写（`link_send` / `video_send` 已是此形）。
+
+### 迁移顺序（先解耦构建脚本，再动文件）
+
+1. ⏳ `git add` + 提交当前工作区（勿把重命名与逻辑改动混在一次提交）。**本次迁移未提交**，
+   工作区里同时含功能改动与目录改动，建议分两个提交。
+2. ✅ `CMakeLists.txt` 改按目录收集，此后移动文件不再需要改构建脚本：
+   ```cmake
+   file(GLOB_RECURSE SOHOOK_SOURCES CONFIGURE_DEPENDS src/*.cpp proto/gen/*.cc)
+   target_sources(sohook PRIVATE ${SOHOOK_SOURCES})
+   include_directories(src)
+   ```
+3. ✅ `git mv` 按目录整批移动（纯重命名，零逻辑改动）+ 一次性统一 include 前缀。
+   把关：全新配置构建 34/34 TU 通过（`cmake-build-verify` 已删）、`cmake-build-android` 全量重建
+   38 步通过、`llvm-nm` 确认 `send_model_message`/`try_send_*_from_files`/`parse_req_config` 等符号在 `.so` 内。
+4. ✅ 部分：文件头自述与"落位"路径已改到 `cdn_url_exchange`；仍写 `gif_url_exchange` 的是
+   `GIF_URL_CONFIG_DIR` 宏名（emotion/cdn 两处共用）与 `url.result` 的首行输出串
+   （`media/cdn_url_exchange.cpp` 的 fprintf）——后者是设备可见文本，留待 `config/paths.h` 一并处理。
+5. ⏳ 收敛三连（各自独立小提交）：`runtime/thread_utils` → `config/paths.h` → `send/broadcast`。
+6. ⏳ 高风险拆分留到最后、且必须真机验过一轮再动：`native/closure`、`media/cdn_upload`。
+

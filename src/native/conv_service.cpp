@@ -2,10 +2,10 @@
 // Created by user_wangzhen on 2026/9/9.
 //
 #include <cstdint>
-#include "conv_service.h"
+#include "native/conv_service.h"
 #include <cinttypes>
 #include "utils/address_utils.h"
-#include "../include/logger.h"
+#include "logger.h"
 #include "offset.h"
 
 uintptr_t getConversationService() {

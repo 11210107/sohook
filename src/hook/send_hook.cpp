@@ -7,24 +7,23 @@
 #include <thread>
 #include <chrono>
 #include <vector>
-#include "send_hook.h"
+#include "hook/send_hook.h"
 #include <unistd.h>
 #include "utils/address_utils.h"
 #include "utils/file_utils.h"
-#include "message_sender.h"
+#include "send/message_sender.h"
 #include "vtable_helper.h"
-#include "main_thread_executor.h"
+#include "runtime/main_thread_executor.h"
 #include "offset.h"
-#include "conv_service.h"
+#include "native/conv_service.h"
 #include "message/message_pb.h"
-#include "cdn_cache.h"
-#include "cdn_url_exchange.h"
-#include "emotion_send.h"
-#include "image_broadcast.h"
-#include "raw_pb_broadcast.h"
-#include "wwmessage_db_call.h"
-#include "video_send.h"
-#include "link_send.h"
+#include "media/cdn_cache.h"
+#include "media/cdn_url_exchange.h"
+#include "types/emotion_send.h"
+#include "types/image_send.h"
+#include "types/raw_pb_send.h"
+#include "types/db_message_send.h"
+
 // 1.定义原函数指针，用户 Hook 之后调用原逻辑
 typedef void (*NativeSendFunc)(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobject msg, jobject cb);
 
