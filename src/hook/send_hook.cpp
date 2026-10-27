@@ -23,6 +23,8 @@
 #include "types/image_send.h"
 #include "types/raw_pb_send.h"
 #include "types/db_message_send.h"
+#include "types/link_send.h"
+#include "types/video_send.h"
 
 // 1.定义原函数指针，用户 Hook 之后调用原逻辑
 typedef void (*NativeSendFunc)(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobject msg, jobject cb);

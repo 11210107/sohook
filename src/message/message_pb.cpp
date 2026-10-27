@@ -16,7 +16,7 @@
 //  外层 Message.content_type = Tag 7（wwmessage.proto），14 序列化为 "38 0E"。
 //
 #include <string>
-#include "message_pb.h"
+#include "message/message_pb.h"
 #include "logger.h"
 #include "ww_text_message.pb.h"
 #include "wwmessage.pb.h"

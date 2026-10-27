@@ -1,7 +1,7 @@
 //
 // req_utils.cpp — 触发配置（*.req）共用文法解析，文法定义见 req_utils.h
 //
-#include "req_config.h"
+#include "config/req_config.h"
 
 #include <algorithm>
 #include <cctype>

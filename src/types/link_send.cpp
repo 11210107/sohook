@@ -21,7 +21,7 @@
 //
 // 落位：src/types/link_send.{h,cpp}；
 //
-#include "link_send.h"
+#include "types/link_send.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -31,13 +31,13 @@
 #include <sys/syscall.h>
 
 #include "logger.h"
-#include "main_thread_executor.h"
-#include "message_sender.h"
+#include "runtime/main_thread_executor.h"
+#include "send/message_sender.h"
 #include "message/message_pb.h"
 #include "utils/file_utils.h"
 #include "utils/address_utils.h"
-#include "utils/receiver_utils.h"
-#include "utils/req_config.h"
+#include "config/receivers.h"
+#include "config/req_config.h"
 
 // 配置目录与 emoji.req / pb.hex 同一处（可被宿主单测覆写；Android 构建走默认值）
 #ifndef LINK_CONFIG_DIR
