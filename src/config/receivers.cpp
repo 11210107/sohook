@@ -1,5 +1,5 @@
 //
-// receiver_utils.cpp — 接收者（会话 ID）列表解析（raw_pb_broadcast / emotion_send 共用）
+// receivers.cpp — 接收者（会话 ID）列表解析（raw_pb_broadcast / emotion_send 共用）
 //
 // 解析规则与报错行为沿用 rawpb 原版：'#' 注释 + 空白/逗号/分号分隔的 uint64；
 // 非法 token（strtoull 残留字符 / 0）即整体失败，LOGE 行号对齐 token 所在行

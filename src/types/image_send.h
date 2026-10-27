@@ -1,5 +1,5 @@
 //
-// image_broadcast.h — 同一张图片群发多联系人，CDN 只上传一次（方案1：fileid 免上传）
+// image_send.h — 同一张图片群发多联系人，CDN 只上传一次（方案1：fileid 免上传）
 //
 // 时序：
 //   1. 首个联系人：常规发送（模型带本地路径 → 状态机 LABEL_29→LABEL_449 → state 13

@@ -27,7 +27,7 @@
 //      受理成功后改名 video.req.sent（一次性触发，emoji.req / link.req 同款语义）。
 //   2) send_video_to_contacts   —— 参数直传（供上层/调试直接指定路径与对象）。
 //
-// video.req 格式（与 link.req 同一文法，utils/req_utils.cpp 承载：'#' 注释、
+// video.req 格式（与 link.req 同一文法，config/req_config.cpp 承载：'#' 注释、
 // 空行忽略、key=value 只切第一个 '='、未知字段整体失败并报行号）：
 //   video=       本地 mp4 绝对路径（必填；别名 path=）
 //   preview=     本地缩略图路径（可空/缺省 = 字段 7 不编码，生成交原生管线；

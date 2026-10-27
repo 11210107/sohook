@@ -1,5 +1,5 @@
 //
-// receiver_utils.h — 接收者（会话 ID）列表解析工具
+// receivers.h — 接收者（会话 ID）列表解析工具
 //
 // receivers.txt / emoji.req 接收者行的共用解析规则（原 raw_pb_broadcast.cpp 与
 // emotion_send.cpp 两份同规则拷贝收敛于此，单一实现单一事实源）：

@@ -1,5 +1,5 @@
 //
-// req_utils.h — 触发配置（*.req）共用文法解析
+// req_config.h — 触发配置（*.req）共用文法解析
 //
 // 项目里的 req 文件有两套文法：
 //   emoji.req          行式（首行 = 图片路径，其余 = 接收者）—— emotion_send.cpp 自解析

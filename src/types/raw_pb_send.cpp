@@ -1,5 +1,5 @@
 //
-// raw_pb_broadcast.cpp — 直接 PB 流群发编排（视频号/小程序等捕获消息的重放）
+// raw_pb_send.cpp — 直接 PB 流群发编排（视频号/小程序等捕获消息的重放）
 //
 // 数据流：
 //   my_nativeSend 触发(主线程)

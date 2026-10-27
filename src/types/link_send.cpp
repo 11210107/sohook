@@ -1,5 +1,5 @@
 //
-// link_send.cpp — 链接卡片消息发送（contentType=13，参数直传版）
+// link_send.cpp — 链接卡片消息发送（contentType=13，文件驱动 + 参数直传）
 //
 // 证据链：
 //  * contentType=13 = HyperLinkMessage（sub_FCFC84 switch case 13 →
@@ -75,7 +75,7 @@ bool is_main_thread() {
 }
 
 // link.req 合法字段（小写；desc 是 description 的别名）——文法与严格性由
-// utils/req_utils.cpp 统一承载（video.req 共用同一实现）
+// config/req_config.cpp 统一承载（video.req 共用同一实现）
 const std::vector<std::string> kLinkReqKeys = {
         "url", "image_url", "title", "description", "desc", "receivers"};
 

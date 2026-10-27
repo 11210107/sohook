@@ -1,5 +1,5 @@
 //
-// raw_pb_broadcast.h — 直接 PB 流群发编排（视频号/小程序等捕获消息的重放）
+// raw_pb_send.h — 直接 PB 流群发编排（视频号/小程序等捕获消息的重放）
 //
 // 与 generate_*_pb 拼装发送并列的另一种发消息形式：把拦截捕获的完整
 // Message PB（framework.js nativeSetInfo 完整打印的 hex 流）清洗后原样

@@ -1,4 +1,4 @@
-// wwmessage_db_call.h — DB 三字段(content / extraContent / content_type)驱动的
+// db_message_send.h — DB 三字段(content / extraContent / content_type)驱动的
 // 视频号消息群发：generate_wwmessage_pb 的调用示范，与 raw_pb 文件通道互不影响。
 #pragma once
 #include <cstdint>

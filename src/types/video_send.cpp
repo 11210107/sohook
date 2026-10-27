@@ -1,5 +1,5 @@
 //
-// video_send.cpp — 视频文件消息发送（contentType=5，参数直传版）
+// video_send.cpp — 视频文件消息发送（contentType=5，文件驱动 + 参数直传）
 //
 // 证据链：
 //  * contentType=5 = 视频族 wire 型（sub_5104AE8 表 {5,17,22,23,51,103}，
@@ -53,7 +53,7 @@ constexpr const char *kVideoSentPath = VIDEO_CONFIG_DIR "/video.req.sent";
 constexpr const char *kReceiversPath = VIDEO_CONFIG_DIR "/receivers.txt";  // video.req 未带 ID 时回退（与 rawpb/emotion 共用）
 
 // video.req 合法字段（小写；path/preview_img 是别名）——文法与严格性由
-// utils/req_utils.cpp 统一承载（link.req 共用同一实现）
+// config/req_config.cpp 统一承载（link.req 共用同一实现）
 const std::vector<std::string> kVideoReqKeys = {
         "video", "path", "preview", "preview_img", "receivers"};
 

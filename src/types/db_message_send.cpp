@@ -1,4 +1,4 @@
-// wwmessage_db_call.cpp — generate_wwmessage_pb 调用示范（DB 三字段 → 出站 → 群发）
+// db_message_send.cpp — generate_wwmessage_pb 调用示范（DB 三字段 → 出站 → 群发）
 //
 // 数据来源（数据库消息行三列，已离线校验 wire 完整，mk_db_video.py / check_hex 双重验证）:
 //   content      1856B: f1 feed页URL(140) f2 stodownload URL(499) f3 标题(139)
@@ -8,8 +8,8 @@
 // 产物 = Tag7(38 0d) + Tag10(52 c0 0e) + Tag19(9a 01 63) 共 1963 字节，
 // 与线上抓包清洗后字节完全一致（只含 7/10/19，出站已净，无需再 sanitize）。
 //
-// 集成: cp wwmessage_db_call.{h,cpp} 到 sohook/src/，CMakeLists.txt 的
-// add_library(sohook SHARED ...) 源列表登记 wwmessage_db_call.cpp，
+// 集成: 本文件已就位 src/types/db_message_send.{h,cpp}，CMakeLists 按目录 GLOB_RECURSE
+// 自动收集源文件（新增/移动文件不必再登记），
 // 然后 send_hook.cpp 引本头文件、在 try_send_raw_pb_from_files 失败分支调用即可。
 #include "types/db_message_send.h"
 #include "logger.h"
