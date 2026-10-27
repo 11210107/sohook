@@ -1,7 +1,7 @@
 //
 // Created by user_wangzhen on 2026/9/9.
 //
-#include "conversation.h"
+#include "native/conversation.h"
 #include "utils/address_utils.h"
 #include "logger.h"
 #include "offset.h"

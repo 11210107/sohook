@@ -2,11 +2,11 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <stdio.h>
-#include "../include/logger.h"
-#include "send_hook.h"
+#include "logger.h"
+#include "hook/send_hook.h"
 #include <string>
 #include <fstream>
-#include "main_thread_executor.h"
+#include "runtime/main_thread_executor.h"
 #include <jni.h>
 
 // 获取进程名，确保只在主进程注入，避免干扰小程序等子进程

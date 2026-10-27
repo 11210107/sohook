@@ -17,7 +17,7 @@
 //                           → vtable+848(主线程同步: 落库+入队) → IO 线程 ChatTask
 //                              → content_type=13/78 为自包含内容，无上传分支
 //
-#include "raw_pb_broadcast.h"
+#include "types/raw_pb_send.h"
 
 #include <cerrno>
 #include <cstdio>
@@ -28,12 +28,12 @@
 #include <sys/syscall.h>
 
 #include "logger.h"
-#include "main_thread_executor.h"
-#include "message_sender.h"
+#include "runtime/main_thread_executor.h"
+#include "send/message_sender.h"
 #include "message/raw_pb.h"
 #include "utils/file_utils.h"
 #include "utils/protocol_utils.h"
-#include "utils/receiver_utils.h"
+#include "config/receivers.h"
 
 // 配置目录可被宿主单测覆写；Android 构建走默认值
 #ifndef RAW_PB_CONFIG_DIR

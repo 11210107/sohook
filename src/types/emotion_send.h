@@ -18,7 +18,7 @@
 // 纯回调链；全量回调（框架 CGI 线程）组包后 detached 节流线程群发，每次
 // send_model_message 投递主线程执行（rawpb v3.1+ 同款）。
 //
-// 落位：src/emotion_send.{h,cpp}；接线见本补丁目录 README §8。
+// 落位：src/types/emotion_send.{h,cpp}；接线见本补丁目录 README §8。
 //
 #pragma once
 #include <cstdint>

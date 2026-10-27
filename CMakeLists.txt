@@ -6,6 +6,9 @@ set(CMAKE_CXX_STANDARD 17)
 # --- 关键修改点 1: 指定头文件搜索路径 ---
 # 这会让编译器在编译 main.cpp 时自动搜索 include 目录
 include_directories(include)
+# 工程内头文件一律写"相对 src/"的路径（#include "native/conv_service.h"），
+# 禁止 ../ 写法——目录重构时只需改一处目录名，不会出现半新半旧的引用
+include_directories(${CMAKE_SOURCE_DIR}/src)
 # protobuf/abseil 头文件路径
 include_directories(${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/include)
 # protobuf 生成的 .pb.h 文件路径
@@ -33,38 +36,29 @@ set_target_properties(dobby PROPERTIES
 file(GLOB absl_libs "${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/absl/*.a")
 
 # 3. 生成 libsohook.so 插件库
-# 包含了你的入口文件和核心 Hook 逻辑文件
-add_library(sohook SHARED
-        src/main.cpp                    # so入口
-        src/zygisk_inject.cpp           # zygisk注入
-        src/utils/address_utils.cpp           # 基础工具：基址获取
-        src/utils/protocol_utils.cpp          # 基础工具：PB解析
-        src/utils/file_utils.cpp          # 基础工具：file文件读写
-        src/utils/receiver_utils.cpp      # 基础工具：接收者列表解析（rawpb/emotion 共用）
-        src/conv_service.cpp          # 业务逻辑：ConvService 寻址 (新增)
-        src/conversation.cpp          # 业务逻辑：Conversation
-        src/contact_service.cpp          # 业务逻辑：ContactService
-        src/message/msg_ptr.cpp  # 消息ptr构建
-        src/message/message_pb.cpp  # 消息pb构建
-        src/message_sender.cpp          # 消息发送：闭包伪造与回调驱动
-        src/send_hook.cpp             # Hook 入口：拦截与触发
-        src/main_thread_executor.cpp         # 保障：主线程执行
-        src/cdn_cache.cpp                  # 方案1：CDN 上传结果捕获与缓存
-        src/image_broadcast.cpp            # 方案1：图片群发复用编排
-        src/message/raw_pb.cpp             # 直接 PB 流发送：hex 解析 + 出站清洗
-        src/raw_pb_broadcast.cpp           # 直接 PB 流发送：文件驱动 + 群发编排
-        src/wwmessage_db_call.cpp           # 直接 PB 流发送：数据库 PB
-        src/cdn_url_exchange.cpp           # 表情GIF：独立上传+服务端换URL
-        src/emotion_send.cpp                # 图片→表情：上传+换URL+29号content PB群发
-        proto/gen/wework_conversation.pb.cc    # PB 生成代码
-        proto/gen/wework_image_message.pb.cc   # PB 生成代码
-        proto/gen/wework_text_message.pb.cc    # PB 生成代码
-        proto/gen/ww_rich_message_base.pb.cc    # PB 生成代码
-        proto/gen/ww_text_message.pb.cc   # PB 生成代码
-        proto/gen/ww_file_message.pb.cc  # PB 生成代码
-        proto/gen/wwmessage.pb.cc    # PB 生成代码
-        proto/gen/ww_emotion_message.pb.cc  # PB 生成代码（表情 content，sohook::EmotionMessage）
+#
+# 源文件按目录自动收集：新增/移动文件不必再改本文件（CONFIGURE_DEPENDS 让
+# 每次构建重新 glob，新文件下一轮 build 自动进来）。目录即层次，依赖方向单向：
+#   hook → types → send → {message, native, media} → {config, runtime, utils}
+#
+#   src/main.cpp     so 入口（constructor 装 hook）
+#   src/offset.h     原生偏移 + 内存布局单点（版本升级只动这里）
+#   src/hook/        拦截面：nativeSendModelMessage 拦截与分发
+#   src/native/      ABI 伪造层：服务寻址、会话/消息句柄、conv_type
+#   src/message/     消息模型 PB（纯函数、零原生调用，可宿主单测）
+#   src/send/        发送原语 send_model_message（全工程唯一发射口）
+#   src/types/       一种消息类型一个文件（image/emotion/video/link/raw/db）
+#   src/media/       CDN 票据缓存 + 上传 + 服务端换 URL
+#   src/config/      *.req 触发配置文法与接收者解析
+#   src/runtime/     主线程投递 executor、注入侧 dlopen hook
+#   src/utils/       基址/文件/PB dump 等无业务语义工具
+#   proto/gen/       protoc 生成的 .pb.cc
+file(GLOB_RECURSE SOHOOK_SOURCES CONFIGURE_DEPENDS
+        ${CMAKE_SOURCE_DIR}/src/*.cpp
+        ${CMAKE_SOURCE_DIR}/proto/gen/*.cc
 )
+
+add_library(sohook SHARED ${SOHOOK_SOURCES})
 
 # 链接
 target_link_libraries(sohook dobby ${log-lib} ${ANDROID_LIB}

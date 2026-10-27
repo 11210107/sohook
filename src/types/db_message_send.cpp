@@ -11,9 +11,9 @@
 // 集成: cp wwmessage_db_call.{h,cpp} 到 sohook/src/，CMakeLists.txt 的
 // add_library(sohook SHARED ...) 源列表登记 wwmessage_db_call.cpp，
 // 然后 send_hook.cpp 引本头文件、在 try_send_raw_pb_from_files 失败分支调用即可。
-#include "wwmessage_db_call.h"
+#include "types/db_message_send.h"
 #include "logger.h"
-#include "message_sender.h"
+#include "send/message_sender.h"
 #include "message/message_pb.h"
 #include "message/raw_pb.h"
 #include <string>

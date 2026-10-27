@@ -10,7 +10,7 @@
 //      →LABEL_482 直发（state 保持 20/21 → case 21/22 协议发送），零上传
 //   3. 缓存未命中/等待超时：自动回退为逐个常规发送（退化为旧行为，不会漏发）
 //
-// 落位：src/image_broadcast.h
+// 落位：src/types/image_send.h
 //
 #pragma once
 #include <cstdint>

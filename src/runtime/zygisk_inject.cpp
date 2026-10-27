@@ -2,7 +2,7 @@
 #include <string.h>
 #include <dlfcn.h>
 #include <cstring>
-#include "../include/logger.h"
+#include "logger.h"
 #include "dobby.h"
 #include "utils/address_utils.h"
 

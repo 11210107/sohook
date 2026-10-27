@@ -1,10 +1,10 @@
 //
 // Created by user_wangzhen on 2026/7/27.
 //
-#include "msg_ptr.h"
+#include "native/msg_ptr.h"
 #include "logger.h"
-#include "../offset.h"
-#include "../utils/address_utils.h"
+#include "offset.h"
+#include "utils/address_utils.h"
 
 namespace {
     struct FakeStdString {

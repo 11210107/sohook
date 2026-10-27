@@ -5,7 +5,7 @@
 // emotion_send.cpp 两份同规则拷贝收敛于此，单一实现单一事实源）：
 //   '#' 注释 + 空白/逗号/分号分隔的 uint64 会话 ID；0 或残留字符即非法。
 //
-// 落位：src/utils/receiver_utils.{h,cpp}
+// 落位：src/config/receivers.{h,cpp}
 //
 #pragma once
 #include <cstdint>

@@ -4,7 +4,7 @@
 #include "utils/address_utils.h"
 #include "offset.h"
 #include "logger.h"
-#include "contact_service.h"
+#include "native/contact_service.h"
 #include "vtable_helper.h"
 
 uintptr_t getContactService() {

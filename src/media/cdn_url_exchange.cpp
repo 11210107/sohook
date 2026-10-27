@@ -1,5 +1,5 @@
 //
-// gif_url_exchange.cpp — 独立 CDN 上传 + 服务端换 URL（复刻自定义表情 ylj.d0 链路）
+// cdn_url_exchange.cpp — 独立 CDN 上传 + 服务端换 URL（复刻自定义表情 ylj.d0 链路）
 //
 // 机制证据链（全部经 IDA 反编译 + trace/addCustomEmojiInfo.md 实测闭环）：
 //  * 上传半程：Java FileService.CdnUploadFileOnPath(path,1,cb,prog,42)
@@ -41,9 +41,9 @@
 // 之后，避免发送管线锁内重入——image_broadcast v2 卡死教训）；等待留 detached
 // 线程（200ms 轮询 + 5s 心跳含 Start 计数，image_broadcast v3 等待诊断同款）。
 //
-// 落位：src/gif_url_exchange.{h,cpp}；接线见本补丁目录 README §7。
+// 落位：src/media/cdn_url_exchange.{h,cpp}；接线见本补丁目录 README §7。
 //
-#include "cdn_url_exchange.h"
+#include "media/cdn_url_exchange.h"
 
 #include <atomic>
 #include <cerrno>
@@ -56,9 +56,9 @@
 #include <unistd.h>
 #include <sys/syscall.h>
 
-#include "cdn_cache.h"
+#include "media/cdn_cache.h"
 #include "logger.h"
-#include "main_thread_executor.h"
+#include "runtime/main_thread_executor.h"
 #include "offset.h"
 #include "utils/address_utils.h"
 #include "utils/file_utils.h"
