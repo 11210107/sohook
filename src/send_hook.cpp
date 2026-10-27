@@ -23,7 +23,8 @@
 #include "image_broadcast.h"
 #include "raw_pb_broadcast.h"
 #include "wwmessage_db_call.h"
-
+#include "video_send.h"
+#include "link_send.h"
 // 1.定义原函数指针，用户 Hook 之后调用原逻辑
 typedef void (*NativeSendFunc)(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobject msg, jobject cb);
 
@@ -85,20 +86,43 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         send_image_to_contacts(image_path, id_list, on_progress, on_result);
         */
         /**
-         *  发送测试消息*/
+         *  发送表情消息*/
         // 图片→表情全链路（文件驱动，一次性 emoji.req）：上传→换URL→组 contentType=29 content PB→群发。
         bool result_emotion = try_send_emotion_from_files(on_progress, on_result);
-        LOGD("try_send_emotion_from_files result:%d",result_emotion);
-        if (!try_send_raw_pb_from_files(on_progress, on_result)) {
+        LOGD("try_send_emotion_from_files result:%d", result_emotion);
+        // 发送视频类型消息（文件驱动 video.req：video/preview/receivers）
+        // video.req 不存在 = 该类型未启用；样例见仓库 file/video.req
+        const bool result_video = try_send_video_from_files(on_progress, on_result);
+        LOGD("try_send_video_from_files result:%d", result_video);
+        // 参数直传（不走配置文件时的等价调用，样例）：
+        // send_video_to_contacts(
+        //     "/storage/emulated/0/Android/data/com.tencent.wework/files/DCIM/temp/"
+        //     "tempVideo/CustomCameraVideo.mp4",
+        //     {7881299599906412ULL, 7881301969920617ULL});
+        // 发送图文链接类型消息（文件驱动 link.req：url/image_url/title/description/receivers）
+        // link.req 不存在 = 该类型未启用；样例见仓库 file/link.req
+        const bool result_link = try_send_link_from_files(on_progress, on_result);
+        LOGD("try_send_link_from_files result:%d", result_link);
+        // 参数直传（不走配置文件时的等价调用，样例）：
+        // send_link_to_contacts(
+        //     "https://mp.weixin.qq.com/s?__biz=MjM5NzAwMzU0MA==&mid=2247648593&idx=1&sn=...",
+        //     "https://wework.qpic.cn/wwpic3az/245880_Wh3EWEkAS3-tgTO_1792668603/0",
+        //     "“1999年那一幕，正在重演”",
+        //     {7881299599906412ULL, 7881301969920617ULL}, "", on_progress, on_result);
+        // 发送语音类型消息
 
+        // 发送聊天记录类型消息
+
+        if (!try_send_raw_pb_from_files(on_progress, on_result)) {
             std::vector<uint64_t> id_list = {
                 7881299599906412ULL,
                 // 7881301969920617ULL,
                 // 7881303349316267ULL,
                 // ... 后面有多少加多少
             };
-            // 发送数据库 PB
-            send_wwmessage_from_db(id_list, on_progress, on_result);   // ← DB 三字段直发
+            // 发送数据库PB数据 小程序类型
+            // send_wwmessage_from_db(id_list, on_progress, on_result); // ← DB 三字段直发
+
             // 3. 遍历发射
             for (uint64_t cid: id_list) {
                 // 发送文本消息

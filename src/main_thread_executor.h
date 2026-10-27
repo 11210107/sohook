@@ -31,6 +31,10 @@ public:
     // 初始化：必须在主线程调用
     bool initialize();
 
+    // 就绪判定：initialize() 成功后为真（管道已建并挂进主线程 Looper）。
+    // 供入口护栏查询——避免重复 initialize()（会重建管道泄漏 fd）
+    bool isInitialized() const { return m_pipe_fds[1] != -1; }
+
     // 投递任务到主线程执行
     void post(std::function<void()> task);
 };

@@ -23,6 +23,8 @@
 #include "ww_rich_message_base.pb.h"
 #include "ww_file_message.pb.h"
 #include "ww_emotion_message.pb.h"
+#include "wework_video_message.pb.h"
+#include "wework_link_message.pb.h"
 /**
  * 使用 protobuf 生成类构造文本消息 PB 流
  */
@@ -252,12 +254,6 @@ std::vector<uint8_t> generate_wwmessage_pb(
 
 /**
  * 图片→表情：EmotionMessage content PB 组包（contentType=29 的 content 槽，§8）
- *  - 生成类构造（ww_emotion_message.proto ↔ Java EmotionMessage 反编译还原）；
- *    字段升序 1,3,4,5,6,7,8,9,11,12，缺省字段一律不 set（proto2 未 set 即不编码——
- *    type(2) 即使 GIF 也不带，与 2026-10-16 真机捕获 452 字节实包逐字节一致）；
- *  - 值来源：url/static_url = 兑换 s1/s2；file_id/aes_key/md5 = 上传三元组；
- *    size/width/height = 本地图片；description/source_type 由调用方给定
- *    （emotion_send 固定 "自定义表情" / 2=USER_ADD）。
  */
 std::vector<uint8_t> build_emotion_content_pb(
     const std::string &url,
@@ -287,4 +283,66 @@ std::vector<uint8_t> build_emotion_content_pb(
     std::string emotion_bytes;
     emotion.SerializeToString(&emotion_bytes);
     return std::vector<uint8_t>(emotion_bytes.begin(), emotion_bytes.end());
+}
+
+/**
+ * 视频消息：VideoMessage content PB 组包（contentType=5 的 content 槽）
+ */
+std::vector<uint8_t> build_video_content_pb(
+    const std::string &url,
+    uint64_t size,
+    uint32_t video_duration,
+    uint32_t video_height,
+    uint32_t video_width,
+    const std::string &preview_img_url,
+    const std::string &raw_url
+) {
+    sohook::VideoMessage video;
+    video.set_url(url);                        // Tag 1: 本地视频路径
+    video.set_size(size);                      // Tag 3: 视频字节数
+    video.set_video_duration(video_duration);  // Tag 4: 时长（秒）
+    video.set_video_height(video_height);      // Tag 5: 高（像素）
+    video.set_video_width(video_width);        // Tag 6: 宽（像素）
+    // Tag 7: 本地缩略图路径——空串不 set（显式 set 空串仍会编码 3a 00；
+    // video_send 空参 preview = 无缩略图交原生管线，缺省省略）
+    if (!preview_img_url.empty()) {
+        video.set_preview_img_url(preview_img_url);
+    }
+    video.set_raw_url(raw_url);                // Tag 202: 原始地址（双字节 tag）
+
+    std::string video_bytes;
+    video.SerializeToString(&video_bytes);
+    return std::vector<uint8_t>(video_bytes.begin(), video_bytes.end());
+}
+
+/**
+ * 链接卡片消息：LinkMessage content PB 组包（contentType=13 的 content 槽；
+ * 13 = HyperLinkMessage 实证：sub_FCFC84 case 13 日志串 + 视频号实机样例
+ * 38 0d 内层 {1,2,3,4} 逐字段同构）。字段升序 1,2,3,4、空串条件 set 不编码；
+ * 纯 URL 三元组即可出站（无文件 IO、无 CDN 上传——封面 image_url 为远程
+ * URL，接收端自行下载渲染）；外层包装：调用方 generate_wwmessage_pb(13, content)。
+ */
+std::vector<uint8_t> build_link_content_pb(
+    const std::string &link_url,
+    const std::string &image_url,
+    const std::string &title,
+    const std::string &description
+) {
+    sohook::LinkMessage link;
+    link.set_link_url(link_url);             // Tag 1: 链接地址（必填）
+    // Tag 2/3/4: 封面 URL/标题/描述——空串不 set（显式 set 空串仍会编码
+    // 3a 00/1a 00/22 00，video_send 字段 7 同款教训；缺省省略才是"不编码"）
+    if (!image_url.empty()) {
+        link.set_image_url(image_url);       // Tag 2: 封面图 URL（远程）
+    }
+    if (!title.empty()) {
+        link.set_title(title);               // Tag 3: 标题
+    }
+    if (!description.empty()) {
+        link.set_description(description);   // Tag 4: 描述
+    }
+
+    std::string link_bytes;
+    link.SerializeToString(&link_bytes);
+    return std::vector<uint8_t>(link_bytes.begin(), link_bytes.end());
 }

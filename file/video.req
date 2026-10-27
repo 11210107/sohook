@@ -1,0 +1,10 @@
+# video.req — 视频消息（contentType=5）群发配置
+# 推送: adb push file/video.req /storage/emulated/0/Android/data/com.tencent.wework/cache/video.req
+# 生效: 在企微里手动发一条消息触发；受理后自动改名 video.req.sent（一次性）
+# 格式: '#' 注释 / 空行忽略 / key=value（只切第一个 '='；未知字段名整体解析失败）
+# 删除设备上的 video.req（或改名）= 本类型不启用
+# 注: video= 本地 mp4 绝对路径（必填，别名 path=），需先 adb push 视频到企微可读路径；
+#     preview= 本地缩略图绝对路径（选填，别名 preview_img=；留空 = 缩略图交原生管线生成）
+video=/storage/emulated/0/Android/data/com.tencent.wework/files/DCIM/temp/tempVideo/CustomCameraVideo.mp4
+preview=
+receivers=7881299599906412, 7881301969920617

@@ -1,0 +1,11 @@
+# link.req — 链接卡片消息（contentType=13）群发配置
+# 推送: adb push file/link.req /storage/emulated/0/Android/data/com.tencent.wework/cache/link.req
+# 生效: 在企微里手动发一条消息触发；受理后自动改名 link.req.sent（一次性）
+# 格式: '#' 注释 / 空行忽略 / key=value（只切第一个 '='，URL 内的 '=' 原样保留）
+#       未知字段名会整体解析失败（拼错字段静默丢弃比报错危险）
+# 删除设备上的 link.req（或改名）= 本类型不启用
+url=https://mp.weixin.qq.com/s?__biz=MjM5NzAwMzU0MA==&mid=2247648593&idx=1&sn=580003001e7fa1d5b3e6648c901f20fe&chksm=a7d86c5d8a74771231b490b3d35ffcffa2b077131f9ef418cb7e413db0e860fbd26831ee425c&mpshare=1&scene=1&srcid=1014pC69gyS9d3AHlM2qBv2Y&sharer_shareinfo=83a540cbb80b24574b38627529688be1&sharer_shareinfo_first=83a540cbb80b24574b38627529688be1#rd
+image_url=https://wework.qpic.cn/wwpic3az/245880_Wh3EWEkAS3-tgTO_1792668603/0
+title=“1999年那一幕，正在重演”
+description=
+receivers=7881299599906412, 7881301969920617

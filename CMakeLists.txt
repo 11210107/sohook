@@ -52,7 +52,10 @@ add_library(sohook SHARED
         src/cdn_cache.cpp                  # 方案1：CDN 上传结果捕获与缓存
         src/image_broadcast.cpp            # 方案1：图片群发复用编排
         src/message/raw_pb.cpp             # 直接 PB 流发送：hex 解析 + 出站清洗
+        src/video_send.cpp             # 视频消息发送
+        src/link_send.cpp             # 链接卡片消息发送
         src/raw_pb_broadcast.cpp           # 直接 PB 流发送：文件驱动 + 群发编排
+        src/utils/req_config.cpp  # 配置文件解析（link.req/video.req 共用文法）
         src/wwmessage_db_call.cpp           # 直接 PB 流发送：数据库 PB
         src/cdn_url_exchange.cpp           # 表情GIF：独立上传+服务端换URL
         src/emotion_send.cpp                # 图片→表情：上传+换URL+29号content PB群发
@@ -64,6 +67,8 @@ add_library(sohook SHARED
         proto/gen/ww_file_message.pb.cc  # PB 生成代码
         proto/gen/wwmessage.pb.cc    # PB 生成代码
         proto/gen/ww_emotion_message.pb.cc  # PB 生成代码（表情 content，sohook::EmotionMessage）
+        proto/gen/wework_video_message.pb.cc  # PB 生成代码（视频）
+        proto/gen/wework_link_message.pb.cc  # PB 生成代码（链接）
 )
 
 # 链接

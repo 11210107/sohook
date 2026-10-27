@@ -1,0 +1,25 @@
+syntax = "proto2";
+
+package sohook;
+
+option optimize_for = LITE_RUNTIME;
+
+import "ww_rich_message_base.proto";
+
+
+message LinkMessage {
+    optional bytes link_url = 1;         // 链接地址
+    optional bytes image_url = 2;        // 缩略图 URL（与 image_data 二选一，远程形态）
+    optional bytes title = 3;            // 标题
+    optional bytes description = 4;      // 摘要
+    optional bytes image_data = 5;       // 内嵌缩略图数据（本地态兜底，推断）
+    optional uint32 cmd = 6;             // 跳转命令（缺省 0；语义未实证）
+    optional WwRichmessageBase.OpenImCdnUri open_image_uri = 7;  // OpenIM CDN 图 URI（url/aeskey/authkey/md5/size 五元组，跨企微/微信场景）
+    optional bytes share_context = 8;    // 分享上下文（透传，推断）
+    optional string ww_share_key = 9;    // 企微分享 key
+    optional bool disallow_forward = 10; // 禁止转发（false 缺省不编码）
+    // Tag 11 缺席（反编译无此 case，号段空隙保留）
+    optional uint32 appid_type = 12;     // 来源 AppID 类型（缺省 0；第三方 App 分享场景，推断）
+    optional string appversion = 13;     // 来源 App 版本
+    optional string appname = 14;        // 来源 App 名
+}

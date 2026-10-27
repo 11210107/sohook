@@ -1,0 +1,60 @@
+syntax = "proto2";
+
+package sohook;
+
+option optimize_for = LITE_RUNTIME;
+
+
+
+// 实机样例逐字段对照通过（2026-10-22 捕获，wework5010/trace/video_msg_local.hex，275B）：
+// 外层 Message{id(1), content_type(7)=5（视频族 wire 型，sub_5104AE8 表 {5,17,22,23,51,103}），
+// content(10)=本消息}；出站本地态：url(1)/raw_url(202) 同装本地源路径、preview_img_url(7)
+// 装 tempimagecache 缩略图，CDN 三元组与 105..107/203..205 段全缺席（与图片首传 38 07 型同形态）。
+message VideoMessage {
+    // flags(12) 位标志还原（nano 把枚举拍平成类常量；注意与 FileMessage.ExtraFlags
+    // 同名不同值：那边 THIRD_ENCRYPT=2 / QYDISK_TO_WX_BIG_FILE=4，此处 1 / 2）
+    enum ExtraFlags {
+        THIRD_ENCRYPT = 1;          // 第三方加密（配套 encrypt_key/random_key/session_id/encrypt_size）
+        QYDISK_TO_WX_BIG_FILE = 2;  // 企业盘转微信大文件（配套 raw_url/raw_upload_dir/file_size 段，推断）
+    }
+
+    // 核心字段映射（Field Tag 严格匹配）
+    optional bytes url = 1;                    // 视频文件 CDN URL（本地出站态装本地源路径，实证）
+    optional bytes video_id = 2;               // CDN 文件 ID（上传三元组）
+    optional uint64 size = 3;                  // 视频字节数
+    optional uint32 video_duration = 4;        // 时长（秒）
+    optional uint32 video_height = 5;          // 高（像素）
+    optional uint32 video_width = 6;           // 宽（像素）
+    optional bytes preview_img_url = 7;        // 封面/预览图 CDN URL（本地态装 tempimagecache .wwdata 路径，实证）
+    optional bytes aes_key = 8;                // CDN AES 密钥（上传三元组）
+    optional bytes md5 = 9;                    // 视频 MD5
+    optional bytes encrypt_key = 10;           // 第三方加密密钥（THIRD_ENCRYPT）
+    optional bytes random_key = 11;            // 随机密钥
+    optional uint32 flags = 12;                // 位标志，见 ExtraFlags
+    optional bytes session_id = 13;            // 加密会话 ID
+    optional uint64 encrypt_size = 14;         // 加密后字节数
+    optional bytes thumbnail_file_id = 15;     // 缩略图 CDN 文件 ID
+    optional bytes wechat_auth_key = 16;       // 微信 CDN 授权 key（跨企微/微信场景）
+    optional uint32 preview_img_size = 17;     // 预览图字节数
+    optional bytes preview_img_md5 = 18;       // 预览图 MD5
+    optional bytes preview_img_aes_key = 19;   // 预览图 AES 密钥
+    optional bytes file_name = 20;             // 文件名
+    optional bytes ww_fileid = 21;             // 企微文件 ID
+    optional bool is_ww_fileid_just_created_by_me = 22;  // ww_fileid 是否本端刚创建
+    optional bytes format = 23;                // 封装格式（如 mp4；推断）
+
+    // 本地缓存段（Tag 105..107，收发两端本地状态；非默认时 writeTo 同样上行；
+    // 出站本地态样例中缺席——疑为收端回填/本地库字段，未实证）
+    optional bytes local_video_path = 105;         // 本地视频文件路径
+    optional bytes local_preview_image_path = 106; // 本地预览图路径
+    optional bytes local_video_name = 107;         // 本地视频显示名
+
+    // 客户端状态/原始大文件扩展段（Tag 201..205）
+    // decryptRet：clear() 缺省 -1，序列化仅 != -1 时写出；mergeFrom 值域 {-1,0,1}，
+    // 越界值按未知字段原样保留（反编译 mergeFrom case 1608 实证）
+    optional int32 decrypt_ret = 201 [default = -1];
+    optional bytes raw_url = 202;              // 原始地址（实证：本地态与 url(1) 同值装本地源路径；“未换链 URL”语义推断）
+    optional bytes raw_upload_dir = 203;       // 原始上传目录（推断）
+    optional uint64 file_size = 204;           // 文件字节数（与 size(3) 并存的后期补充，推断）
+    optional bool is_hd = 205;                 // 高清视频标记
+}

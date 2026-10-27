@@ -3,11 +3,14 @@
 //
 #include "file_utils.h"
 #include <chrono>
+#include <cstdio>
+#include <cstring>
 #include <fcntl.h>
 #include <fstream>
 #include <iostream>
 #include <string>
 #include <unistd.h>
+#include <utility>
 #include <sys/stat.h>
 #include "logger.h"
 // 从指定路径读取二进制文件，返回字节 vector
@@ -36,6 +39,12 @@ std::vector<uint8_t> read_binary_file(const std::string& file_path) {
         LOGE("[-] 错误: 读取文件数据失败 %s", file_path.c_str());
         return {};
     }
+}
+
+// 文本文件全文（req 配置读取共用入口；不存在/为空即返回空串，由调用方判空）
+std::string read_text_file(const std::string &file_path) {
+    const std::vector<uint8_t> bytes = read_binary_file(file_path);
+    return std::string(bytes.begin(), bytes.end());
 }
 
 
@@ -240,6 +249,209 @@ uint32_t read_be_uint32(const unsigned char* buffer) {
            (static_cast<uint32_t>(buffer[1]) << 16) |
            (static_cast<uint32_t>(buffer[2]) << 8)  |
            static_cast<uint32_t>(buffer[3]);
+}
+
+uint64_t read_be_uint64(const unsigned char* buffer) {
+    return (static_cast<uint64_t>(read_be_uint32(buffer)) << 32) | read_be_uint32(buffer + 4);
+}
+
+// ===== MP4 视频元数据解析（moov/mvhd/tkhd box 级；封面生成不在本模块）=====
+// 零第三方依赖：顶层 box seek-walk（moov 在头/在尾都覆盖，mdat 等大 box 只跳不读）
+// + moov 全量载入内存解析。宽高/时长仅取 moov 元数据，不解码媒体数据。
+
+// 在 buf[pos] 读一个子 box 头，输出 type/payload 偏移/payload 长度；越界/非法返回 false
+static bool mp4_next_box(const uint8_t *buf, size_t len, size_t pos,
+                         const uint8_t *&type, size_t &payload, size_t &plen) {
+    if (pos + 8 > len) return false;
+    uint64_t size = read_be_uint32(buf + pos);
+    type = buf + pos + 4;
+    uint64_t hdr = 8;
+    if (size == 1) {          // largesize：64 位尺寸跟在头部
+        if (pos + 16 > len) return false;
+        size = read_be_uint64(buf + pos + 8);
+        hdr = 16;
+    } else if (size == 0) {   // size==0：本 box 延伸到 buffer 末尾
+        size = len - pos;
+    }
+    if (size < hdr || size > len - pos) return false;
+    payload = pos + hdr;
+    plen = static_cast<size_t>(size - hdr);
+    return true;
+}
+
+static bool mp4_is_type(const uint8_t *type, const char *fourcc) {
+    return memcmp(type, fourcc, 4) == 0;
+}
+
+// 顶层 box walk：seek 跳过非 moov box（mdat 可为 GB 级，绝不读入）；
+// 找到 moov 后全量读入（相机/导出文件的 moov 为 KB 级；64MB 防护上限）
+static bool mp4_load_moov(FILE *f, uint64_t file_size, std::vector<uint8_t> &moov) {
+    uint64_t pos = 0;
+    while (pos + 8 <= file_size) {
+        if (fseeko(f, static_cast<off_t>(pos), SEEK_SET) != 0) return false;
+        unsigned char hdr[8];
+        if (fread(hdr, 1, 8, f) != 8) return false;
+        uint64_t size = read_be_uint32(hdr);
+        const uint8_t *type = hdr + 4;
+        uint64_t hdr_len = 8;
+        if (size == 1) {
+            unsigned char ls[8];
+            if (fread(ls, 1, 8, f) != 8) return false;
+            size = read_be_uint64(ls);
+            hdr_len = 16;
+        } else if (size == 0) {
+            size = file_size - pos;
+        }
+        if (size < hdr_len || size > file_size - pos) return false;
+        if (mp4_is_type(type, "moov")) {
+            const size_t plen = static_cast<size_t>(size - hdr_len);
+            if (plen > 64u * 1024 * 1024) {
+                LOGE("[-] moov box 异常巨大(%zu 字节)，拒绝载入", plen);
+                return false;
+            }
+            moov.resize(plen);
+            if (fseeko(f, static_cast<off_t>(pos + hdr_len), SEEK_SET) != 0) return false;
+            if (fread(moov.data(), 1, plen, f) != plen) return false;
+            return true;
+        }
+        pos += size;
+    }
+    return false;
+}
+
+// mvhd：v0 payload 偏移 12/16 为 timescale/duration；v1 为 20/24（8 字节时长）
+static void mp4_parse_mvhd(const uint8_t *p, size_t n, uint64_t &timescale, uint64_t &duration) {
+    if (n < 4) return;
+    if (p[0] == 1) {
+        if (n >= 32) {
+            timescale = read_be_uint32(p + 20);
+            duration = read_be_uint64(p + 24);
+        }
+    } else if (n >= 20) {
+        timescale = read_be_uint32(p + 12);
+        duration = read_be_uint32(p + 16);
+    }
+}
+
+// tkhd：宽高为 16.16 定点（取高 16 位）；matrix 为 9×int32(16.16)，
+// m[1]/m[2] 非 0 = 90°/270°旋转 → 显示宽高互换（与 MediaMetadataRetriever 语义一致）
+static bool mp4_parse_tkhd(const uint8_t *p, size_t n, uint32_t &w, uint32_t &h, bool &rotated) {
+    if (n < 4) return false;
+    size_t off_matrix, off_wh;
+    if (p[0] == 1) {
+        if (n < 96) return false;
+        off_matrix = 52;
+        off_wh = 88;
+    } else {
+        if (n < 84) return false;
+        off_matrix = 40;
+        off_wh = 76;
+    }
+    const int32_t m1 = static_cast<int32_t>(read_be_uint32(p + off_matrix + 4));  // m[1]
+    const int32_t m2 = static_cast<int32_t>(read_be_uint32(p + off_matrix + 8));  // m[2]
+    rotated = (m1 != 0 || m2 != 0);
+    w = read_be_uint32(p + off_wh) >> 16;
+    h = read_be_uint32(p + off_wh + 4) >> 16;
+    if (rotated) std::swap(w, h);
+    return true;
+}
+
+/**
+ * 🎯 解析本地 MP4 视频：大小/宽高/时长（视频消息 content PB 的 4 个本地元数据源）
+ *  - 供 build_video_content_pb 的 size(3)/video_duration(4)/高(5)宽(6)取值；
+ *  - duration_ms → 秒：真机样例 duration=3 无法区分截断/四舍五入，调用方自行决定
+ *    （建议 (ms + 500) / 1000 四舍五入）；
+ *  - 选轨：优先 hdlr=='vide' 且宽高非零；否则首个宽高非零 trak（音轨 tkhd 为 0x0）。
+ */
+bool get_video_info(const std::string &path, uint64_t &out_size, uint32_t &out_width,
+                    uint32_t &out_height, uint32_t &out_duration_ms) {
+    // 1. 文件物理大小
+    struct stat stat_buf;
+    if (stat(path.c_str(), &stat_buf) != 0) {
+        LOGE("[-] 无法获取视频文件大小: %s", path.c_str());
+        return false;
+    }
+    out_size = static_cast<uint64_t>(stat_buf.st_size);
+
+    FILE *f = fopen(path.c_str(), "rb");
+    if (!f) {
+        LOGE("[-] 无法打开视频文件: %s", path.c_str());
+        return false;
+    }
+    std::vector<uint8_t> moov;
+    const bool loaded = mp4_load_moov(f, out_size, moov);
+    fclose(f);
+    if (!loaded) {
+        LOGE("[-] 未找到 moov box（非 MP4 或文件损坏）: %s", path.c_str());
+        return false;
+    }
+
+    // 2. 遍历 moov 子 box：mvhd 取时长；trak 逐个取 tkhd 宽高 + mdia/hdlr 判轨型
+    uint64_t timescale = 0, duration = 0;
+    uint32_t best_w = 0, best_h = 0;
+    bool found_video_track = false;
+    size_t pos = 0;
+    while (true) {
+        const uint8_t *type;
+        size_t payload, plen;
+        if (!mp4_next_box(moov.data(), moov.size(), pos, type, payload, plen)) break;
+        if (mp4_is_type(type, "mvhd")) {
+            mp4_parse_mvhd(moov.data() + payload, plen, timescale, duration);
+        } else if (mp4_is_type(type, "trak")) {
+            // trak 内部：tkhd 宽高 + mdia/hdlr 的 handler 4CC
+            uint32_t tk_w = 0, tk_h = 0;
+            bool tk_rotated = false, is_vide = false, has_tkhd = false;
+            size_t sub = 0;
+            while (true) {
+                const uint8_t *stype;
+                size_t spayload, splen;
+                if (!mp4_next_box(moov.data(), moov.size(), payload + sub, stype, spayload, splen)) break;
+                if (mp4_is_type(stype, "tkhd")) {
+                    has_tkhd = mp4_parse_tkhd(moov.data() + spayload, splen, tk_w, tk_h, tk_rotated);
+                } else if (mp4_is_type(stype, "mdia")) {
+                    size_t md = 0;
+                    while (true) {
+                        const uint8_t *mtype;
+                        size_t mpayload, mplen;
+                        if (!mp4_next_box(moov.data(), moov.size(), spayload + md, mtype, mpayload, mplen)) break;
+                        if (mp4_is_type(mtype, "hdlr") && mplen >= 12 &&
+                            mp4_is_type(moov.data() + mpayload + 8, "vide")) {
+                            is_vide = true;
+                        }
+                        md = (mpayload + mplen) - spayload;
+                    }
+                }
+                sub = (spayload + splen) - payload;
+            }
+            // 选轨：vide 轨直接命中；否则记首个宽高非零轨作 fallback
+            if (has_tkhd && tk_w > 0 && tk_h > 0) {
+                if (is_vide) {
+                    best_w = tk_w;
+                    best_h = tk_h;
+                    found_video_track = true;
+                } else if (best_w == 0 && !found_video_track) {
+                    best_w = tk_w;
+                    best_h = tk_h;
+                }
+            }
+        }
+        pos = payload + plen;
+    }
+
+    if (best_w == 0 || best_h == 0) {
+        LOGE("[-] moov 中未找到有效视频轨（tkhd 宽高全零）: %s", path.c_str());
+        return false;
+    }
+
+    out_width = best_w;
+    out_height = best_h;
+    out_duration_ms = (timescale > 0)
+        ? static_cast<uint32_t>(duration * 1000 / timescale)
+        : 0;
+    LOGI("[+] 解析成功 [MP4]: 宽=%u, 高=%u, 时长=%ums, 大小=%llu, 路径=%s",
+         out_width, out_height, out_duration_ms,
+         static_cast<unsigned long long>(out_size), path.c_str());
+    return true;
 }
 
 /**
