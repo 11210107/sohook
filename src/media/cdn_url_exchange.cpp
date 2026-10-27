@@ -57,12 +57,12 @@
 #include <sys/syscall.h>
 
 #include "media/cdn_cache.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "runtime/main_thread_executor.h"
 #include "offset.h"
 #include "utils/address_utils.h"
 #include "utils/file_utils.h"
-#include "vtable_helper.h"
+#include "utils/vtable_helper.h"
 
 // 配置目录可被宿主单测覆写；Android 构建走默认值（与 raw_pb_broadcast 同款）
 #ifndef GIF_URL_CONFIG_DIR

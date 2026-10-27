@@ -12,7 +12,7 @@
 // 自动收集源文件（新增/移动文件不必再登记），
 // 然后 send_hook.cpp 引本头文件、在 try_send_raw_pb_from_files 失败分支调用即可。
 #include "types/db_message_send.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "send/message_sender.h"
 #include "message/message_pb.h"
 #include "message/raw_pb.h"

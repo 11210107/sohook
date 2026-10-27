@@ -96,8 +96,9 @@ public static ConversationService getService() {
 > `send/broadcast`（5 份群发编排合一）、`config/paths.h`（5 份 `*_CONFIG_DIR` 宏合一）、
 > `runtime/thread_utils`（6 份 `current_tid/is_main_thread` 合一）、`media/cdn_upload`（cdn_url_exchange 拆分）、
 > `types/text_send`、`types/file_send`（目前只是 message_pb 里的生成函数，无独立编排入口）；
-> 另有 `include/` 瘦身（dobby.h → thirdparty、logger.h/vtable_helper.h → src/base）与
 > `utils/protocol_utils.cpp`（第一代死码）的处置未做。
+> （`include/` 瘦身已完成：`dobby.h` → `thirdparty/dobby/include/`、
+> `logger.h`/`vtable_helper.h` → `src/utils/`，工程根不再有 `include/`。）
 
 ```text
 src/
@@ -152,14 +153,21 @@ src/
 └── utils/                       真·杂项（不含业务语义）
     ├── address_utils.{h,cpp}
     ├── file_utils.{h,cpp}
+    ├── logger.h                 ✅原 include/logger.h（LOGD/LOGI/LOGW/LOGE 宏）
+    ├── vtable_helper.h          ✅原 include/vtable_helper.h（手写虚表调用，无偏移知识）
     └── protocol_utils.{h,cpp}   第一代死码 → 建议删除或移入 legacy/
 ```
 
-`include/` 同步瘦身：第三方头 `dobby.h` → `thirdparty/dobby/include/`；项目自己的 `logger.h`、`vtable_helper.h` → `src/base/`。
+✅ **`include/` 已瘦身完毕**（2026-10-27）：工程根 `include/` 目录删除。
+第三方头 `dobby.h` → `thirdparty/dobby/include/`（与 `libdobby.a` 同仓；放架构无关的
+`include/` 而非 `arm64-v8a/` 下，将来补别的 ABI 时头共用一份），调用点**仍写裸名**
+`#include "dobby.h"`——第三方头不进工程相对路径体系，与 protobuf 一致。
+项目自己的 `logger.h`、`vtable_helper.h` → `src/utils/`，调用点改为
+`#include "utils/logger.h"`（24 处）、`#include "utils/vtable_helper.h"`（4 处）。
 
 ### 配套规范（让目录结构可执行）
 
-1. **include 一律工程相对路径**：`CMakeLists.txt` 加 `include_directories(src)`，于是全部写成 `#include "native/conv_service.h"`、`#include "config/paths.h"`；禁止 `../` 写法（现存 5 处）。
+1. **include 一律工程相对路径**：`CMakeLists.txt` 加 `include_directories(src)`，于是全部写成 `#include "native/conv_service.h"`、`#include "config/paths.h"`；禁止 `../` 写法（现存 0 处）。例外：第三方头（`dobby.h`、protobuf）保持裸名，它们的搜索路径由 `thirdparty/**/include` 提供。
 2. **依赖方向单向**：`hook → types → send → {message, native, media} → {config, runtime, utils}`。反向即违规：`native/` 不得 include `types/`，`utils/` 不得 include 任何业务头。
 3. **types/ 每类固定两个入口**：`try_send_<type>_from_files(...)`（生产接线，文件驱动；配置不存在返回 `false` = 该类型未启用）+ `send_<type>_to_contacts(...)`（参数直传）。回调一律 `std::function<void(int64_t, int64_t, uint64_t)> onProgress, std::function<void(int, uint64_t)> onResult` 直写（`link_send` / `video_send` 已是此形）。
 
@@ -179,6 +187,8 @@ src/
 4. ✅ 部分：文件头自述与"落位"路径已改到 `cdn_url_exchange`；仍写 `gif_url_exchange` 的是
    `GIF_URL_CONFIG_DIR` 宏名（emotion/cdn 两处共用）与 `url.result` 的首行输出串
    （`media/cdn_url_exchange.cpp` 的 fprintf）——后者是设备可见文本，留待 `config/paths.h` 一并处理。
-5. ⏳ 收敛三连（各自独立小提交）：`runtime/thread_utils` → `config/paths.h` → `send/broadcast`。
-6. ⏳ 高风险拆分留到最后、且必须真机验过一轮再动：`native/closure`、`media/cdn_upload`。
+5. ✅ `include/` 瘦身：`dobby.h` → `thirdparty/dobby/include/`（CMake 换搜索路径，调用点写裸名不变），
+   `logger.h`/`vtable_helper.h` → `src/utils/`，`include_directories(include)` 删除，工程根不再有 `include/`。
+6. ⏳ 收敛三连（各自独立小提交）：`runtime/thread_utils` → `config/paths.h` → `send/broadcast`。
+7. ⏳ 高风险拆分留到最后、且必须真机验过一轮再动：`native/closure`、`media/cdn_upload`。
 

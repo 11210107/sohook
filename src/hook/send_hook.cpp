@@ -2,7 +2,7 @@
 // Created by user_wangzhen on 2026/5/11.
 //
 #include "dobby.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include <jni.h>
 #include <thread>
 #include <chrono>
@@ -12,7 +12,7 @@
 #include "utils/address_utils.h"
 #include "utils/file_utils.h"
 #include "send/message_sender.h"
-#include "vtable_helper.h"
+#include "utils/vtable_helper.h"
 #include "runtime/main_thread_executor.h"
 #include "offset.h"
 #include "native/conv_service.h"

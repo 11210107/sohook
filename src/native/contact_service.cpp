@@ -3,9 +3,9 @@
 //
 #include "utils/address_utils.h"
 #include "offset.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "native/contact_service.h"
-#include "vtable_helper.h"
+#include "utils/vtable_helper.h"
 
 uintptr_t getContactService() {
     // 1. 获取 ProfileManager 单例实例

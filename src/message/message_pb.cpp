@@ -17,7 +17,7 @@
 //
 #include <string>
 #include "message/message_pb.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "ww_text_message.pb.h"
 #include "wwmessage.pb.h"
 #include "ww_rich_message_base.pb.h"

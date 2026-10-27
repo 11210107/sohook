@@ -3,12 +3,13 @@ project(sohook)
 
 set(CMAKE_CXX_STANDARD 17)
 
-# --- 关键修改点 1: 指定头文件搜索路径 ---
-# 这会让编译器在编译 main.cpp 时自动搜索 include 目录
-include_directories(include)
+# --- 头文件搜索路径 ---
 # 工程内头文件一律写"相对 src/"的路径（#include "native/conv_service.h"），
 # 禁止 ../ 写法——目录重构时只需改一处目录名，不会出现半新半旧的引用
 include_directories(${CMAKE_SOURCE_DIR}/src)
+# 第三方头保持裸名 include（#include "dobby.h"），与 protobuf 的写法一致；
+# 头放 thirdparty/dobby/include 而非 arm64-v8a/ 下，将来加别的 ABI 时头共用一份
+include_directories(${CMAKE_SOURCE_DIR}/thirdparty/dobby/include)
 # protobuf/abseil 头文件路径
 include_directories(${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/include)
 # protobuf 生成的 .pb.h 文件路径
@@ -51,7 +52,7 @@ file(GLOB absl_libs "${CMAKE_SOURCE_DIR}/thirdparty/protobuf/arm64-v8a/lib/absl/
 #   src/media/       CDN 票据缓存 + 上传 + 服务端换 URL
 #   src/config/      *.req 触发配置文法与接收者解析
 #   src/runtime/     主线程投递 executor、注入侧 dlopen hook
-#   src/utils/       基址/文件/PB dump 等无业务语义工具
+#   src/utils/       基址/文件/PB dump/日志宏/虚表调用等无业务语义工具
 #   proto/gen/       protoc 生成的 .pb.cc
 file(GLOB_RECURSE SOHOOK_SOURCES CONFIGURE_DEPENDS
         ${CMAKE_SOURCE_DIR}/src/*.cpp

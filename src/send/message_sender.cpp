@@ -5,12 +5,12 @@
 #include <cstring>
 
 #include "native/conversation.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "utils/address_utils.h"
 #include "native/msg_ptr.h"
 #include "native/conv_service.h"
 #include "offset.h"
-#include "vtable_helper.h"
+#include "utils/vtable_helper.h"
 
 
 typedef int64_t (*AtomicDecRef)(unsigned int *result);

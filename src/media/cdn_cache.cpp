@@ -33,7 +33,7 @@
 #include <unistd.h>
 
 #include "dobby.h"
-#include "logger.h"
+#include "utils/logger.h"
 #include "offset.h"
 
 namespace {

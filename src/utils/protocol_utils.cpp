@@ -8,7 +8,7 @@
 #include <string>
 #include <sstream>
 #include <iomanip>
-#include "logger.h"
+#include "utils/logger.h"
 #include "wework_conversation.pb.h"
 #include "wework_image_message.pb.h"
 #include "wework_text_message.pb.h"

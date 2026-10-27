@@ -1,15 +1,14 @@
 //
-// vtable_helper.h — CallVMethodByOffset 的 Ret=void 修复版（覆盖 include/vtable_helper.h）
+// vtable_helper.h — 手写虚表调用的通用助手（CallVirtualMethod / CallVMethodByOffset）
 //
 // 变更（v2，随 gif_url_exchange 补丁）：gif_url_exchange.cpp 是工程内首个使用
 // CallVMethodByOffset<void>(...)（无返回值虚调用）的模块，原实现的守卫路径
 // `return Ret{};` 在 Ret=void 时非法（clang: illegal initializer type 'void'），
 // Android 构建同样报错——host_test 宿主编译首先捕获。修复：新增
 // vtable_call_default<Ret>() + void 显式特化（C++11 兼容，不依赖 if constexpr）。
-// 其余内容与原 include/vtable_helper.h 逐字一致。
 //
-// 落位：include/vtable_helper.h（覆盖）；host_test/stub/vtable_helper.h 为本文件
-// 加桩横幅的同源拷贝。
+// 落位：src/utils/vtable_helper.h（原在工程根 include/，随 include/ 瘦身迁入 src；
+// 纯工具、不含任何企微偏移知识——内存布局单点仍是 src/offset.h）。
 //
 // Created by user_wangzhen on 2026/5/15.
 //

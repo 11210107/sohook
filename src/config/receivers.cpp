@@ -10,7 +10,7 @@
 
 #include <cstdlib>
 
-#include "logger.h"
+#include "utils/logger.h"
 
 bool parse_receivers(const std::string &text, std::vector<uint64_t> &out) {
     out.clear();
