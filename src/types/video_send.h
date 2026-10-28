@@ -34,7 +34,7 @@
 //                别名 preview_img=）
 //   receivers=   接收者会话 ID，可多行累加，格式同 receivers.txt；整段缺省则
 //                回退 <cache>/receivers.txt
-// 样例：仓库 file/video.req；推送：adb push file/video.req <cache>/video.req。
+// 样例：仓库 configs/video.req；推送：adb push configs/video.req <cache>/video.req。
 //
 // 线程模型：入口本地文件读 + 组包（无原生服务调用）+ executor 主线程护栏
 // （首调拉起 MainThreadExecutor——参数直传入口无前段顺路初始化；executor

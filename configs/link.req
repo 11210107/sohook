@@ -1,5 +1,5 @@
 # link.req — 链接卡片消息（contentType=13）群发配置
-# 推送: adb push file/link.req /storage/emulated/0/Android/data/com.tencent.wework/cache/link.req
+# 推送: adb push configs/link.req /storage/emulated/0/Android/data/com.tencent.wework/cache/link.req
 # 生效: 在企微里手动发一条消息触发；受理后自动改名 link.req.sent（一次性）
 # 格式: '#' 注释 / 空行忽略 / key=value（只切第一个 '='，URL 内的 '=' 原样保留）
 #       未知字段名会整体解析失败（拼错字段静默丢弃比报错危险）

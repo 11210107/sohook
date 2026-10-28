@@ -63,7 +63,7 @@ bool is_main_thread() {
 
 constexpr const char *kPbHexPath     = RAW_PB_CONFIG_DIR "/pb.hex";
 constexpr const char *kPbHexSentPath = RAW_PB_CONFIG_DIR "/pb.hex.sent";
-constexpr const char *kPbBinPath     = RAW_PB_CONFIG_DIR "/pb.bin";      // 原始二进制 PB（如 file/image_message.bin 直接 adb push）
+constexpr const char *kPbBinPath     = RAW_PB_CONFIG_DIR "/pb.bin";      // 原始二进制 PB（如 configs/image_message.bin 直接 adb push）
 constexpr const char *kPbBinSentPath = RAW_PB_CONFIG_DIR "/pb.bin.sent";
 constexpr const char *kReceiversPath = RAW_PB_CONFIG_DIR "/receivers.txt";
 
@@ -160,7 +160,7 @@ bool try_send_raw_pb_from_files(BroadcastProgress onProgress, BroadcastResult on
         }
     } else {
         // pb.bin：原始二进制 PB 字节（捕获工具落盘的 .bin 直接 adb push，
-        // 如工程 file/image_message.bin）。二进制没有注释通道 → 固定走
+        // 如工程 configs/image_message.bin）。二进制没有注释通道 → 固定走
         // 默认清洗；要 #keep-all 原样重放请先转 hex：xxd -p pb.bin > pb.hex
         src_path  = kPbBinPath;
         sent_path = kPbBinSentPath;

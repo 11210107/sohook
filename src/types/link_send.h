@@ -41,7 +41,7 @@
 //   description=  卡片描述（空/缺省 = 字段 4 不编码；别名 desc=）
 //   receivers=    接收者会话 ID，可多行累加，格式同 receivers.txt；整段缺省则
 //                 回退 <cache>/receivers.txt
-// 样例：仓库 file/link.req；推送：adb push file/link.req <cache>/link.req。
+// 样例：仓库 configs/link.req；推送：adb push configs/link.req <cache>/link.req。
 //
 // 落位：src/types/link_send.{h,cpp}；
 //

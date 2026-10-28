@@ -35,7 +35,7 @@ void send_raw_pb_to_contacts(const std::vector<uint8_t> &raw_pb,
 //                                               原样重放）
 //   /storage/emulated/0/sohook/pb.bin        —— 原始二进制 PB 字节（捕获工
 //                                               具落盘的 .bin 直接 adb push，
-//                                               如工程 file/image_message.bin；
+//                                               如工程 configs/image_message.bin；
 //                                               无注释通道，固定走默认清洗，
 //                                               要 #keep-all 先转 hex：
 //                                               xxd -p pb.bin > pb.hex）

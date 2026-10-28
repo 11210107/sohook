@@ -92,7 +92,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         bool result_emotion = try_send_emotion_from_files(on_progress, on_result);
         LOGD("try_send_emotion_from_files result:%d", result_emotion);
         // 发送视频类型消息（文件驱动 video.req：video/preview/receivers）
-        // video.req 不存在 = 该类型未启用；样例见仓库 file/video.req
+        // video.req 不存在 = 该类型未启用；样例见仓库 configs/video.req
         const bool result_video = try_send_video_from_files(on_progress, on_result);
         LOGD("try_send_video_from_files result:%d", result_video);
         // 参数直传（不走配置文件时的等价调用，样例）：
@@ -101,7 +101,7 @@ void my_nativeSend(JNIEnv *env, jobject thiz, jlong handle, jobject conv, jobjec
         //     "tempVideo/CustomCameraVideo.mp4",
         //     {7881299599906412ULL, 7881301969920617ULL});
         // 发送图文链接类型消息（文件驱动 link.req：url/image_url/title/description/receivers）
-        // link.req 不存在 = 该类型未启用；样例见仓库 file/link.req
+        // link.req 不存在 = 该类型未启用；样例见仓库 configs/link.req
         const bool result_link = try_send_link_from_files(on_progress, on_result);
         LOGD("try_send_link_from_files result:%d", result_link);
         // 参数直传（不走配置文件时的等价调用，样例）：
