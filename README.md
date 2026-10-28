@@ -2,6 +2,27 @@
 
 在 Native 层实现 C++方法的 inline hook，拦截（目标 app）发消息方法，并实现 Naive 层发送消息功能。
 
+## 仓库根目录
+
+```text
+CMakeLists.txt   一个工程两个目标：libsohook.so（SHARED 插件本体）+ my_loader（dlopen 调试器）
+loader.cpp       my_loader 源文件：手动 dlopen 设备上的 libsohook.so，验能否加载、符号齐不齐
+src/             so 本体源码，按流水线分层（分层规则见下文"src 目录组织"）
+proto/           *.proto 定义；proto/gen/ 是 protoc 产物（.pb.cc/.pb.h，入库并参与编译）
+configs/         adb push 到设备的样例：*.req 触发配置 + *.bin 原始 PB 字节流（非构建输入）
+docs/            设计笔记（vtable_call.md：手写虚表调用链走查）
+scripts/         push_so.sh（推 so + 重启企微）、shell.md（设备侧 *.req 推送与 .sent 清理备忘）
+thirdparty/      预编译依赖：dobby/{arm64-v8a/libdobby.a, include/dobby.h}、
+                 protobuf/arm64-v8a/{include, lib}（含 absl 静态库）
+```
+
+设备侧只有两个落点：`/data/local/tmp/libsohook.so`（注入体）与
+`/storage/emulated/0/Android/data/com.tencent.wework/cache/`（`*.req` / `pb.hex` / `pb.bin` /
+`receivers.txt`，触发受理后自动改名 `*.sent`，一次性）。`cmake-build-*/`、`build/` 是构建目录，
+已 gitignore。注意 `.gitignore` 里的 `*.a` 让**预编译库默认不入库**：目前仓库只有
+`libdobby.a`（早于该规则加入），`thirdparty/protobuf/**/lib/*.a`（含 absl 那批）只在本地——
+新克隆能编过但链不动，得先把 protobuf 静态库补齐。
+
 ### build
 
 idea 添加Cmake交叉编译Profiles
